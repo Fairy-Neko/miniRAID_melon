@@ -35,3 +35,25 @@ game.PlayerEntity = me.Entity.extend({
         return true;
     }
 });
+
+game.testIcyZone = me.Entity.extend({
+    init:function (x, y, settings) 
+    {
+        this._super(me.Entity, 'init', [x, y , settings]);
+    },
+
+    update: function (dt) 
+    {
+        me.collision.check(this);
+    },
+
+    onCollision: function (response, other)
+    {
+        if(typeof other.recieveBuff !== "undefined" && other.buffList.size == 0)
+        {
+            other.recieveBuff({source: this, buff: new IceSlowed({time: 0.2})});
+        }
+
+        return false;
+    }
+})

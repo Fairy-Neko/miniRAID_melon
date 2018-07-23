@@ -3,9 +3,6 @@ game.PlayScreen = me.ScreenObject.extend({
      *  action to perform on state change
      */
     onResetEvent: function() {
-        // load a level
-        me.levelDirector.loadLevel("playground");
-
         // reset the score
         game.data.score = 0;
 
@@ -13,6 +10,9 @@ game.PlayScreen = me.ScreenObject.extend({
         // Can also be forced by specifying a "Infinity" z value to the addChild function.
         this.UI = new game.UI.Container();
         me.game.world.addChild(this.UI);
+
+        // load a level
+        me.levelDirector.loadLevel("playground");
     },
 
     /**

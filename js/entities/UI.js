@@ -21,15 +21,17 @@ game.UI.Container = me.Container.extend({
         this.name = "UI";
 
         // add our child score object at the top left corner
-        this.addChild(new game.UI.ScoreItem(5, 5));
+        game.UI.popupMgr = new game.UI.PopupTextManager(0, 0);
+
+        this.addChild(game.UI.popupMgr);
     }
 });
 
+//
+// ─── POPUP TEXT MANAGER ─────────────────────────────────────────────────────────
+//
 
-/**
- * a basic UI item to display score
- */
-game.UI.ScoreItem = me.Renderable.extend({
+game.UI.PopupTextManager = me.Renderable.extend ({
     /**
      * constructor
      */
@@ -39,27 +41,70 @@ game.UI.ScoreItem = me.Renderable.extend({
         // (size does not matter here)
         this._super(me.Renderable, 'init', [x, y, 10, 10]);
 
-        this.font = new me.BitmapFont(me.loader.getBinary('FixedSys'), me.loader.getImage('FixedSys'));
+        this.alwaysUpdate = true;
 
-        // local copy of the global score
-        this.score = -1;
+        this.font = {};
+        
+        this.font['FixedSys'] = new me.BitmapFont(me.loader.getBinary('FixedSys'), me.loader.getImage('FixedSys'));
 
-        this.offX = 0;
-        this.offY = 0;
+        this.textList = new Set();
+    },
+
+    addText: function({
+        text = "test",
+        time = 1.0, // lifespan (sec)
+        velX = 0, // direction
+        velY = -128, // jumping speed
+        accX = 0.0,   // gravity
+        accY = 0,// gravity
+        posX = game.data.width / 2.0,
+        posY = game.data.height / 2.0,
+        color = "white",
+        fontFamily = "FixedSys",
+    } = {})
+    {
+        var textObj = {
+            text: text,
+            timeRemain: time,
+            color: color,
+            alpha: 1.0,
+            posX: posX * game.data.ppu,
+            posY: posY * game.data.ppu,
+            velX: velX * game.data.ppu,
+            velY: velY * game.data.ppu,
+            accX: accX * game.data.ppu,
+            accY: accY * game.data.ppu,
+            fontFamily: fontFamily,
+        };
+
+        this.textList.add(textObj);
     },
 
     /**
      * update function
      */
-    update : function () {
-        // we don't do anything fancy here, so just
-        // return true if the score has been updated
-        this.offX += me.timer.lastUpdate * 0.001;
-        if (this.score !== game.data.score) {
-            this.score = game.data.score;
-            return true;
+    update : function () 
+    {
+        for (let txt of this.textList)
+        {
+            txt.timeRemain -= me.timer.getDeltaSec();
+
+            if(txt.timeRemain < 0)
+            {
+                this.textList.delete(txt);
+                continue;
+            }
+
+            txt.posX += txt.velX * me.timer.getDeltaSec();
+            txt.posY += txt.velY * me.timer.getDeltaSec();
+
+            txt.velX += txt.accX * me.timer.getDeltaSec();
+            txt.velY += txt.accY * me.timer.getDeltaSec();
+
+            txt.alpha = (txt.timeRemain > 1 ? 1 : txt.timeRemain);
         }
-        return false;
+
+        return true;
     },
 
     /**
@@ -67,15 +112,9 @@ game.UI.ScoreItem = me.Renderable.extend({
      */
     draw : function (context) 
     {
-        // draw it baby !
-        for(var x = 0; x < 1024; x += 51.2)
+        for (let txt of this.textList)
         {
-            for(var y = 0; y < 576; y += 32)
-            {
-                this.font.draw(context, "100", Math.floor(Math.random() * 1024) + 1, Math.floor(Math.random() * 576) + 1);
-                // this.font.draw(context, "100", x + this.offX, y + this.offY);
-                // this.font.draw(context, Math.floor(Math.random() * 1000) + 1, x, y);
-            }
-        }
+            this.font[txt.fontFamily].draw(context, txt.text, txt.posX, txt.posY);
+        }        
     }
 });

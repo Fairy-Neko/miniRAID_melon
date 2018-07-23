@@ -1,0 +1,170 @@
+'use strict';
+//
+// ─── BUFFS ──────────────────────────────────────────────────────────────────────
+//
+class Buff 
+{
+    constructor({
+        name = "buff", 
+        time = 1.0, 
+        stacks = 1, 
+        iconId = 0, 
+        popupName = "buff", 
+        popupColor = "black",
+    } = {})
+    {
+        //Name of the buff
+        this.name = name;
+        
+        //time in seconds, will automatically reduce by time
+        this.timeRemain = time; 
+
+        //Is the buff over? (should be removed from buff list)
+        this.isOver = false;
+
+        //stacks of the buff (if any)
+        this.stacks = stacks; 
+
+        //cellIndex of this buff in the buffIcons image, might be shown under boss lifebar / player lifebar
+        this.iconId = iconId;
+
+        //when the buff was attached or triggered, a small text will pop up like damages e.g. "SLOWED!"
+        this.popupName = popupName;
+
+        //Color for the popup text. default is white.
+        this.popupColor = popupColor;
+
+        //Where does this buff come from? and which mob does it belongs to?
+        //This should be changed in recieveBuff() of mobs
+        this.source = undefined;
+        this.parent = undefined;
+    }
+
+    // make a popUp
+    popUp()
+    {
+        game.UI.popupMgr.addText({
+            text: this.popupName,
+            color: this.popupColor,
+            posX: this.parent.pos.x,
+            posY: this.parent.pos.y
+        });
+
+        console.log("(Buff popUp): " + this.popupName);
+    }
+
+    // N.B.
+    // In javascript, parameters were passed via "call-by-sharing".
+    // In this case, if you change the parameter itself in a function, it will not make sense;
+    // However, if you change a member of the parameter in a function, it will make sense.
+    // e.g. func(x) { x = {sth}; } => DOES NOT change x
+    //      func(x) { x.y = sth; } => DOES change x.y
+
+    // Be triggered when the mob is updating.
+    // This will be triggered before onStatCalculation.
+    // e.g. reduce remain time, etc.
+    onUpdate(mob, deltaTime)
+    {
+        this.timeRemain -= deltaTime;
+        if(this.timeRemain < 0)
+        {
+            this.isOver = true;
+        }
+    }
+
+    // Be triggered when the mob is calculating its stats.
+    // Typically, this will trigged on start of each frame.
+    // On every frame, the stats of the mob will be recalculated from its base value.
+    onStatCalculation(mob) {}
+
+    // Be triggered when the mob is attacking.
+    // This is triggered before the mob's attack.
+    onAttack(mob) {}
+
+    // Be triggered when the mob has finished an attack.
+    onAfterAttack(mob) {}
+
+    // Be triggered when the mob is making a special attack.
+    // This is triggered before the attack.
+    onSpecialAttack(mob) {}
+
+    // Be triggered when the mob has finished a special attack.
+    onAfterSpecialAttack(mob) {}
+
+    // Be triggered when the mob is going to be rendered.
+    // e.g. change sprite color here etc.
+    onRender(mob) {}
+};
+
+// Some buffes
+
+class IceSlowed extends Buff
+{
+    constructor({name = "ice_slowed", time = 1.0, stacks = 1} = {})
+    {
+        super({
+            name: name,
+            time: time,
+            stacks: stacks,
+            iconId: 1,
+            popupName: "SLOWED!",
+            popupColor: "aqua"
+        });
+    }
+
+    onStatCalculation(mob)
+    {
+        if('speed' in mob)
+        {
+            mob.speed = 0.2 * mob.speed;
+        }
+    }
+
+    onRender(mob)
+    {
+        // mob.sprite.color = new BABYLON.Color4(0.6, 0.6, 1, 1);
+    }
+}
+
+class Fired extends Buff
+{
+    constructor({name = "fired", time = 1.0, stacks = 1, damageMin = 1, damageMax = 500, damageGap = 0.09} = {})
+    {
+        super({
+            name: name,
+            time: time,
+            stacks: stacks,
+            iconId: 2,
+            popupName: "FIRED!",
+            popupColor: "red"
+        });
+
+        this.damageMin = damageMin;
+        this.damageMax = damageMax;
+        this.damageGap = damageGap;
+        
+        this.timer = 0.0;
+        this.fireCount = 0;
+    }
+
+    onUpdate(mob, deltaTime)
+    {
+        super.onUpdate(mob, deltaTime);
+
+        this.timer += deltaTime;
+
+        for(;this.fireCount < Math.floor(this.timer / this.damageGap); this.fireCount++)
+        {
+            mob.recieveDamage({
+                source: this.source,
+                damage: {
+                    fire: game.helper.getRandomInt(this.damageMin, this.damageMax + 1),
+                }
+            });
+        }
+    }
+
+    onRender(mob)
+    {
+    }
+}
