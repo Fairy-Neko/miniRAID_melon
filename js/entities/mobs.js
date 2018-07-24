@@ -1,11 +1,11 @@
-'use strict';
-
 game.Mobs = game.Mobs || {};
 
 game.Mobs.baseMob = me.Entity.extend(
 {
     init: function(x, y, settings) 
     {
+        console.log(this)
+
         this._super(me.Entity, 'init', [x, y, settings]);
 
         this.alwaysUpdate = true;
@@ -101,6 +101,8 @@ game.Mobs.baseMob = me.Entity.extend(
         {
             buff.onRender(this);
         }
+
+        this._super(me.Entity, 'update', [dt]);
     },
 
     updateMob: function(dt)

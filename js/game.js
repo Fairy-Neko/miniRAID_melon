@@ -58,9 +58,10 @@ var game = {
         me.state.set(me.state.PLAY, new game.PlayScreen());
 
         // add our player entity in the entity pool
-        me.pool.register("mainPlayer", game.PlayerEntity);
         me.pool.register("testMob", game.Mobs.TestMob);
         me.pool.register("testIcyZone", game.testIcyZone);
+        me.pool.register("playerSpawnPoint", game.playerSpawnPoint);
+        // me.pool.register("playerSpawnPoint", game.PlayerMobs.test);
 
         // Start the game.
         me.state.change(me.state.PLAY);
@@ -100,6 +101,51 @@ var game = {
                 }
             }
             rawFile.send(null);
+        },
+
+        vec2:
+        {
+            dot: function(a, b)
+            {
+                return a[0] * b[0] + a[1] * b[1];
+            },
+
+            scalar: function(a, s)
+            {
+                return [s * a[0], s * a[1]];
+            },
+
+            add: function(a, b)
+            {
+                return [a[0] + b[0], a[1] + b[1]];
+            },
+
+            sub: function(a, b)
+            {
+                return [a[0] - b[0], a[1] - b[1]];
+            },
+
+            length: function(a)
+            {
+                return Math.sqrt(a[0] * a[0] + a[1] * a[1]);
+            },
+
+            normalize: function(a)
+            {
+                return this.scalar(a, 1.0 / this.length(a));
+            },
+
+            distance: function(a, b)
+            {
+                return this.length(this.sub(a, b));
+            },
+
+            // Material for 2D rotation:
+            // https://www.siggraph.org/education/materials/HyperGraph/modeling/mod_tran/2drota.htm
+            rotate: function(a, rad)
+            {
+                return [a[0] * Math.cos(rad) - a[1] * Math.sin(rad), a[1] * Math.cos(rad) + a[0] * Math.sin(rad)];
+            },
         },
     },
 };
