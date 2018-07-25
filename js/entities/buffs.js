@@ -114,9 +114,9 @@ class IceSlowed extends Buff
 
     onStatCalculation(mob)
     {
-        if('speed' in mob)
+        if('modifiers' in mob.data)
         {
-            mob.speed = 0.2 * mob.speed;
+            mob.data.modifiers.speed = 0.2 * mob.data.modifiers.speed;
         }
     }
 

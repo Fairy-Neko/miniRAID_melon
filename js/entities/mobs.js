@@ -57,6 +57,50 @@ game.Moveable = me.Entity.extend
         result.y = this.renderAnchorPos.y - (this.renderable.anchorPoint.y - y) * this.renderable.height;
 
         return result;
+    },
+});
+
+game.Mobs.UnitManager = me.Container.extend
+({
+    init: function()
+    {
+        this._super(me.Container, 'init');
+
+        this.isPersistent = true;
+
+        this.name = "Unit Manager";
+
+        this.playerContainer = new game.Mobs.subContainer('playerContainer');
+        this.enemyContainer = new game.Mobs.subContainer('enemyContainer');
+    },
+
+    addPlayer: function(player)
+    {
+        this.playerContainer.addChild(player);
+    },
+
+    addEnemy: function(enemy)
+    {
+        this.enemyContainer.addChild(enemy);
+    },
+
+    removePlayer: function(player)
+    {
+        this.playerContainer.removeChild(player);
+    },
+
+    removeEnemy: function(enemy)
+    {
+        this.enemyContainer.removeChild(enemy);
+    },
+});
+
+game.Mobs.subContainer = me.Container.extend
+({
+    init: function(name)
+    {
+        this._super(me.Container, 'init');
+        this.name = name;
     }
 });
 
@@ -72,84 +116,26 @@ game.Mobs.baseMob = game.Moveable.extend(
         this.alwaysUpdate = true;
         this.body.gravity = 0;
 
-        this.name = settings.name || "noname";
-        // this.position = {x: this.body.left, y: this.body.top};
-
-        // health related
-        this.maxHealth = settings.health || 100;
-        this.currentHealth = this.maxHealth - settings.damage || 0;
-    
-        // speed related (1.0 means 100% (NOT a value but a ratio))
-        this.speed = settings.speed || 1.0;
-        this.movingSpeed = settings.movingSpeed || 1.0;
-        this.attackSpeed = settings.attackSpeed || 1.0;
-
-        // Stats
-        this.level = settings.level || 1;
-        this.baseStats = {
-            vit: settings.vit || 1,
-            str: settings.str || 1,
-            dex: settings.dex || 1,
-            tec: settings.tec || 1,
-            int: settings.int || 1,
-            mag: settings.mag || 1,
-        };
-
-        // Stats (cannot increase directly)
-        this.battleStats = {
-            resist: {
-                slash: 0,
-                knock: 0,
-                pierce: 0,
-                fire: 0,
-                ice: 0,
-                water: 0,
-                nature: 0,
-                wind: 0,
-                thunder: 0,
-                light: 0
-            },
-
-            attackPower: {
-                slash: 0,
-                knock: 0,
-                pierce: 0,
-                fire: 0,
-                ice: 0,
-                water: 0,
-                nature: 0,
-                wind: 0,
-                thunder: 0,
-                light: 0
-            },
-
-            hitAcc: 100,
-            avoid: 0,
-            attackRange: 0,
-            extraRange: 0,
-        };
-    
-        // buff related
-        this.buffList = new Set();
+        this.data = settings.backendData || new game.dataBackend.mob(settings);
     },
 
     updateMoveable: function(dt)
     {
         //Update all the buffes
-        for (let buff of this.buffList.values())
+        for (let buff of this.data.buffList.values())
         {
             buff.onUpdate(this, dt / 1000);
             
             if(buff.isOver == true)
             {
                 //this buff is over. delete it from the list.
-                this.buffList.delete(buff);
+                this.data.buffList.delete(buff);
             }
         }
 
         //calculate Stats
         this.calcStats();
-        for (let buff of this.buffList.values())
+        for (let buff of this.data.buffList.values())
         {
             buff.onStatCalculation(this);
         }
@@ -158,7 +144,7 @@ game.Mobs.baseMob = game.Moveable.extend(
 
         // Update all buffes
         // Since we cannot access draw() so we call onRender() here (end of update).
-        for (let buff of this.buffList.values())
+        for (let buff of this.data.buffList.values())
         {
             buff.onRender(this);
         }
@@ -172,9 +158,9 @@ game.Mobs.baseMob = game.Moveable.extend(
     calcStats: function()
     {
         //Go back to base speed
-        this.speed = 1.0;
-        this.movingSpeed = 1.0;
-        this.attackSpeed = 1.0;
+        this.data.modifiers.speed = 1.0;
+        this.data.modifiers.movingSpeed = 1.0;
+        this.data.modifiers.attackSpeed = 1.0;
     },
 
     // Will be called when a buff is going to affect the mob.
@@ -193,7 +179,7 @@ game.Mobs.baseMob = game.Moveable.extend(
         {
             console.log("[" + this.name + "] : Recieved buff <" + buff.name + "> from <" + source.name, "> !");
 
-            this.buffList.add(buff);
+            this.data.buffList.add(buff);
 
             //Set source and belongings
             buff.source = source;
@@ -240,7 +226,7 @@ game.Mobs.baseMob = game.Moveable.extend(
             // damage% = 0.9659 ^ resist
             // This is, every 1 point of resist reduces corresponding damage by 3.41%, 
             // which will reach 50% damage reducement at 20 points.
-            finalDmg[dmgType] = Math.ceil(damage[dmgType] * (Math.pow(0.9659, this.battleStats.resist[dmgType])));
+            finalDmg[dmgType] = Math.ceil(damage[dmgType] * (Math.pow(0.9659, this.data.battleStats.resist[dmgType])));
             
             if(popUp == true && finalDmg[dmgType] > 0)
             {
@@ -267,22 +253,18 @@ game.Mobs.TestMob = game.Mobs.baseMob.extend(
     updateMob: function(dt)
     {
         // move the mob a little bit to left
-        this.body.vel.x = this.speed * this.movingSpeed * 3 * Math.sin(me.timer.getTime() * 0.001) * me.timer.tick;
+        this.body.vel.x = this.data.getMovingSpeed() * Math.sin(me.timer.getTime() * 0.001) * me.timer.tick;
         this.body.update(dt);
 
-        // if(this.position.x > 0 && this.position.x < 1 && this.buffList.size == 0)
-        // {
-        //     this.recieveBuff({source: this, buff: new Fired({time: 5.0})});
-        // }
-
-        // if(this.position.x < -2 && this.buffList.size <= 1)
-        // {
-        //     this.recieveBuff({source: this, buff: new IceSlowed()});
-        // }
+        me.collision.check(this);
     },
 
     onCollision: function(response, other)
     {
-        return false;
+        if(other.body.collisionType === game.collisionTypes.AREA_EFFECT)
+        {
+            return false;
+        }
+        return true;
     }
 });

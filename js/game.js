@@ -26,6 +26,12 @@ var game = {
         },
     },
 
+    collisionTypes:
+    {
+        AREA_EFFECT : me.collision.types.USER << 0,
+    },
+
+    containers: {},
 
     // Run on page load.
     "onload" : function () {
@@ -64,6 +70,12 @@ var game = {
         me.pool.register("testIcyZone", game.testIcyZone);
         me.pool.register("playerSpawnPoint", game.playerSpawnPoint);
         // me.pool.register("playerSpawnPoint", game.PlayerMobs.test);
+
+        this.data.backend = new game.dataBackend();
+        this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
+        this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
+        this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
+        this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
 
         // Start the game.
         me.state.change(me.state.PLAY);
