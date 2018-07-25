@@ -48,9 +48,9 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
 
     updateMob: function(dt)
     {
-        if(game.helper.vec2.distance(this.targetPos, [this.pos.x, this.pos.y]) > 2)
+        if(game.helper.vec2.distance(this.targetPos, [this.centerPos.x, this.centerPos.y]) > 2)
         {
-            var vel = game.helper.vec2.normalize(game.helper.vec2.sub(this.targetPos, [this.pos.x, this.pos.y]));
+            var vel = game.helper.vec2.normalize(game.helper.vec2.sub(this.targetPos, [this.centerPos.x, this.centerPos.y]));
             vel = game.helper.vec2.scalar(vel, this.speed * this.movingSpeed * 2 * me.timer.tick);
 
             this.body.vel.x = vel[0];

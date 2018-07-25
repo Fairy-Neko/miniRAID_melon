@@ -4,7 +4,8 @@ game.Mobs.baseMob = me.Entity.extend(
 {
     init: function(x, y, settings) 
     {
-        console.log(this)
+        console.log(this);
+        console.log(settings);
 
         this._super(me.Entity, 'init', [x, y, settings]);
 
@@ -70,6 +71,11 @@ game.Mobs.baseMob = me.Entity.extend(
     
         // buff related
         this.buffList = new Set();
+
+        // Center position helper
+        this.centerPos = new me.Vector2d(0, 0);
+        this.centerPos.x = this.pos.x + this.body.width / 2;
+        this.centerPos.y = this.pos.y + this.body.width / 2;
     },
 
     update: function(dt)
@@ -92,6 +98,9 @@ game.Mobs.baseMob = me.Entity.extend(
         {
             buff.onStatCalculation(this);
         }
+
+        this.centerPos.x = this.pos.x + this.body.width / 2;
+        this.centerPos.y = this.pos.y + this.body.width / 2;
 
         this.updateMob(dt);
 
