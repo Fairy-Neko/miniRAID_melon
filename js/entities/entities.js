@@ -17,7 +17,7 @@ game.playerSpawnPoint = me.Entity.extend
         me.game.world.removeChild(this);
         return true;
     },
-})
+});
 
 game.testIcyZone = me.Entity.extend({
     init:function (x, y, settings) 
@@ -39,4 +39,4 @@ game.testIcyZone = me.Entity.extend({
 
         return false;
     }
-})
+});

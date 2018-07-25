@@ -1,19 +1,79 @@
 game.Mobs = game.Mobs || {};
 
-game.Mobs.baseMob = me.Entity.extend(
+game.Moveable = me.Entity.extend
+({
+    init: function(x, y, settings) 
+    {
+        this._super(me.Entity, 'init', [x, y, settings]);
+
+        // Center position helper
+        this.renderAnchorPos = new me.Vector2d(0, 0);
+        this.renderAnchorPos.x = this.pos.x + this.anchorPoint.x * this.body.width + this.renderable.pos.x;
+        this.renderAnchorPos.y = this.pos.y + this.anchorPoint.y * this.body.height + this.renderable.pos.y;
+
+        // Body center position helper
+        this.bodyAnchorPos = new me.Vector2d(0, 0);
+        this.bodyAnchorPos.x = this.pos.x + this.anchorPoint.x * this.body.width;
+        this.bodyAnchorPos.y = this.pos.y + this.anchorPoint.y * this.body.height;
+    },
+
+    update: function(dt)
+    {
+        this.renderAnchorPos.x = this.pos.x + this.anchorPoint.x * this.body.width + this.renderable.pos.x;
+        this.renderAnchorPos.y = this.pos.y + this.anchorPoint.y * this.body.height + this.renderable.pos.y;
+
+        this.bodyAnchorPos.x = this.pos.x + this.anchorPoint.x * this.body.width;
+        this.bodyAnchorPos.y = this.pos.y + this.anchorPoint.y * this.body.height;
+
+        this.updateMoveable(dt);
+        
+        this._super(me.Entity, 'update', [dt]);
+    },
+
+    updateMoveable: function(dt)
+    {
+
+    },
+
+    setColliderRelativePos: function(x, y)
+    {
+        this.renderable.pos.x = -x;
+        this.renderable.pos.y = -y;
+    },
+
+    getBodyPos(x, y)
+    {
+        result = new me.Vector2d(0, 0);
+        result.x = this.pos.x + x * this.body.width;
+        result.y = this.pos.y + y * this.body.height;
+
+        return result;
+    },
+
+    getRenderPos(x, y)
+    {
+        result = new me.Vector2d(0, 0);
+        result.x = this.renderAnchorPos.x - (this.renderable.anchorPoint.x - x) * this.renderable.width;
+        result.y = this.renderAnchorPos.y - (this.renderable.anchorPoint.y - y) * this.renderable.height;
+
+        return result;
+    }
+});
+
+game.Mobs.baseMob = game.Moveable.extend(
 {
     init: function(x, y, settings) 
     {
         console.log(this);
         console.log(settings);
 
-        this._super(me.Entity, 'init', [x, y, settings]);
+        this._super(game.Moveable, 'init', [x, y, settings]);
 
         this.alwaysUpdate = true;
         this.body.gravity = 0;
 
         this.name = settings.name || "noname";
-        this.position = {x: this.body.left, y: this.body.top};
+        // this.position = {x: this.body.left, y: this.body.top};
 
         // health related
         this.maxHealth = settings.health || 100;
@@ -71,14 +131,9 @@ game.Mobs.baseMob = me.Entity.extend(
     
         // buff related
         this.buffList = new Set();
-
-        // Center position helper
-        this.centerPos = new me.Vector2d(0, 0);
-        this.centerPos.x = this.pos.x + this.body.width / 2;
-        this.centerPos.y = this.pos.y + this.body.width / 2;
     },
 
-    update: function(dt)
+    updateMoveable: function(dt)
     {
         //Update all the buffes
         for (let buff of this.buffList.values())
@@ -99,9 +154,6 @@ game.Mobs.baseMob = me.Entity.extend(
             buff.onStatCalculation(this);
         }
 
-        this.centerPos.x = this.pos.x + this.body.width / 2;
-        this.centerPos.y = this.pos.y + this.body.width / 2;
-
         this.updateMob(dt);
 
         // Update all buffes
@@ -110,8 +162,6 @@ game.Mobs.baseMob = me.Entity.extend(
         {
             buff.onRender(this);
         }
-
-        this._super(me.Entity, 'update', [dt]);
     },
 
     updateMob: function(dt)

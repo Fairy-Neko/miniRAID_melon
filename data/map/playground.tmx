@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="6">
+<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="8">
  <tileset firstgid="1" name="ground_tiles" tilewidth="32" tileheight="32" tilecount="441" columns="21">
   <image source="../img/ground_tiles.png" width="672" height="701"/>
  </tileset>
@@ -80,7 +80,7 @@
    </properties>
   </object>
   <object id="3" name="testIcyZone" x="672" y="160" width="158" height="224"/>
-  <object id="5" name="playerSpawnPoint" x="381.5" y="159" width="32" height="32"/>
+  <object id="5" name="playerSpawnPoint" x="383" y="160" width="32" height="32"/>
  </objectgroup>
  <layer name="slowarea" width="32" height="18" opacity="0.4">
   <data encoding="csv">
