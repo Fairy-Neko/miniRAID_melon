@@ -2,14 +2,10 @@ game.PlayScreen = me.ScreenObject.extend({
     /**
      *  action to perform on state change
      */
-    onResetEvent: function() {
-        // reset the score
-        game.data.score = 0;
-
+    onResetEvent: function() 
+    {
         game.units = new game.Mobs.UnitManager();
-        console.log(game.units);
-        me.game.world.addChild(game.units);
-        console.log(me.game.world);
+        me.game.world.addChild(game.units, 0);
 
         // Add our HUD to the game world, add it last so that this is on top of the rest.
         // Can also be forced by specifying a "Infinity" z value to the addChild function.
@@ -23,8 +19,10 @@ game.PlayScreen = me.ScreenObject.extend({
     /**
      *  action to perform when leaving this screen (state change)
      */
-    onDestroyEvent: function() {
+    onDestroyEvent: function() 
+    {
         // remove the HUD from the game world
         me.game.world.removeChild(this.UI);
+        me.game.world.removeChild(game.units);
     }
 });

@@ -11,6 +11,8 @@ game.UI.Container = me.Container.extend({
         // call the constructor
         this._super(me.Container, 'init');
 
+        this.anchorPoint.set(0, 0);
+
         // persistent across level change
         this.isPersistent = true;
 
@@ -39,13 +41,16 @@ game.UI.PopupTextManager = me.Renderable.extend ({
 
         // call the parent constructor
         // (size does not matter here)
-        this._super(me.Renderable, 'init', [x, y, 10, 10]);
+        this._super(me.Renderable, 'init', [0, 0, me.game.viewport.width, me.game.viewport.height]);
+        this.anchorPoint.set(0, 0);
 
         this.alwaysUpdate = true;
+        this.floating = true;
 
         this.font = {};
         
         this.font['FixedSys'] = new me.BitmapFont(me.loader.getBinary('FixedSys'), me.loader.getImage('FixedSys'));
+        this.font['FixedSys'].set("center");
 
         this.textList = new Set();
     },

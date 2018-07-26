@@ -72,7 +72,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="entities">
+ <objectgroup name="units">
   <object id="1" name="testMob" x="493" y="274" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>

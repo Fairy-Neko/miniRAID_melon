@@ -60,27 +60,14 @@ game.Moveable = me.Entity.extend
     },
 });
 
-game.Mobs.UnitManager = me.Container.extend
+game.Mobs.UnitManager = me.Object.extend
 ({
     init: function()
     {
-        this._super(me.Container, 'init', [0, 0, me.game.viewport.width, me.game.viewport.height]);
-
-        // this.isPersistent = true;
-
         this.name = "Unit Manager";
 
-        this.alwaysUpdate = true;
-
-        this.player = new game.Mobs.subContainer('playerContainer');
-        this.enemy = new game.Mobs.subContainer('enemyContainer');
-
-        this.addChild(this.player);
-        this.addChild(this.enemy);
-
-        this.playerCount = 0;
-        this.enemyCount = 0;
-        this.totalCount = 0;
+        this.player = new Set();
+        this.enemy = new Set();
 
         me.input.registerPointerEvent('pointerdown', me.game.viewport, this.pointerDown.bind(this));
     },
@@ -93,73 +80,33 @@ game.Mobs.UnitManager = me.Container.extend
         }
         this.origin.set(pointer.gameX, pointer.gameY);
 
-        console.log(this.player.objectCount);
-        for(var i = 0; i < this.player.objectCount; i++)
+        console.log(this.player.size);
+        for(var player of this.player)
         {
-            this.player.getChildAt(i).targetPos = this.origin;
+            player.targetPos = this.origin;
         }
         return true;
     },
 
-    addPlayer: function(player, z)
+    addPlayer: function(player)
     {
-        z = z || 1;
-        this.player.add(player, z);
-
-        this.updateChildBounds();
-        this.totalCount ++;
+        this.player.add(player);
     },
 
-    addEnemy: function(enemy, z)
+    addEnemy: function(enemy)
     {
-        z = z || 1;
-        this.enemy.add(enemy, z);
-
-        this.updateChildBounds();
-        this.totalCount ++;
+        this.enemy.add(enemy);
     },
 
     removePlayer: function(player)
     {
-        this.player.remove(player);
-
-        this.updateChildBounds();
-        this.totalCount --;
+        this.player.delete(player);
     },
 
     removeEnemy: function(enemy)
     {
-        this.enemy.remove(enemy);
-
-        this.updateChildBounds();
-        this.totalCount --;
+        this.enemy.delete(enemy);
     },
-});
-
-game.Mobs.subContainer = me.Container.extend
-({
-    init: function(name)
-    {
-        this._super(me.Container, 'init', [0, 0, me.game.viewport.width, me.game.viewport.height]);
-        this.alwaysUpdate = true;
-        this.name = name;
-
-        this.objectCount = 0;
-    },
-
-    add(obj, z)
-    {
-        this.addChild(obj, z);
-        this.updateChildBounds();
-        this.objectCount ++;
-    },
-
-    remove: function(obj)
-    {
-        this.removeChild(obj);
-        this.updateChildBounds();
-        this.objectCount --;
-    }
 });
 
 game.Mobs.baseMob = game.Moveable.extend(
@@ -170,6 +117,15 @@ game.Mobs.baseMob = game.Moveable.extend(
         console.log(settings);
 
         this._super(game.Moveable, 'init', [x, y, settings]);
+
+        if(settings.isPlayer === true)
+        {
+            game.units.addPlayer(this);
+        }
+        else
+        {
+            game.units.addEnemy(this);
+        }
 
         this.alwaysUpdate = true;
         this.body.gravity = 0;
