@@ -100,20 +100,11 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
         this.targetPos = new me.Vector2d(game.data.width / 2, game.data.height / 2);
         // this.targetPos = [0, 0];
         this.isMoving = false;
-
-        me.input.registerPointerEvent('pointerdown', me.game.viewport, this.pointerDown.bind(this));
     },
 
     updatePlayer: function(dt)
     {
         me.collision.check(this);
-        return true;
-    },
-
-    pointerDown: function(pointer)
-    {
-        console.log(this);
-        this.targetPos.set(pointer.gameX, pointer.gameY);
         return true;
     },
 

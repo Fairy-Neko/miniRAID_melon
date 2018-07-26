@@ -6,8 +6,10 @@ game.PlayScreen = me.ScreenObject.extend({
         // reset the score
         game.data.score = 0;
 
-        this.units = new game.Mobs.UnitManager();
-        me.game.world.addChild(this.units);
+        game.units = new game.Mobs.UnitManager();
+        console.log(game.units);
+        me.game.world.addChild(game.units);
+        console.log(me.game.world);
 
         // Add our HUD to the game world, add it last so that this is on top of the rest.
         // Can also be forced by specifying a "Infinity" z value to the addChild function.

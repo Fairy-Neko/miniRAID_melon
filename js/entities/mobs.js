@@ -70,28 +70,71 @@ game.Mobs.UnitManager = me.Container.extend
 
         this.name = "Unit Manager";
 
+        this.alwaysUpdate = true;
+
         this.playerContainer = new game.Mobs.subContainer('playerContainer');
         this.enemyContainer = new game.Mobs.subContainer('enemyContainer');
+
+        this.addChild(this.playerContainer);
+        this.addChild(this.enemyContainer);
+
+        this.playerCount = 0;
+        this.enemyCount = 0;
+        this.totalCount = 0;
     },
 
-    addPlayer: function(player)
+    update: function()
     {
-        this.playerContainer.addChild(player);
+        me.input.registerPointerEvent('pointerdown', me.game.viewport, this.pointerDown.bind(this));
     },
 
-    addEnemy: function(enemy)
+    pointerDown: function(pointer)
     {
-        this.enemyContainer.addChild(enemy);
+        if(typeof this.origin === "undefined")
+        {
+            this.origin = new me.Vector2d(0, 0);
+        }
+        this.origin.set(pointer.gameX, pointer.gameY);
+
+        console.log(this.playerCount);
+        for(var i = 0; i < this.playerCount; i++)
+        {
+            this.playerContainer.getChildAt(i).targetPos = this.origin;
+        }
+        return true;
+    },
+
+    addPlayer: function(player, z)
+    {
+        z = z || 1;
+        this.playerContainer.addChild(player, z);
+        this.playerCount ++;
+        this.totalCount ++;
+    },
+
+    addEnemy: function(enemy, z)
+    {
+        z = z || 1;
+        this.enemyContainer.addChild(enemy, z);
+
+        this.enemyCount ++;
+        this.totalCount ++;
     },
 
     removePlayer: function(player)
     {
         this.playerContainer.removeChild(player);
+
+        this.playerCount --;
+        this.totalCount --;
     },
 
     removeEnemy: function(enemy)
     {
         this.enemyContainer.removeChild(enemy);
+
+        this.enemyCount --;
+        this.totalCount --;
     },
 });
 
@@ -100,6 +143,7 @@ game.Mobs.subContainer = me.Container.extend
     init: function(name)
     {
         this._super(me.Container, 'init');
+        this.alwaysUpdate = true;
         this.name = name;
     }
 });

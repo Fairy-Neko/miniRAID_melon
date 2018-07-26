@@ -17,7 +17,7 @@ game.playerSpawnPoint = me.Entity.extend
             // TODO: spawn them in a circle sprasely
             x = this.origin.x + i * 50;
             settings.data = game.data.backend.getPlayerList()[i];
-            me.game.world.addChild(new game.PlayerMobs.test(x, y, settings), settings.z);
+            game.units.addPlayer(new game.PlayerMobs.test(x, y, settings), settings.z);
         }
     },
 
