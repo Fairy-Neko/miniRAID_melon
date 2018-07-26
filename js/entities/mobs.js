@@ -64,27 +64,24 @@ game.Mobs.UnitManager = me.Container.extend
 ({
     init: function()
     {
-        this._super(me.Container, 'init');
+        this._super(me.Container, 'init', [0, 0, me.game.viewport.width, me.game.viewport.height]);
 
-        this.isPersistent = true;
+        // this.isPersistent = true;
 
         this.name = "Unit Manager";
 
         this.alwaysUpdate = true;
 
-        this.playerContainer = new game.Mobs.subContainer('playerContainer');
-        this.enemyContainer = new game.Mobs.subContainer('enemyContainer');
+        this.player = new game.Mobs.subContainer('playerContainer');
+        this.enemy = new game.Mobs.subContainer('enemyContainer');
 
-        this.addChild(this.playerContainer);
-        this.addChild(this.enemyContainer);
+        this.addChild(this.player);
+        this.addChild(this.enemy);
 
         this.playerCount = 0;
         this.enemyCount = 0;
         this.totalCount = 0;
-    },
 
-    update: function()
-    {
         me.input.registerPointerEvent('pointerdown', me.game.viewport, this.pointerDown.bind(this));
     },
 
@@ -96,10 +93,10 @@ game.Mobs.UnitManager = me.Container.extend
         }
         this.origin.set(pointer.gameX, pointer.gameY);
 
-        console.log(this.playerCount);
-        for(var i = 0; i < this.playerCount; i++)
+        console.log(this.player.objectCount);
+        for(var i = 0; i < this.player.objectCount; i++)
         {
-            this.playerContainer.getChildAt(i).targetPos = this.origin;
+            this.player.getChildAt(i).targetPos = this.origin;
         }
         return true;
     },
@@ -107,33 +104,34 @@ game.Mobs.UnitManager = me.Container.extend
     addPlayer: function(player, z)
     {
         z = z || 1;
-        this.playerContainer.addChild(player, z);
-        this.playerCount ++;
+        this.player.add(player, z);
+
+        this.updateChildBounds();
         this.totalCount ++;
     },
 
     addEnemy: function(enemy, z)
     {
         z = z || 1;
-        this.enemyContainer.addChild(enemy, z);
+        this.enemy.add(enemy, z);
 
-        this.enemyCount ++;
+        this.updateChildBounds();
         this.totalCount ++;
     },
 
     removePlayer: function(player)
     {
-        this.playerContainer.removeChild(player);
+        this.player.remove(player);
 
-        this.playerCount --;
+        this.updateChildBounds();
         this.totalCount --;
     },
 
     removeEnemy: function(enemy)
     {
-        this.enemyContainer.removeChild(enemy);
+        this.enemy.remove(enemy);
 
-        this.enemyCount --;
+        this.updateChildBounds();
         this.totalCount --;
     },
 });
@@ -142,9 +140,25 @@ game.Mobs.subContainer = me.Container.extend
 ({
     init: function(name)
     {
-        this._super(me.Container, 'init');
+        this._super(me.Container, 'init', [0, 0, me.game.viewport.width, me.game.viewport.height]);
         this.alwaysUpdate = true;
         this.name = name;
+
+        this.objectCount = 0;
+    },
+
+    add(obj, z)
+    {
+        this.addChild(obj, z);
+        this.updateChildBounds();
+        this.objectCount ++;
+    },
+
+    remove: function(obj)
+    {
+        this.removeChild(obj);
+        this.updateChildBounds();
+        this.objectCount --;
     }
 });
 
@@ -274,11 +288,12 @@ game.Mobs.baseMob = game.Moveable.extend(
             
             if(popUp == true && finalDmg[dmgType] > 0)
             {
+                var popUpPos = this.getRenderPos(0.5, 0.0);
                 game.UI.popupMgr.addText({
                     text: finalDmg[dmgType].toString(),
                     color: game.data.damageColor[dmgType],
-                    posX: this.pos.x,
-                    posY: this.pos.y,
+                    posX: popUpPos.x,
+                    posY: popUpPos.y,
                 });
             }
         }

@@ -43,11 +43,13 @@ class Buff
     // make a popUp
     popUp()
     {
+        var popUpPos = this.parent.getRenderPos(0.5, 0.0);
+        
         game.UI.popupMgr.addText({
             text: this.popupName,
             color: this.popupColor,
-            posX: this.parent.pos.x,
-            posY: this.parent.pos.y
+            posX: popUpPos.x,
+            posY: popUpPos.y
         });
 
         console.log("(Buff popUp): " + this.popupName);
