@@ -81,9 +81,12 @@ game.Mobs.UnitManager = me.Object.extend
         this.origin.set(pointer.gameX, pointer.gameY);
 
         console.log(this.player.size);
+        var playerNum = 0;
         for(var player of this.player)
         {
-            player.targetPos = this.origin;
+            player.targetPos.copy(this.origin);
+            player.targetPos.add(new me.Vector2d(game.data.playerSparse, 0).rotate(playerNum / this.player.size * 2 * Math.PI));
+            playerNum++;
         }
         return true;
     },
@@ -109,7 +112,7 @@ game.Mobs.UnitManager = me.Object.extend
     },
 });
 
-game.Mobs.baseMob = game.Moveable.extend(
+game.Mobs.base = game.Moveable.extend(
 {
     init: function(x, y, settings) 
     {
@@ -257,11 +260,11 @@ game.Mobs.baseMob = game.Moveable.extend(
 });
 
 // Some mobs (player & enemies)
-game.Mobs.TestMob = game.Mobs.baseMob.extend(
+game.Mobs.TestMob = game.Mobs.base.extend(
 {
     init: function(x, y, settings)
     {
-        this._super(game.Mobs.baseMob, 'init', [x, y, settings]);
+        this._super(game.Mobs.base, 'init', [x, y, settings]);
         this.recieveBuff({source: this, buff: new Fired({time: 5.0})});
     },
 
@@ -276,7 +279,7 @@ game.Mobs.TestMob = game.Mobs.baseMob.extend(
 
     onCollision: function(response, other)
     {
-        if(other.body.collisionType === game.collisionTypes.AREA_EFFECT)
+        if(other.body.collisionType !== me.collision.types.WORLD_SHAPE)
         {
             return false;
         }

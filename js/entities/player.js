@@ -1,10 +1,10 @@
 game.PlayerMobs = game.PlayerMobs || {};
 
-game.PlayerMobs.base = game.Mobs.baseMob.extend
+game.PlayerMobs.base = game.Mobs.base.extend
 ({
     init: function(x, y, settings)
     {
-        this._super(game.Mobs.baseMob, 'init', [x, y, settings]);
+        this._super(game.Mobs.base, 'init', [x, y, settings]);
     },
 
     updateMob: function(dt)
@@ -81,7 +81,6 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
         settings.name = "Magical_girl";
 
         settings.shapes = [new me.Rect(0, 0, 20, 20)];
-        // settings.shapes = [new me.Ellipse(0, 0, 20, 20)];
         console.log(settings);
 
         this._super(game.PlayerMobs.base, 'init', [x, y, settings]);
@@ -97,8 +96,8 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
 
         this.renderable.setCurrentAnimation("idle");
 
-        this.targetPos = new me.Vector2d(game.data.width / 2, game.data.height / 2);
-        // this.targetPos = [0, 0];
+        this.targetPos = this.getRenderPos(0.5, 0.8).clone();
+
         this.isMoving = false;
     },
 
@@ -110,7 +109,7 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
 
     onCollision: function(response, other)
     {
-        if(other.body.collisionType === game.collisionTypes.AREA_EFFECT)
+        if(other.body.collisionType !== me.collision.types.WORLD_SHAPE)
         {
             return false;
         }

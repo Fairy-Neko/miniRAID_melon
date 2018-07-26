@@ -12,6 +12,9 @@ var game = {
         width : 1024,
         height : 576,
 
+        playerSparse: 25,
+        playerMax: 8,
+
         damageColor : {
             slash: "white",
             knock: "white",
@@ -72,10 +75,11 @@ var game = {
         // me.pool.register("playerSpawnPoint", game.PlayerMobs.test);
 
         this.data.backend = new game.dataBackend();
-        this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
-        this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
-        this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
-        this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
+
+        for(var i = 0; i < game.data.playerMax; i++)
+        {
+            this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
+        }
 
         // Start the game.
         me.state.change(me.state.PLAY);

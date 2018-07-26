@@ -72,7 +72,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="units">
+ <objectgroup name="entities">
   <object id="1" name="testMob" x="493" y="274" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
@@ -82,7 +82,7 @@
   <object id="3" name="testIcyZone" x="672" y="160" width="158" height="224"/>
   <object id="5" name="playerSpawnPoint" x="383" y="160" width="32" height="32">
    <properties>
-    <property name="spawnCount" type="int" value="4"/>
+    <property name="spawnCount" type="int" value="6"/>
    </properties>
   </object>
  </objectgroup>

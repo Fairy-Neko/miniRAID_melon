@@ -15,10 +15,10 @@ game.playerSpawnPoint = me.Entity.extend
         for(var i = 0; i < this.spawnCount; i++)
         {
             // TODO: spawn them in a circle sprasely
-            x = this.origin.x + i * 50;
+            var spawnPos = this.origin.clone().add(new me.Vector2d(game.data.playerSparse, 0).rotate(i / this.spawnCount * 2 * Math.PI));
             settings.data = game.data.backend.getPlayerList()[i];
             settings.isPlayer = true;
-            me.game.world.addChild(new game.PlayerMobs.test(x, y, settings), settings.z);
+            me.game.world.addChild(new game.PlayerMobs.test(spawnPos.x, spawnPos.y, settings), settings.z);
         }
     },
 
