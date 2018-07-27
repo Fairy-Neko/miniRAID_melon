@@ -61,5 +61,7 @@ typings/
 .next
 
 # builds
-build/
+!build/
+build/*
+!build/js/
 
