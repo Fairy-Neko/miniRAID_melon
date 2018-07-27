@@ -50,8 +50,6 @@ class Buff
             posX: popUpPos.x,
             posY: popUpPos.y
         });
-
-        console.log("(Buff popUp): " + this.popupName);
     }
 
     // N.B.
@@ -129,7 +127,7 @@ class IceSlowed extends Buff
 
 class Fired extends Buff
 {
-    constructor({name = "fired", time = 1.0, stacks = 1, damageMin = 1, damageMax = 500, damageGap = 0.09} = {})
+    constructor({name = "fired", time = 1.0, stacks = 1, damageMin = 1, damageMax = 10, damageGap = 0.57} = {})
     {
         super({
             name: name,

@@ -4,9 +4,6 @@ game.playerSpawnPoint = me.Entity.extend
     {
         this._super(me.Entity, 'init', [x, y, settings]);
 
-        console.log("Settings:");
-        console.log(settings);
-        console.log(this);
         settings.anchorPoint = new me.Vector2d(0.5, 0.5);
         this.spawnCount = settings.spawnCount || 1;
 
@@ -16,7 +13,7 @@ game.playerSpawnPoint = me.Entity.extend
         {
             // TODO: spawn them in a circle sprasely
             var spawnPos = this.origin.clone().add(new me.Vector2d(game.data.playerSparse, 0).rotate(i / this.spawnCount * 2 * Math.PI));
-            settings.data = game.data.backend.getPlayerList()[i];
+            settings.backendData = game.data.backend.getPlayerList()[i];
             settings.isPlayer = true;
             me.game.world.addChild(new game.PlayerMobs.test(spawnPos.x, spawnPos.y, settings), settings.z);
         }
@@ -33,11 +30,11 @@ game.testIcyZone = me.Entity.extend({
     init:function (x, y, settings) 
     {
         this._super(me.Entity, 'init', [x, y, settings]);
+        this.body.collisionType = game.collisionTypes.AREA_EFFECT;
     },
 
     update: function (dt) 
     {
-        this.body.collisionType = game.collisionTypes.AREA_EFFECT;
         me.collision.check(this);
     },
 
@@ -45,7 +42,7 @@ game.testIcyZone = me.Entity.extend({
     {
         if(typeof other.recieveBuff !== "undefined" && other.data.buffList.size == 0)
         {
-            other.recieveBuff({source: this, buff: new IceSlowed({time: 0.2})});
+            other.recieveBuff({source: this, buff: new IceSlowed({time: 2.0})});
         }
 
         return false;

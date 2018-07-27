@@ -27,11 +27,6 @@ game.PlayerMobs.base = game.Mobs.base.extend
         }
         else
         {
-            if(this.isMoving === true)
-            {
-                console.log(this);
-            }
-
             this.body.vel.x = 0;
             this.body.vel.y = 0;
 
@@ -81,7 +76,6 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
         settings.name = "Magical_girl";
 
         settings.shapes = [new me.Rect(0, 0, 20, 20)];
-        console.log(settings);
 
         this._super(game.PlayerMobs.base, 'init', [x, y, settings]);
 
@@ -104,6 +98,18 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
     updatePlayer: function(dt)
     {
         me.collision.check(this);
+
+        if(this.doAttack(dt) === true)
+        {
+            for(enemy of game.units.enemy)
+            {
+                if(this.data.currentWeapon.isInRange(this, enemy))
+                {
+                    this.data.currentWeapon.attack(this, enemy);
+                }
+            }
+        }
+
         return true;
     },
 

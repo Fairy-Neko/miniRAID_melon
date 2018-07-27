@@ -1,65 +1,5 @@
 game.Mobs = game.Mobs || {};
 
-game.Moveable = me.Entity.extend
-({
-    init: function(x, y, settings) 
-    {
-        this._super(me.Entity, 'init', [x, y, settings]);
-
-        // Center position helper
-        this.renderAnchorPos = new me.Vector2d(0, 0);
-        this.renderAnchorPos.x = this.pos.x + this.anchorPoint.x * this.body.width + this.renderable.pos.x;
-        this.renderAnchorPos.y = this.pos.y + this.anchorPoint.y * this.body.height + this.renderable.pos.y;
-
-        // Body center position helper
-        this.bodyAnchorPos = new me.Vector2d(0, 0);
-        this.bodyAnchorPos.x = this.pos.x + this.anchorPoint.x * this.body.width;
-        this.bodyAnchorPos.y = this.pos.y + this.anchorPoint.y * this.body.height;
-    },
-
-    update: function(dt)
-    {
-        this.renderAnchorPos.x = this.pos.x + this.anchorPoint.x * this.body.width + this.renderable.pos.x;
-        this.renderAnchorPos.y = this.pos.y + this.anchorPoint.y * this.body.height + this.renderable.pos.y;
-
-        this.bodyAnchorPos.x = this.pos.x + this.anchorPoint.x * this.body.width;
-        this.bodyAnchorPos.y = this.pos.y + this.anchorPoint.y * this.body.height;
-
-        this.updateMoveable(dt);
-        
-        this._super(me.Entity, 'update', [dt]);
-    },
-
-    updateMoveable: function(dt)
-    {
-
-    },
-
-    setColliderRelativePos: function(x, y)
-    {
-        this.renderable.pos.x = -x;
-        this.renderable.pos.y = -y;
-    },
-
-    getBodyPos(x, y)
-    {
-        result = new me.Vector2d(0, 0);
-        result.x = this.pos.x + x * this.body.width;
-        result.y = this.pos.y + y * this.body.height;
-
-        return result;
-    },
-
-    getRenderPos(x, y)
-    {
-        result = new me.Vector2d(0, 0);
-        result.x = this.renderAnchorPos.x - (this.renderable.anchorPoint.x - x) * this.renderable.width;
-        result.y = this.renderAnchorPos.y - (this.renderable.anchorPoint.y - y) * this.renderable.height;
-
-        return result;
-    },
-});
-
 game.Mobs.UnitManager = me.Object.extend
 ({
     init: function()
@@ -80,7 +20,6 @@ game.Mobs.UnitManager = me.Object.extend
         }
         this.origin.set(pointer.gameX, pointer.gameY);
 
-        console.log(this.player.size);
         var playerNum = 0;
         for(var player of this.player)
         {
@@ -116,22 +55,23 @@ game.Mobs.base = game.Moveable.extend(
 {
     init: function(x, y, settings) 
     {
-        console.log(this);
-        console.log(settings);
-
         this._super(game.Moveable, 'init', [x, y, settings]);
 
         if(settings.isPlayer === true)
         {
+            this.body.collisionType = me.collision.types.PLAYER_OBJECT;
             game.units.addPlayer(this);
         }
         else
         {
+            this.body.collisionType = me.collision.types.ENEMY_OBJECT;
             game.units.addEnemy(this);
         }
 
         this.alwaysUpdate = true;
         this.body.gravity = 0;
+
+        this.attackCounter = 0;
 
         this.data = settings.backendData || new game.dataBackend.mob(settings);
     },
@@ -172,6 +112,22 @@ game.Mobs.base = game.Moveable.extend(
 
     },
 
+    doAttack: function(dt)
+    {
+        this.attackCounter += dt * 0.001;
+
+        if(this.attackCounter > this.data.getAttackSpeed())
+        {
+            // This will cause mutiple attacks if attackspeed increases.
+            // this.attackCounter -= this.data.getAttackSpeed();
+            
+            this.attackCounter = 0;
+            return true;
+        }
+
+        return false;
+    },
+
     calcStats: function()
     {
         //Go back to base speed
@@ -194,7 +150,7 @@ game.Mobs.base = game.Moveable.extend(
     {
         if(buff != undefined)
         {
-            console.log("[" + this.name + "] : Recieved buff <" + buff.name + "> from <" + source.name, "> !");
+            // console.log("[" + this.name + "] : Recieved buff <" + buff.name + "> from <" + source.name, "> !");
 
             this.data.buffList.add(buff);
 

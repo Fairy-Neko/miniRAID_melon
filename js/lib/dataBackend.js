@@ -110,6 +110,17 @@ game.dataBackend.mob = me.Object.extend
     
         // buff related
         this.buffList = new Set();
+
+        // Equipment related
+        this.weaponLeft = settings.weaponLeft;// || new game.weapon(settings);
+        this.weaponRight = settings.weaponRight;// || new game.weapon(settings);
+        // this.armor = settings.armor || new game.armor(settings);
+        // this.accessories = settings.accessories || new game.accessory(settings);
+
+        this.currentWeapon = this.weaponLeft;
+
+        // Is this mob a player?
+        this.isPlayer = settings.isPlayer || false;
     },
 
     getMovingSpeed: function()
@@ -119,6 +130,32 @@ game.dataBackend.mob = me.Object.extend
 
     getAttackSpeed: function()
     {
-        return this.modifiers.speed * this.modifiers.attackSpeed * this.baseAttackSpeed;
+        return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed) * this.currentWeapon.baseAttackSpeed;
     },
-})
+});
+
+game.armor = me.Object.extend
+({
+    init: function(settings)
+    {
+
+    },
+
+    onAttack: function(mob, target)
+    {
+
+    },
+});
+
+game.accessory = me.Object.extend
+({
+    init: function(settings)
+    {
+
+    },
+
+    onAttack: function(mob, target)
+    {
+
+    },
+});

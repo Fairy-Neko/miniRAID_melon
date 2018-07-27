@@ -78,7 +78,14 @@ var game = {
 
         for(var i = 0; i < game.data.playerMax; i++)
         {
-            this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl"}));
+            if(Math.random() < 0.3)
+            {
+                this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl", weaponLeft: new game.weapon.testHomingStaff({baseAttackSpeed: game.helper.getRandomFloat(0.4, 0.6)})}));
+            }
+            else
+            {
+                this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl", weaponLeft: new game.weapon.testStaff({baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4)})}));
+            }
         }
 
         // Start the game.
