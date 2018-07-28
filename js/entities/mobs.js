@@ -23,8 +23,7 @@ game.Mobs.UnitManager = me.Object.extend
         var playerNum = 0;
         for(var player of this.player)
         {
-            player.targetPos.copy(this.origin);
-            player.targetPos.add(new me.Vector2d(game.data.playerSparse, 0).rotate(playerNum / this.player.size * 2 * Math.PI));
+            player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(game.data.playerSparse, 0).rotate(playerNum / this.player.size * 2 * Math.PI)));
             playerNum++;
         }
         return true;
@@ -48,6 +47,73 @@ game.Mobs.UnitManager = me.Object.extend
     removeEnemy: function(enemy)
     {
         this.enemy.delete(enemy);
+    },
+
+    getNearestEnemy: function(position)
+    {
+        // A reasonable large number as infinity
+        var minDistance = 999999;
+        var target = undefined;
+
+        for(var enemy of this.enemy)
+        {
+            var dist = enemy.getRenderPos(0.5, 0.5).distance(position);
+            if(dist < minDistance)
+            {
+                target = enemy;
+                minDistance = dist;
+            }
+        }
+
+        return target;
+    },
+
+    getNearestPlayer: function(position)
+    {
+        // A reasonable large number as infinity
+        var minDistance = 999999;
+        var target = undefined;
+
+        for(var player of this.player)
+        {
+            var dist = player.getRenderPos(0.5, 0.5).distance(position);
+            if(dist < minDistance)
+            {
+                target = player;
+                minDistance = dist;
+            }
+        }
+
+        return target;
+    },
+
+    getNearestUnit: function(position)
+    {
+        // A reasonable large number as infinity
+        var minDistance = 999999;
+        var target = undefined;
+
+        for(var enemy of this.enemy)
+        {
+            var dist = enemy.getRenderPos(0.5, 0.5).distance(position);
+            if(dist < minDistance)
+            {
+                target = enemy;
+                minDistance = dist;
+            }
+        }
+
+        for(var player of this.player)
+        {
+            var dist = player.getRenderPos(0.5, 0.5).distance(position);
+            if(dist < minDistance)
+            {
+                target = player;
+                minDistance = dist;
+            }
+        }
+
+        return target;
     },
 });
 
@@ -73,7 +139,10 @@ game.Mobs.base = game.Moveable.extend(
 
         this.attackCounter = 0;
 
-        this.data = settings.backendData || new game.dataBackend.mob(settings);
+        this.data = settings.backendData || new game.dataBackend.Mob(settings);
+
+        // Add a test HP bar for it
+        this.HPBar = me.game.world.addChild(new game.Utils.TestHPBar(0, -10, this));
     },
 
     updateMoveable: function(dt)
@@ -178,16 +247,16 @@ game.Mobs.base = game.Moveable.extend(
     recieveDamage: function({
         source = undefined, 
         damage = {
-            slash = 0,
-            knock = 0,
-            pierce = 0,
-            fire = 0,
-            ice = 0,
-            water = 0,
-            nature = 0,
-            wind = 0,
-            thunder = 0,
-            light = 0
+            // slash = 0,
+            // knock = 0,
+            // pierce = 0,
+            // fire = 0,
+            // ice = 0,
+            // water = 0,
+            // nature = 0,
+            // wind = 0,
+            // thunder = 0,
+            // light = 0
         } = {},
         popUp = true
     } = {})
@@ -211,9 +280,69 @@ game.Mobs.base = game.Moveable.extend(
                     posY: popUpPos.y,
                 });
             }
+
+            for(dmg in finalDmg)
+            {
+                this.data.currentHealth -= finalDmg[dmg];
+                if(this.data.currentHealth <= 0)
+                {
+                    this.die(source, damage);
+                }
+            }
         }
     },
+
+    die: function({
+        source = undefined, 
+        damage = {
+            slash = 0,
+            knock = 0,
+            pierce = 0,
+            fire = 0,
+            ice = 0,
+            water = 0,
+            nature = 0,
+            wind = 0,
+            thunder = 0,
+            light = 0
+        } = {},
+    } = {})
+    {
+        if(this.onDeath(source, damage) === true)
+        {
+            me.game.world.removeChild(this.HPBar);
+
+            this.data.alive = false;
+            this.body.collisionType = me.collision.types.NO_OBJECT;
+            game.units.removeEnemy(this);
+            me.game.world.removeChild(this);
+        }
+    },
+
+    onDeath: function({
+        source = undefined, 
+        damage = {
+            slash = 0,
+            knock = 0,
+            pierce = 0,
+            fire = 0,
+            ice = 0,
+            water = 0,
+            nature = 0,
+            wind = 0,
+            thunder = 0,
+            light = 0
+        } = {},
+    } = {})
+    {
+        return true;
+    }
 });
+
+game.Mobs.checkAlive = function(target)
+{
+    return ((typeof target !== "undefined") && (typeof target.renderable !== "undefined") && (typeof target.body !== "undefined") && (target.data.alive === true));
+};
 
 // Some mobs (player & enemies)
 game.Mobs.TestMob = game.Mobs.base.extend(
@@ -221,7 +350,11 @@ game.Mobs.TestMob = game.Mobs.base.extend(
     init: function(x, y, settings)
     {
         this._super(game.Mobs.base, 'init', [x, y, settings]);
-        this.recieveBuff({source: this, buff: new Fired({time: 5.0})});
+        
+        if(Math.random() < 0.3)
+        {
+            this.recieveBuff({source: this, buff: new Fired({time: 5.0})});
+        }
     },
 
     updateMob: function(dt)

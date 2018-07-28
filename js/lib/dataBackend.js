@@ -42,7 +42,7 @@ game.dataBackend = me.Object.extend
     }
 });
 
-game.dataBackend.mob = me.Object.extend
+game.dataBackend.Mob = me.Object.extend
 ({
     init: function(settings)
     {
@@ -51,7 +51,8 @@ game.dataBackend.mob = me.Object.extend
 
         // health related
         this.maxHealth = settings.health || 100;
-        this.currentHealth = this.maxHealth - settings.damage || 0;
+        this.currentHealth = this.maxHealth - settings.damage || settings.health || 100;
+        this.alive = true;
     
         // speed related (1.0 means 100% (NOT a value but a ratio))
         this.modifiers = {

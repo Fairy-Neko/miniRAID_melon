@@ -61,6 +61,8 @@ game.weapon = me.Object.extend
         // Weapon gauge full = special attack !
         this.weaponGauge = 0;
         this.weaponGaugeMax = 100;
+
+        this.activeRange = settings.activeRange || 200;
     },
 
     onAttack: function(mob, target) {},
@@ -70,17 +72,29 @@ game.weapon = me.Object.extend
     // Can mob equip this weapon ?
     isEquipable: function(mob)
     {
+        for(stat in this.statRequirements)
+        {
+            // If any requirement does not satisfied
+            if(mob.data.baseStats[stat] < this.statRequirements[stat])
+            {
+                return false;
+            }
+        }
         return true;
     },
 
     isInRange: function(mob, target)
     {
-        return true;
+        if(mob.getRenderPos(0.5, 0.5).distance(target.getRenderPos(0.5, 0.5)) < this.activeRange)
+        {
+            return true;
+        }
+        return false;
     },
 });
 
 // TODO: refactory the weapons code, make the base class more useful.
-game.weapon.testStaff = game.weapon.extend
+game.weapon.TestStaff = game.weapon.extend
 ({
     init: function(settings)
     {
@@ -107,27 +121,9 @@ game.weapon.testStaff = game.weapon.extend
 
         me.game.world.addChild(me.pool.pull("testFireball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
     },
-
-    isEquipable: function(mob)
-    {
-        if(mob.data.stats.int > 3)
-        {
-            return true;
-        }
-        return false;
-    },
-
-    isInRange: function(mob, target)
-    {
-        if(mob.getRenderPos(0.5, 0.5).distance(target.getRenderPos(0.5, 0.5)) < 1500)
-        {
-            return true;
-        }
-        return false;
-    }
 });
 
-game.weapon.testHomingStaff = game.weapon.extend
+game.weapon.TestHomingStaff = game.weapon.extend
 ({
     init: function(settings)
     {
@@ -154,22 +150,4 @@ game.weapon.testHomingStaff = game.weapon.extend
 
         me.game.world.addChild(me.pool.pull("testHomingIceball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
     },
-
-    isEquipable: function(mob)
-    {
-        if(mob.data.stats.int > 3)
-        {
-            return true;
-        }
-        return false;
-    },
-
-    isInRange: function(mob, target)
-    {
-        if(mob.getRenderPos(0.5, 0.5).distance(target.getRenderPos(0.5, 0.5)) < 1500)
-        {
-            return true;
-        }
-        return false;
-    }
 });

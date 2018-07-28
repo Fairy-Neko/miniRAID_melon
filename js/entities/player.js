@@ -5,48 +5,13 @@ game.PlayerMobs.base = game.Mobs.base.extend
     init: function(x, y, settings)
     {
         this._super(game.Mobs.base, 'init', [x, y, settings]);
+
+        this.agent = new game.PlayerAgent.Simple(this);
     },
 
     updateMob: function(dt)
     {
-        this.footPos = this.getRenderPos(0.5, 0.8);
-        if(this.targetPos.distance(this.footPos) > 1.5)
-        {
-            this.body.vel = this.targetPos.clone().sub(this.footPos).normalize().scale(this.data.getMovingSpeed() * me.timer.tick);
-
-            this.isMoving = true;
-
-            if(this.body.vel.x > 0)
-            {
-                this.renderable.flipX(true);
-            }
-            else
-            {
-                this.renderable.flipX(false);
-            }
-        }
-        else
-        {
-            this.body.vel.x = 0;
-            this.body.vel.y = 0;
-
-            this.isMoving = false;
-        }
-
-        if(this.isMoving === true)
-        {
-            if(!this.renderable.isCurrentAnimation("move"))
-            {
-                this.renderable.setCurrentAnimation("move");
-            }
-        }
-        else
-        {
-            if(!this.renderable.isCurrentAnimation("idle"))
-            {
-                this.renderable.setCurrentAnimation("idle");
-            }
-        }
+        this.agent.updatePlayer(this, dt);
 
         this.updatePlayer(dt);
 
@@ -63,6 +28,150 @@ game.PlayerMobs.base = game.Mobs.base.extend
 
     },
 });
+
+game.PlayerAgent = game.PlayerAgent || {};
+// Interface for AI Agent controlling a player character
+game.PlayerAgent.base = me.Object.extend
+({
+    init(player, settings) {},
+
+    updatePlayer(player, dt) {},
+
+    setTargetPos(player, position, dt) {},
+
+    setTargetMob(player, mob, dt) {},
+
+    // TODO: onCollision, recieving an array of collision event (some sensors equipped on player etc.)
+});
+
+// A simple agent, moves to a target position or mob.
+game.PlayerAgent.Simple = game.PlayerAgent.base.extend
+({
+    init(player, settings)
+    {
+        this._super(game.PlayerAgent.base, 'init', []);
+
+        this.targetPos = undefined;
+        this.targetMob = undefined;
+
+        // Will the player move automatically (to nearest mob) if it is free ?
+        this.autoMove = true;
+
+        // idleCount will count down from idleFrame if player is in idle (-1 / frame) to smooth the animation.
+        // Only if idleCount = 0, the player will be "idle".
+        // idleFrame is seperated for targeting Mob (which may move = need more smooth)
+        // and targeting a static position (don't move and need high precision)
+        this.idleFrameMob = 10;
+        this.idleFramePos = 0;
+        this.idleCount = 0;
+        this.speedFriction = 0.9;
+    },
+
+    updatePlayer(player, dt)
+    {
+        this.footPos = player.getRenderPos(0.5, 0.8);
+
+        if(typeof this.targetPos !== "undefined")
+        {
+            if(this.targetPos.distance(this.footPos) > 1.5)
+            {
+                player.body.vel = this.targetPos.clone().sub(this.footPos).normalize().scale(player.data.getMovingSpeed() * me.timer.tick);
+    
+                this.isMoving = true;
+
+                // Reset the anim counter
+                this.idleCount = this.idleFramePos;
+            }
+            else
+            {
+                this.targetPos = undefined;
+
+                this.isMoving = false;
+            }
+        }
+        else if(game.Mobs.checkAlive(this.targetMob) == true)
+        {
+            // we need move to goin the range of our current weapon
+            if(player.data.currentWeapon.isInRange(player, this.targetMob) == false)
+            {
+                player.body.vel = this.targetMob.getRenderPos(0.5, 0.5).clone().sub(this.footPos).normalize().scale(player.data.getMovingSpeed() * me.timer.tick);
+
+                this.isMoving = true;
+
+                // Reset the anim counter
+                this.idleCount = this.idleFrameMob;
+            }
+            // and then we don't move anymore.
+            else
+            {
+                this.targetMob = undefined;
+
+                this.isMoving = false;
+            }
+        }
+        else
+        {
+            // We lose the target.
+
+            this.targetPos = undefined;
+            this.targetMob = undefined;
+            this.isMoving = false;
+        }
+
+        if(this.isMoving === true)
+        {
+            // Fix our face direction when moving
+            if(player.body.vel.x > 0)
+            {
+                player.renderable.flipX(true);
+            }
+            else
+            {
+                player.renderable.flipX(false);
+            }
+
+            if(!player.renderable.isCurrentAnimation("move"))
+            {
+                player.renderable.setCurrentAnimation("move");
+            }
+        }
+        else
+        {
+            // Count the frames
+            if(this.idleCount > 0)
+            {
+                this.idleCount --;
+
+                // Also smooth the speed
+                player.body.vel.scale(this.speedFriction);
+            }
+            else
+            {
+                player.body.vel.set(0, 0);
+
+                if(!player.renderable.isCurrentAnimation("idle"))
+                {
+                    player.renderable.setCurrentAnimation("idle");
+                }
+            }
+
+            if(this.autoMove === true)
+            {
+                this.setTargetMob(player, game.units.getNearestEnemy(player.getRenderPos(0.5, 0.5)));
+            }
+        }
+    },
+
+    setTargetPos(player, position, dt)
+    {
+        this.targetPos = position;
+    },
+
+    setTargetMob(player, mob, dt)
+    {
+        this.targetMob = mob;
+    },
+})
 
 game.PlayerMobs.test = game.PlayerMobs.base.extend
 ({

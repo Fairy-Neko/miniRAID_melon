@@ -77,6 +77,13 @@ game.Spell.base = game.Moveable.extend
 
     updateMoveable: function (dt) 
     {
+        // Check is target alive
+        // If target dead, set it to undefined
+        if(game.Mobs.checkAlive(this.target) !== true)
+        {
+            this.target = undefined;
+        }
+
         // Cannot see me so die
         if(this.inViewport === false)
         {
@@ -172,7 +179,7 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
 
-        this.power = settings.power || 10;
+        this.power = settings.power || 5;
 
         this.speed = settings.projectileSpeed || 5;
         this.speedVec = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize().scale(this.speed);
@@ -211,9 +218,10 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
 
-        this.power = settings.power || 40;
+        this.power = settings.power || 3;
 
         this.speed = settings.projectileSpeed || 5;
+        this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
     },
 
     onMobCollision: function(other)
@@ -233,6 +241,11 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
     updateProjectile: function(dt)
     {
         // Homing
-        this.body.vel.copy(this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize().scale(this.speed * me.timer.tick));
+        if(this.target)
+        {
+            this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
+        }
+
+        this.body.vel.copy(this.speedVector.clone().scale(this.speed * me.timer.tick));
     }
 })

@@ -78,13 +78,33 @@ var game = {
 
         for(var i = 0; i < game.data.playerMax; i++)
         {
-            if(Math.random() < 0.3)
+            var choice = Math.random();
+            // Melee attacker
+            if(choice < 0.2)
             {
-                this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl", weaponLeft: new game.weapon.testHomingStaff({baseAttackSpeed: game.helper.getRandomFloat(0.4, 0.6)})}));
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "magical_girl", weaponLeft: new game.weapon.TestStaff(
+                    {
+                        baseAttackSpeed: game.helper.getRandomFloat(0.2, 0.3),
+                        activeRange: game.helper.getRandomInt(20, 60),
+                    })}));
             }
+            // Ranged mage with homing attack
+            else if(choice < 0.5)
+            {
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "magical_girl", weaponLeft: new game.weapon.TestHomingStaff(
+                    {
+                        baseAttackSpeed: game.helper.getRandomFloat(0.4, 0.6),
+                        activeRange: game.helper.getRandomInt(100, 200),
+                    })}));
+            }
+            // Trival ranged attacker
             else
             {
-                this.data.backend.addPlayer(new game.dataBackend.mob({name: "magical_girl", weaponLeft: new game.weapon.testStaff({baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4)})}));
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "magical_girl", weaponLeft: new game.weapon.TestStaff(
+                    {
+                        baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4),
+                        activeRange: game.helper.getRandomInt(150, 250),
+                    })}));
             }
         }
 
