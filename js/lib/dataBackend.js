@@ -160,3 +160,82 @@ game.accessory = me.Object.extend
 
     },
 });
+
+game.dataBackend.BattleMonitor = me.Object.extend
+({
+    init: function(settings)
+    { 
+        this.time = 0;
+        this.damageDict = {};
+    },
+
+    update: function(dt)
+    {
+        this.time += dt * 0.001;
+    },
+
+    clear: function(dt)
+    {
+        this.time = 0;
+        this.damageDict = {};
+    },
+
+    addDamage: function(damage, dmgType, source, target, isCrit, spell)
+    {
+        if(source.data.isPlayer === true)
+        {
+            // Create a dict if it does not exist
+            this.damageDict[source.data.name] = this.damageDict[source.data.name] || 
+            {
+                totalDamage: 0,
+                normalDamage: 0,
+                critDamage: 0,
+                targetDict: {},
+                typeDict: {},
+                spellDict: {},
+                player: source,
+            };
+
+            this.damageDict[source.data.name].totalDamage += damage;
+
+            if(isCrit === true)
+            {
+                this.damageDict[source.data.name].critDamage += damage;
+            }
+            else
+            {
+                this.damageDict[source.data.name].normalDamage += damage;
+            }
+
+            //Category: spell
+            if(typeof spell !== "undefined")
+            {
+                this.damageDict[source.data.name].spellDict[spell.name] = this.damageDict[source.data.name].spellDict[spell.name] || 0;
+                this.damageDict[source.data.name].spellDict[spell.name] += damage;
+            }
+        }
+    },
+
+    getDamageList: function({} = {})
+    {
+        var dmgList = [];
+        for(player in this.damageDict)
+        {
+            dmgList.push({dmg: this.damageDict[player].totalDamage, player: this.damageDict[player].player});
+        }
+
+        dmgList.sort((a, b) => {return b.dmg - a.dmg;});
+        return dmgList;
+    },
+
+    getDPSList: function({} = {})
+    {
+        var dmgList = this.getDamageList();
+        for(element in dmgList)
+        {
+            dmgList[element].dmg = Math.round(dmgList[element].dmg / this.time);
+        }
+
+        return dmgList;
+    },
+});

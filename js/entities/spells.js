@@ -67,6 +67,7 @@ game.Spell.base = game.Moveable.extend
         this._super(game.Moveable, 'init', [x, y, settings]);
 
         this.alwaysUpdate = true;
+        this.name = settings.name;
 
         this.source = source;
         this.target = target;
@@ -107,6 +108,8 @@ game.Spell.Projectile = game.Spell.base.extend
 ({
     init:function (x, y, source, target, settings) 
     {
+        settings.name = settings.name || 'Projectile';
+
         this._super(game.Spell.base, 'init', [x, y, source, target, settings]);
 
         this.isTargetPlayer = settings.isTargetPlayer || false;
@@ -179,7 +182,7 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
 
-        this.power = settings.power || 5;
+        this.power = settings.power || 50;
 
         this.speed = settings.projectileSpeed || 5;
         this.speedVec = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize().scale(this.speed);
@@ -193,7 +196,9 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
                 source: this.source,
                 damage: {
                     fire: game.helper.getRandomInt(this.power * 0.5, this.power * 1.5),
-                }
+                },
+                isCrit: false,
+                spell: this,
             });
             this.destroy(other);
         }
@@ -214,11 +219,11 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
         settings.width = 16;
         settings.height = 16;
         settings.anchorPoint = new me.Vector2d(0.5, 0.5);
-        settings.name = "testFireball_Homing";
+        settings.name = "HomingIceBall";
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
 
-        this.power = settings.power || 3;
+        this.power = settings.power || 30;
 
         this.speed = settings.projectileSpeed || 5;
         this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
@@ -232,7 +237,9 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
                 source: this.source,
                 damage: {
                     ice: game.helper.getRandomInt(this.power * 0.5, this.power * 1.5),
-                }
+                },
+                isCrit: false,
+                spell: this,
             });
             this.destroy(other);
         }

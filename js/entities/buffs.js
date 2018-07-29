@@ -9,7 +9,7 @@ class Buff
         stacks = 1, 
         iconId = 0, 
         popupName = "buff", 
-        popupColor = "black",
+        popupColor = new me.Color(1, 1, 1, 1),
     } = {})
     {
         //Name of the buff
@@ -107,7 +107,7 @@ class IceSlowed extends Buff
             stacks: stacks,
             iconId: 1,
             popupName: "SLOWED!",
-            popupColor: "aqua"
+            popupColor: new me.Color(1, 0, 1, 1)
         });
     }
 
@@ -135,7 +135,7 @@ class Fired extends Buff
             stacks: stacks,
             iconId: 2,
             popupName: "FIRED!",
-            popupColor: "red"
+            popupColor: new me.Color(1, 1, 0, 1)
         });
 
         this.damageMin = damageMin;

@@ -40,6 +40,11 @@ game.resources = [
         "src": "data/fnt/FixedSys.png"
     },
     {
+        "name": "SmallFont",
+        "type": "image",
+        "src": "data/fnt/SmallFont.png"
+    },
+    {
         "name": "playground",
         "type": "tmx",
         "src": "data/map/playground.tmx"
@@ -53,5 +58,10 @@ game.resources = [
         "name": "FixedSys",
         "type": "binary",
         "src": "data/fnt/FixedSys.fnt"
+    },
+    {
+        "name": "SmallFont",
+        "type": "binary",
+        "src": "data/fnt/SmallFont.fnt"
     }
 ];

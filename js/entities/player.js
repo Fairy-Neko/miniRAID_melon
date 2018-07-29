@@ -4,6 +4,8 @@ game.PlayerMobs.base = game.Mobs.base.extend
 ({
     init: function(x, y, settings)
     {
+        settings.isPlayer = true;
+
         this._super(game.Mobs.base, 'init', [x, y, settings]);
 
         this.agent = new game.PlayerAgent.Simple(this);
@@ -65,6 +67,8 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
         this.idleFramePos = 0;
         this.idleCount = 0;
         this.speedFriction = 0.9;
+
+        // TODO: smooth when hit world object ?
     },
 
     updatePlayer(player, dt)

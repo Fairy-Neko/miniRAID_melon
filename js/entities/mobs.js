@@ -258,6 +258,8 @@ game.Mobs.base = game.Moveable.extend(
             // thunder = 0,
             // light = 0
         } = {},
+        isCrit = false,
+        spell = undefined,
         popUp = true
     } = {})
     {
@@ -284,6 +286,8 @@ game.Mobs.base = game.Moveable.extend(
             for(dmg in finalDmg)
             {
                 this.data.currentHealth -= finalDmg[dmg];
+                game.data.monitor.addDamage(finalDmg[dmg], dmg, source, this, isCrit, spell);
+
                 if(this.data.currentHealth <= 0)
                 {
                     this.die(source, damage);
@@ -349,9 +353,11 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 {
     init: function(x, y, settings)
     {
+        settings.health = 50000;
+
         this._super(game.Mobs.base, 'init', [x, y, settings]);
         
-        if(Math.random() < 0.3)
+        if(Math.random() < 0)
         {
             this.recieveBuff({source: this, buff: new Fired({time: 5.0})});
         }
