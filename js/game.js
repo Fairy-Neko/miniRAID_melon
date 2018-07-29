@@ -94,7 +94,7 @@ var game = {
             {
                 this.data.backend.addPlayer(new game.dataBackend.Mob({name: "Homing girl " + i, weaponLeft: new game.weapon.TestHomingStaff(
                     {
-                        baseAttackSpeed: game.helper.getRandomFloat(0.4, 0.8),
+                        baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4),
                         activeRange: game.helper.getRandomInt(300, 400),
                     }), isPlayer: true}));
             }

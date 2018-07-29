@@ -182,7 +182,7 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
 
-        this.power = settings.power || 50;
+        this.power = settings.power || 5;
 
         this.speed = settings.projectileSpeed || 5;
         this.speedVec = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize().scale(this.speed);
@@ -223,7 +223,7 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
 
-        this.power = settings.power || 30;
+        this.power = settings.power || 3;
 
         this.speed = settings.projectileSpeed || 5;
         this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
@@ -255,4 +255,51 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
 
         this.body.vel.copy(this.speedVector.clone().scale(this.speed * me.timer.tick));
     }
-})
+});
+
+game.Spell.TestHomingIceballEnemy = game.Spell.Projectile.extend
+({
+    init: function (x, y, source, target, settings) 
+    {
+        // Do not ask why it is a gold coin (x
+        settings.image = "coppercoin";
+        settings.width = 16;
+        settings.height = 16;
+        settings.anchorPoint = new me.Vector2d(0.5, 0.5);
+        settings.name = "HomingIceBall_Enemy";
+
+        this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
+
+        this.power = settings.power || 1;
+
+        this.speed = settings.projectileSpeed || 5;
+        this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
+    },
+
+    onMobCollision: function(other)
+    {
+        if(typeof other.recieveDamage !== "undefined")
+        {
+            other.recieveDamage({
+                source: this.source,
+                damage: {
+                    ice: game.helper.getRandomInt(this.power * 0.5, this.power * 1.5),
+                },
+                isCrit: false,
+                spell: this,
+            });
+            this.destroy(other);
+        }
+    },
+
+    updateProjectile: function(dt)
+    {
+        // Homing
+        if(this.target)
+        {
+            this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
+        }
+
+        this.body.vel.copy(this.speedVector.clone().scale(this.speed * me.timer.tick));
+    }
+});

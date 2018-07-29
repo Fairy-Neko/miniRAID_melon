@@ -164,11 +164,11 @@ game.UI.BattleMonitor = me.Renderable.extend
         context.fillRect(this.pos.x, this.pos.y, 100, 12 * 9 + 2);
         context.setColor('#ffc477');
 
-        var dmgList = game.data.monitor.getDamageList();
-        this.font.draw(context, "Total Damage:", this.pos.x + 2, this.pos.y + 2);
+        // var dmgList = game.data.monitor.getDamageList();
+        // this.font.draw(context, "Total Damage:", this.pos.x + 2, this.pos.y + 2);
 
-        // var dmgList = game.data.monitor.getDPSList();
-        // this.font.draw(context, "DPS:", this.pos.x + 2, this.pos.y + 2);
+        var dmgList = game.data.monitor.getDPSList();
+        this.font.draw(context, "DPS:", this.pos.x + 2, this.pos.y + 2);
 
         for(var i = 0; i < dmgList.length; i++)
         {

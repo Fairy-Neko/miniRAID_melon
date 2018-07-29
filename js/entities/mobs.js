@@ -183,6 +183,11 @@ game.Mobs.base = game.Moveable.extend(
 
     doAttack: function(dt)
     {
+        if(typeof this.data.currentWeapon === "undefined")
+        {
+            return false;
+        }
+
         this.attackCounter += dt * 0.001;
 
         if(this.attackCounter > this.data.getAttackSpeed())
@@ -318,7 +323,15 @@ game.Mobs.base = game.Moveable.extend(
 
             this.data.alive = false;
             this.body.collisionType = me.collision.types.NO_OBJECT;
-            game.units.removeEnemy(this);
+
+            if(this.data.isPlayer === true)
+            {
+                game.units.removePlayer(this);
+            }
+            else
+            {
+                game.units.removeEnemy(this);
+            }
             me.game.world.removeChild(this);
         }
     },
@@ -353,7 +366,13 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 {
     init: function(x, y, settings)
     {
-        settings.health = 50000;
+        settings.health = 1000;
+
+        settings.weaponLeft = new game.weapon.TestHomingStaffEnemy
+        ({
+            baseAttackSpeed: game.helper.getRandomFloat(3, 5),
+            activeRange: game.helper.getRandomInt(100, 100),
+        });
 
         this._super(game.Mobs.base, 'init', [x, y, settings]);
         
@@ -369,6 +388,17 @@ game.Mobs.TestMob = game.Mobs.base.extend(
         this.body.vel.x = this.data.getMovingSpeed() * Math.sin(me.timer.getTime() * 0.001) * me.timer.tick;
         this.body.update(dt);
 
+        if(this.doAttack(dt) === true)
+        {
+            for(player of game.units.player)
+            {
+                if(this.data.currentWeapon.isInRange(this, player))
+                {
+                    this.data.currentWeapon.attack(this, player);
+                }
+            }
+        }
+
         me.collision.check(this);
     },
 
@@ -381,3 +411,11 @@ game.Mobs.TestMob = game.Mobs.base.extend(
         return true;
     }
 });
+
+// TODO - combine mob agent and player agent
+game.MobAgent = game.MobAgent || {};
+
+game.MobAgent.base = me.Object.extend
+({
+    init() {},
+})

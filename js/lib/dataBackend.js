@@ -171,7 +171,11 @@ game.dataBackend.BattleMonitor = me.Object.extend
 
     update: function(dt)
     {
-        this.time += dt * 0.001;
+        // If there are any enemy on the field
+        if(game.units.enemy.size > 0)
+        {
+            this.time += dt * 0.001;
+        }
     },
 
     clear: function(dt)

@@ -151,3 +151,32 @@ game.weapon.TestHomingStaff = game.weapon.extend
         me.game.world.addChild(me.pool.pull("testHomingIceball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
     },
 });
+
+game.weapon.TestHomingStaffEnemy = game.weapon.extend
+({
+    init: function(settings)
+    {
+        this._super(game.weapon, 'init', [settings]);
+        this.name = "test staff (enemy)";
+
+        if(me.pool.exists("testHomingIceballEnemy") === false)
+        {
+            me.pool.register("testHomingIceballEnemy", game.Spell.TestHomingIceballEnemy, true);
+        }
+    },
+
+    attack: function(mob, target)
+    {
+        var settings = {};
+        if(target.data.isPlayer === true)
+        {
+            settings.isTargetPlayer = true;
+        }
+        else
+        {
+            settings.isTargetEnemy = true;
+        }
+
+        me.game.world.addChild(me.pool.pull("testHomingIceballEnemy", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+    },
+});

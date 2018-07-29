@@ -5,6 +5,11 @@ game.resources = [
         "src": "data/img/Cliff_tileset.png"
     },
     {
+        "name": "coppercoin",
+        "type": "image",
+        "src": "data/img/coppercoin.png"
+    },
+    {
         "name": "crystalcoin",
         "type": "image",
         "src": "data/img/crystalcoin.png"
