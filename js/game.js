@@ -77,45 +77,54 @@ var game = {
         this.data.backend = new game.dataBackend();
         this.data.monitor = new game.dataBackend.BattleMonitor();
 
-        for(var i = 0; i < game.data.playerMax; i++)
+        var playerType = [2, 2, 4];
+
+        // Tank
+        for(var i = 0; i < playerType[0]; i++)
+        {
+            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(T) Magical girl " + i, weaponLeft: new game.weapon.TestStaff(
+                {
+                    baseAttackSpeed: game.helper.getRandomFloat(0.05, 0.08),
+                    activeRange: game.helper.getRandomInt(20, 60),
+                    power: 20,
+                }), isPlayer: true, health: 1800}));
+        }
+
+        // Healer
+        for(var i = 0; i < playerType[1]; i++)
+        {
+            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(H) Magical girl " + i, weaponLeft: new game.weapon.TestHealStaff(
+                {
+                    baseAttackSpeed: game.helper.getRandomFloat(0.5, 0.7),
+                    activeRange: game.helper.getRandomInt(100, 150),
+                    targetCount: 1,
+                    power: 300,
+                }), isPlayer: true, health: 800}));
+        }
+
+        // DPS
+        for(var i = 0; i < playerType[2]; i++)
         {
             var choice = Math.random();
-            choice = 0.6;
-            // Melee attacker
-            if(choice < 0.2)
+            if(choice < 0.5)
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "Melee girl " + i, weaponLeft: new game.weapon.TestStaff(
-                    {
-                        baseAttackSpeed: game.helper.getRandomFloat(0.05, 0.08),
-                        activeRange: game.helper.getRandomInt(20, 60),
-                    }), isPlayer: true}));
-            }
-            // Ranged mage with homing attack
-            else if(choice < 0.5)
-            {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "Homing girl " + i, weaponLeft: new game.weapon.TestHomingStaff(
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) Magic_l girl " + i, weaponLeft: new game.weapon.TestHomingStaff(
                     {
                         baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4),
-                        activeRange: game.helper.getRandomInt(300, 400),
-                    }), isPlayer: true}));
+                        activeRange: game.helper.getRandomInt(200, 300),
+                        targetCount: 16,
+                        power: 150,
+                    }), isPlayer: true, health: 500}));
             }
-            // Healer
-            else if(choice < 0.7)
-            {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "Heal girl " + i, weaponLeft: new game.weapon.TestHealStaff(
-                    {
-                        baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4),
-                        activeRange: game.helper.getRandomInt(100, 200),
-                    }), isPlayer: true, health: 10000}));
-            }
-            // Trival ranged attacker
             else
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "Magical girl " + i, weaponLeft: new game.weapon.TestStaff(
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) Magical girl " + i, weaponLeft: new game.weapon.TestStaff(
                     {
                         baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4),
-                        activeRange: game.helper.getRandomInt(350, 450),
-                    }), isPlayer: true}));
+                        activeRange: game.helper.getRandomInt(250, 350),
+                        targetCount: 16,
+                        power: 200,
+                    }), isPlayer: true, health: 500}));
             }
         }
 

@@ -49,73 +49,87 @@ game.Mobs.UnitManager = me.Object.extend
         this.enemy.delete(enemy);
     },
 
-    getNearestEnemy: function(position)
+    _getUnitList: function(targetSet, sortMethod, availableTest)
     {
-        // A reasonable large number as infinity
-        var minDistance = 999999;
-        var target = undefined;
+        var result = [];
 
-        for(var enemy of this.enemy)
+        for(var unit of targetSet)
         {
-            var dist = enemy.getRenderPos(0.5, 0.5).distance(position);
-            if(dist < minDistance)
+            if(availableTest(unit) === true)
             {
-                target = enemy;
-                minDistance = dist;
+                result.push(unit);
             }
         }
 
-        return target;
+        result.sort(sortMethod);
+        return result;
     },
 
-    getNearestPlayer: function(position)
+    getPlayerList: function(sortMethod, availableTest)
     {
-        // A reasonable large number as infinity
-        var minDistance = 999999;
-        var target = undefined;
+        sortMethod = sortMethod || function(a, b) {return 0;};
+        availableTest = availableTest || function(a) {return true;};
 
-        for(var player of this.player)
-        {
-            var dist = player.getRenderPos(0.5, 0.5).distance(position);
-            if(dist < minDistance)
-            {
-                target = player;
-                minDistance = dist;
-            }
-        }
-
-        return target;
+        return this._getUnitList(this.player, sortMethod, availableTest);
     },
 
-    getNearestUnit: function(position)
+    getEnemyList: function(sortMethod, availableTest)
     {
-        // A reasonable large number as infinity
-        var minDistance = 999999;
-        var target = undefined;
+        sortMethod = sortMethod || function(a, b) {return 0;};
+        availableTest = availableTest || function(a) {return true;};
 
-        for(var enemy of this.enemy)
+        return this._getUnitList(this.enemy, sortMethod, availableTest);
+    },
+
+    getUnitList: function({
+        sortMethod = function(a, b) {return 0;}, 
+        availableTest = function(a) {return true;}, 
+        isPlayer = false
+    } = {})
+    {
+        if(isPlayer === true)
         {
-            var dist = enemy.getRenderPos(0.5, 0.5).distance(position);
-            if(dist < minDistance)
-            {
-                target = enemy;
-                minDistance = dist;
-            }
+            return this._getUnitList(this.player, sortMethod, availableTest);
         }
-
-        for(var player of this.player)
+        else
         {
-            var dist = player.getRenderPos(0.5, 0.5).distance(position);
-            if(dist < minDistance)
-            {
-                target = player;
-                minDistance = dist;
-            }
+            return this._getUnitList(this.enemy, sortMethod, availableTest);
         }
+    },
 
-        return target;
+    getUnitListAll: function(sortMethod, availableTest)
+    {
+        sortMethod = sortMethod || function(a, b) {return 0;};
+        availableTest = availableTest || function(a) {return true;};
+
+        return this._getUnitList(this.enemy, sortMethod, availableTest).concat(this._getUnitList(this.player, sortMethod, availableTest)).sort(sortMethod);
+    },
+
+    getNearest: function(position, isPlayer = false, count = 1)
+    {
+        var result = this.getUnitList({
+            sortMethod: function(a, b) {return a.getRenderPos(0.5, 0.5).distance(position) - b.getRenderPos(0.5, 0.5).distance(position);},
+            isPlayer: isPlayer,
+        });
+        return result.slice(0, Math.min(count, result.length));
+    },
+
+    getNearestUnitAll: function(position, count = 1)
+    {
+        var result = this.getUnitListAll(function(a, b) {return a.getRenderPos(0.5, 0.5).distance(position) - b.getRenderPos(0.5, 0.5).distance(position);});
+        return result.slice(0, Math.min(count, result.length));
     },
 });
+
+game.Mobs.UnitManager.sortByHealth = function(a, b)
+{
+    return a.data.currentHealth - b.data.currentHealth;
+};
+
+game.Mobs.UnitManager.sortByHealthPercentage = function(a, b)
+{
+    return (a.data.currentHealth / a.data.maxHealth) - (b.data.currentHealth / b.data.maxHealth);
+};
 
 game.Mobs.base = game.Moveable.extend(
 {
@@ -166,6 +180,7 @@ game.Mobs.base = game.Moveable.extend(
             buff.onStatCalculation(this);
         }
 
+        me.collision.check(this);
         this.updateMob(dt);
 
         // Update all buffes
@@ -406,12 +421,14 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 {
     init: function(x, y, settings)
     {
-        settings.health = 1000;
+        settings.health = 20000;
 
-        settings.weaponLeft = new game.weapon.TestHomingStaffEnemy
+        settings.weaponLeft = new game.weapon.TestHomingStaff
         ({
-            baseAttackSpeed: game.helper.getRandomFloat(.3, .5),
-            activeRange: game.helper.getRandomInt(100, 100),
+            baseAttackSpeed: game.helper.getRandomFloat(0.7, 0.9),
+            activeRange: game.helper.getRandomInt(200, 300),
+            power: 50,
+            targetCount: 1,
         });
 
         this._super(game.Mobs.base, 'init', [x, y, settings]);
@@ -430,11 +447,14 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 
         if(this.doAttack(dt) === true)
         {
-            for(player of game.units.player)
+            if(typeof (targets = this.data.currentWeapon.grabTargets(this)) !== "undefined")
             {
-                if(this.data.currentWeapon.isInRange(this, player))
+                for(var target of targets.values())
                 {
-                    this.data.currentWeapon.attack(this, player);
+                    if(this.data.currentWeapon.isInRange(this, target))
+                    {
+                        this.data.currentWeapon.attack(this, target);
+                    }
                 }
             }
         }

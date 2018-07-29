@@ -258,10 +258,20 @@ game.dataBackend.BattleMonitor = me.Object.extend
         var dmgList = [];
         for(player in this.damageDict)
         {
-            dmgList.push({dmg: this.damageDict[player].totalDamage, player: this.damageDict[player].player});
+            dmgList.push({
+                number: this.damageDict[player].totalDamage,
+                length: this.damageDict[player].totalDamage,
+                slices: [
+                    this.damageDict[player].normalDamage, 
+                    this.damageDict[player].critDamage],
+                colors: [
+                    "#ffc477", 
+                    "#ff0000"],
+                player: this.damageDict[player].player
+            });
         }
 
-        dmgList.sort((a, b) => {return b.dmg - a.dmg;});
+        dmgList.sort((a, b) => {return b.number - a.number;});
         return dmgList;
     },
 
@@ -270,9 +280,41 @@ game.dataBackend.BattleMonitor = me.Object.extend
         var dmgList = this.getDamageList();
         for(element in dmgList)
         {
-            dmgList[element].dmg = Math.round(dmgList[element].dmg / this.time);
+            dmgList[element].number = Math.round(dmgList[element].number / this.time);
         }
 
         return dmgList;
     },
+
+    getHealList: function({} = {})
+    {
+        var healList = [];
+        for(player in this.healDict)
+        {
+            healList.push({
+                number: this.healDict[player].realHeal,
+                length: this.healDict[player].totalHeal, 
+                slices: [
+                    this.healDict[player].realHeal,
+                    this.healDict[player].overHeal],
+                colors: [
+                    "#00ff00",
+                    "#ff0000"], 
+                player: this.healDict[player].player});
+        }
+
+        healList.sort((a, b) => {return b.number - a.number});
+        return healList;
+    },
+
+    getHPSList: function({} = {})
+    {
+        var healList = this.getHealList();
+        for(element in healList)
+        {
+            healList[element].number = Math.round(healList[element].number / this.time);
+        }
+
+        return healList;
+    }
 });

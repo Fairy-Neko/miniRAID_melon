@@ -63,6 +63,7 @@ game.weapon = me.Object.extend
         this.weaponGaugeMax = 100;
 
         this.activeRange = settings.activeRange || 200;
+        this.targetCount = settings.targetCount || 1;
     },
 
     onAttack: function(mob, target) {},
@@ -91,6 +92,11 @@ game.weapon = me.Object.extend
         }
         return false;
     },
+
+    grabTargets: function(mob)
+    {
+        return undefined;
+    },
 });
 
 // TODO: refactory the weapons code, make the base class more useful.
@@ -100,6 +106,8 @@ game.weapon.TestStaff = game.weapon.extend
     {
         this._super(game.weapon, 'init', [settings]);
         this.name = "test staff";
+
+        this.power = settings.power || 5;
 
         if(me.pool.exists("testFireball") === false)
         {
@@ -119,7 +127,14 @@ game.weapon.TestStaff = game.weapon.extend
             settings.isTargetEnemy = true;
         }
 
+        settings.power = this.power;
+
         me.game.world.addChild(me.pool.pull("testFireball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+    },
+
+    grabTargets: function(mob)
+    {
+        return result = game.units.getNearest(mob.getRenderPos(0.5, 0.5), isPlayer = !mob.data.isPlayer, count = this.targetCount);
     },
 });
 
@@ -129,6 +144,8 @@ game.weapon.TestHomingStaff = game.weapon.extend
     {
         this._super(game.weapon, 'init', [settings]);
         this.name = "test staff";
+
+        this.power = settings.power || 3;
 
         if(me.pool.exists("testHomingIceball") === false)
         {
@@ -142,13 +159,22 @@ game.weapon.TestHomingStaff = game.weapon.extend
         if(target.data.isPlayer === true)
         {
             settings.isTargetPlayer = true;
+            settings.image = "coppercoin";
         }
         else
         {
             settings.isTargetEnemy = true;
+            settings.image = "crystalcoin";
         }
 
+        settings.power = this.power;
+
         me.game.world.addChild(me.pool.pull("testHomingIceball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+    },
+
+    grabTargets: function(mob)
+    {
+        return result = game.units.getNearest(mob.getRenderPos(0.5, 0.5), isPlayer = !mob.data.isPlayer, count = this.targetCount);
     },
 });
 
@@ -158,6 +184,8 @@ game.weapon.TestHealStaff = game.weapon.extend
     {
         this._super(game.weapon, 'init', [settings]);
         this.name = "test staff";
+
+        this.power = settings.power || 15;
 
         if(me.pool.exists("testHealBeam") === false)
         {
@@ -177,35 +205,46 @@ game.weapon.TestHealStaff = game.weapon.extend
             settings.isTargetEnemy = true;
         }
 
-        me.game.world.addChild(me.pool.pull("testHealBeam", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
-    },
-});
+        settings.power = this.power;
 
-game.weapon.TestHomingStaffEnemy = game.weapon.extend
-({
-    init: function(settings)
-    {
-        this._super(game.weapon, 'init', [settings]);
-        this.name = "test staff (enemy)";
+        me.game.world.addChild(me.pool.pull("testHealBeam", mob, mob, target, settings));
 
-        if(me.pool.exists("testHomingIceballEnemy") === false)
+        // Chain healing
+        var currentStartMob = target;
+        var nextMob = undefined;
+        for(var i = 0; i < 3; i++)
         {
-            me.pool.register("testHomingIceballEnemy", game.Spell.TestHomingIceballEnemy, true);
+            var result = game.units.getUnitList({
+                sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
+                availableTest: function(a)
+                {
+                    return a != nextMob && this.isInRange(currentStartMob, a);
+                }.bind(this),
+                isPlayer: mob.data.isPlayer,
+            });
+
+            if(result)
+            {
+                nextMob = result[0];
+            }
+            else
+            {
+                break;
+            }
+
+            settings.power *= 0.6;
+
+            me.game.world.addChild(me.pool.pull("testHealBeam", currentStartMob, mob, nextMob, settings));
+            currentStartMob = nextMob;
         }
     },
 
-    attack: function(mob, target)
+    grabTargets: function(mob)
     {
-        var settings = {};
-        if(target.data.isPlayer === true)
-        {
-            settings.isTargetPlayer = true;
-        }
-        else
-        {
-            settings.isTargetEnemy = true;
-        }
-
-        me.game.world.addChild(me.pool.pull("testHomingIceballEnemy", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+        var result = game.units.getUnitList({
+            sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
+            isPlayer: mob.data.isPlayer,
+        });
+        return result.slice(0, Math.min(result.length, this.targetCount));
     },
 });

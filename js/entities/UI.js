@@ -25,10 +25,20 @@ game.UI.Container = me.Container.extend({
 
         // add our child score object at the top left corner
         game.UI.popupMgr = new game.UI.PopupTextManager(0, 0);
-        game.UI.monitor = new game.UI.BattleMonitor(me.game.viewport.width - 100, me.game.viewport.height - 12*9 - 2);
+
+        game.UI.damageMonitor = new game.UI.BattleMonitor(me.game.viewport.width - 100, me.game.viewport.height - 12*9 - 2, {
+            grabFunction: game.data.monitor.getDamageList.bind(game.data.monitor),
+            title: "Damage Done",
+        });
+
+        game.UI.healMonitor = new game.UI.BattleMonitor(me.game.viewport.width - 200, me.game.viewport.height - 12*9 - 2, {
+            grabFunction: game.data.monitor.getHealList.bind(game.data.monitor),
+            title: "Heal Done",
+        });
 
         this.addChild(game.UI.popupMgr);
-        this.addChild(game.UI.monitor);
+        this.addChild(game.UI.damageMonitor);
+        this.addChild(game.UI.healMonitor);
     }
 });
 
@@ -135,7 +145,7 @@ game.UI.PopupTextManager = me.Renderable.extend ({
 
 game.UI.BattleMonitor = me.Renderable.extend
 ({
-    init: function(x, y) 
+    init: function(x, y, settings)
     {
         // call the parent constructor
         // (size does not matter here)
@@ -144,6 +154,9 @@ game.UI.BattleMonitor = me.Renderable.extend
 
         this.alwaysUpdate = true;
         this.floating = true;
+
+        this.grabFunction = settings.grabFunction || game.data.monitor.getDPSList.bind(game.data.monitor);
+        this.title = settings.title || "DPS";
 
         this.font = {};
         
@@ -162,18 +175,30 @@ game.UI.BattleMonitor = me.Renderable.extend
 
         context.setColor('#333333');
         context.fillRect(this.pos.x, this.pos.y, 100, 12 * 9 + 2);
-        context.setColor('#ffc477');
 
-        // var dmgList = game.data.monitor.getDamageList();
-        // this.font.draw(context, "Total Damage:", this.pos.x + 2, this.pos.y + 2);
+        var dataList = this.grabFunction();
+        this.font.draw(context, this.title + ":", this.pos.x + 2, this.pos.y + 2);
 
-        var dmgList = game.data.monitor.getDPSList();
-        this.font.draw(context, "DPS:", this.pos.x + 2, this.pos.y + 2);
-
-        for(var i = 0; i < dmgList.length; i++)
+        var maxLength = 0;
+        for(var i = 0; i < dataList.length; i++)
         {
-            this.font.draw(context, dmgList[i].player.data.name + ": " + dmgList[i].dmg.toLocaleString(), this.pos.x + 2, this.pos.y + 12 * i + 14);
-            context.fillRect(this.pos.x + 2, this.pos.y + 12 * i + 22, 96 * dmgList[i].dmg / dmgList[0].dmg, 1);
+            maxLength = Math.max(maxLength, dataList[i].length);
+        }
+
+        for(var i = 0; i < dataList.length; i++)
+        {
+            this.font.draw(context, dataList[i].player.data.name + ": " + dataList[i].number.toLocaleString(), this.pos.x + 2, this.pos.y + 12 * i + 14);
+
+            var pxOffset = 0, sliceLength = 0;
+            for(var j = 0; j < dataList[i].slices.length; j++)
+            {
+                context.setColor(dataList[i].colors[j]);
+
+                sliceLength = Math.floor(96 * dataList[i].slices[j] / maxLength);
+                context.fillRect(this.pos.x + pxOffset + 2, this.pos.y + 12 * i + 22, sliceLength, 1);
+
+                pxOffset += sliceLength;
+            }
         }
         context.setColor(color);
     }

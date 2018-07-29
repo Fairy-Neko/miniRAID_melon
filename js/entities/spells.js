@@ -6,6 +6,8 @@ game.Moveable = me.Entity.extend
     {
         this._super(me.Entity, 'init', [x, y, settings]);
 
+        this.body.gravity = 0;
+
         // Note: the body (collision bound) will not rotate.
         this._mv_useRotation = settings.useRotation || false;
         this._mv_rotation = settings.rotation || 0;
@@ -137,12 +139,23 @@ game.Spell.base = game.Moveable.extend
 
         if(this.useCollider == true)
         {
-            me.collision.check(this);
+            // me.collision.check(this);
         }
         this.updateSpell(dt);
     },
 
     updateSpell: function(dt) {},
+
+    destroy: function(other) 
+    {
+        // make sure it cannot be collected "again"
+        this.body.setCollisionMask(me.collision.types.NO_OBJECT);
+
+        if(me.game.world.hasChild(this))
+        {
+            me.game.world.removeChild(this);
+        }
+    },
 
     onCollision: function(response, other)
     {
@@ -192,14 +205,6 @@ game.Spell.Projectile = game.Spell.base.extend
         this.destroy(other);
     },
 
-    destroy: function(other) 
-    {
-        // make sure it cannot be collected "again"
-        this.body.setCollisionMask(me.collision.types.NO_OBJECT);
-
-        me.game.world.removeChild(this);
-    },
-
     onCollision: function(response, other)
     {
         if(other.body.collisionType === me.collision.types.WORLD_SHAPE)
@@ -231,7 +236,7 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
 
         this.power = settings.power || 5;
 
-        this.speed = settings.projectileSpeed || 5;
+        this.speed = settings.projectileSpeed || 200;
         this.speedVec = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize().scale(this.speed);
     },
 
@@ -253,7 +258,7 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
 
     updateProjectile: function(dt)
     {
-        this.body.vel.copy(this.speedVec.clone().scale(me.timer.tick));
+        this.body.vel.copy(this.speedVec.clone().scale(dt * 0.001));
     }
 })
 
@@ -262,7 +267,7 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
     init: function (x, y, source, target, settings) 
     {
         // Do not ask why it is a gold coin (x
-        settings.image = "crystalcoin";
+        settings.image = settings.image || "crystalcoin";
         settings.width = 16;
         settings.height = 16;
         settings.anchorPoint = new me.Vector2d(0.5, 0.5);
@@ -272,7 +277,7 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
 
         this.power = settings.power || 3;
 
-        this.speed = settings.projectileSpeed || 5;
+        this.speed = settings.projectileSpeed || 200;
         this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
     },
 
@@ -300,19 +305,19 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
             this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
         }
 
-        this.body.vel.copy(this.speedVector.clone().scale(this.speed * me.timer.tick));
+        this.body.vel.copy(this.speedVector.clone().scale(this.speed * dt * 0.001));
     }
 });
 
 game.Spell.TestHealBeam = game.Spell.base.extend
 ({
-    init:function (x, y, source, target, settings) 
+    init:function (visualSource, source, target, settings) 
     {
         // We will use the rotation notation in game.Moveable.
         settings.useRotation = true;
 
         // subVec: source -> target
-        var subVec = target.getRenderPos(0.5, 0.5).clone().sub(source.getRenderPos(0.5, 0.5));
+        var subVec = target.getRenderPos(0.5, 0.5).clone().sub(visualSource.getRenderPos(0.5, 0.5));
 
         // Calculate the scale and rotation
         var scaleX = subVec.length() / 16.0;
@@ -334,7 +339,8 @@ game.Spell.TestHealBeam = game.Spell.base.extend
         settings.anchorPoint = new me.Vector2d(0, 0.5);
         // settings.rotation = rotation;
 
-        this._super(game.Spell.base, 'init', [x, y, source, target, settings, false]);
+        var visualPos = visualSource.getRenderPos(0.5, 0.5);
+        this._super(game.Spell.base, 'init', [visualPos.x, visualPos.y, source, target, settings, false]);
 
         this.setRotation(rotation);
         this.setScale(scaleX, 1);
@@ -343,8 +349,11 @@ game.Spell.TestHealBeam = game.Spell.base.extend
         // We heal the target directly.
         this.body.collisionType = me.collision.types.PROJECTILE_OBJECT;
         this.body.setCollisionMask(me.collision.types.NO_OBJECT);
+        this.body.removeShapeAt(0);
 
         this.power = settings.power || 10;
+
+        this.visualSource = visualSource;
 
         // Heal the target!
         if(game.Mobs.checkAlive(target) == true)
@@ -357,23 +366,22 @@ game.Spell.TestHealBeam = game.Spell.base.extend
             });
         }
 
-        // Delete self after 500ms.
-        me.timer.setTimeout(this.spellFinished.bind(this), 500);
-    },
-
-    spellFinished: function()
-    {
-        if(me.game.world.hasChild(this))
-        {
-            me.game.world.removeChild(this);
-        }
+        this.timer = 500;
     },
 
     updateSpell: function(dt) 
     {
-        if(typeof this.target !== "undefined")
+        this.timer -= dt;
+        if(this.timer <= 0)
         {
-            var subVec = this.target.getRenderPos(0.5, 0.5).clone().sub(this.source.getRenderPos(0.5, 0.5));
+            this.destroy();
+        }
+
+        this.renderable.setOpacity(Math.min(300, this.timer) / 300);
+
+        if(typeof this.target !== "undefined" && game.Mobs.checkAlive(this.visualSource))
+        {
+            var subVec = this.target.getRenderPos(0.5, 0.5).clone().sub(this.visualSource.getRenderPos(0.5, 0.5));
 
             var rotation = new me.Vector2d(1, 0).angle(subVec);
             // Vector2d.angle() uses Math.acos, which only returns an angle between [0, pi].
@@ -385,7 +393,7 @@ game.Spell.TestHealBeam = game.Spell.base.extend
 
             this.setRotation(rotation);
             this.setScale(subVec.length() / 16, 1);
-            this.pos.copy(this.source.pos);
+            this.pos.copy(this.visualSource.pos);
         }
     },
 
@@ -394,51 +402,4 @@ game.Spell.TestHealBeam = game.Spell.base.extend
         // Don't collide to any objects
         return false;
     },
-});
-
-game.Spell.TestHomingIceballEnemy = game.Spell.Projectile.extend
-({
-    init: function (x, y, source, target, settings) 
-    {
-        // Do not ask why it is a gold coin (x
-        settings.image = "coppercoin";
-        settings.width = 16;
-        settings.height = 16;
-        settings.anchorPoint = new me.Vector2d(0.5, 0.5);
-        settings.name = "HomingIceBall_Enemy";
-
-        this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
-
-        this.power = settings.power || 1;
-
-        this.speed = settings.projectileSpeed || 5;
-        this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
-    },
-
-    onMobCollision: function(other)
-    {
-        if(typeof other.recieveDamage !== "undefined")
-        {
-            other.recieveDamage({
-                source: this.source,
-                damage: {
-                    ice: game.helper.getRandomInt(this.power * 0.5, this.power * 1.5),
-                },
-                isCrit: false,
-                spell: this,
-            });
-            this.destroy(other);
-        }
-    },
-
-    updateProjectile: function(dt)
-    {
-        // Homing
-        if(this.target)
-        {
-            this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
-        }
-
-        this.body.vel.copy(this.speedVector.clone().scale(this.speed * me.timer.tick));
-    }
 });

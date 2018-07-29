@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="65">
+<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="76">
  <tileset firstgid="1" name="ground_tiles" tilewidth="32" tileheight="32" tilecount="441" columns="21">
   <image source="../img/ground_tiles.png" width="672" height="701"/>
  </tileset>
@@ -73,25 +73,12 @@
 </data>
  </layer>
  <objectgroup name="entities">
-  <object id="1" name="testMob" x="497" y="365" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="3" name="testIcyZone" x="639" y="479" width="192" height="66"/>
-  <object id="5" name="playerSpawnPoint" x="94" y="275" width="32" height="32">
+  <object id="5" name="playerSpawnPoint" x="483" y="113" width="32" height="32">
    <properties>
     <property name="spawnCount" type="int" value="8"/>
    </properties>
   </object>
-  <object id="35" name="testMob" x="547" y="203" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="36" name="testMob" x="601" y="230" width="32" height="32">
+  <object id="35" name="testMob" x="602" y="234" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
@@ -103,43 +90,7 @@
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
-  <object id="38" name="testMob" x="385" y="293" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="39" name="testMob" x="237" y="215" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="40" name="testMob" x="364" y="168" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="41" name="testMob" x="301" y="191" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="42" name="testMob" x="427" y="367" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="43" name="testMob" x="550" y="421" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="44" name="testMob" x="714" y="346" width="32" height="32">
+  <object id="38" name="testMob" x="370" y="331" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
@@ -151,43 +102,7 @@
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
-  <object id="46" name="testMob" x="676" y="148" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="47" name="testMob" x="786" y="155" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
   <object id="49" name="testMob" x="678" y="269" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="50" name="testMob" x="301" y="397" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="51" name="testMob" x="172" y="343" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="52" name="testMob" x="448" y="190" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="53" name="testMob" x="304" y="300" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
@@ -199,31 +114,19 @@
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
-  <object id="55" name="testMob" x="211" y="274" width="32" height="32">
+  <object id="55" name="testMob" x="191" y="322" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
-  <object id="56" name="testMob" x="502" y="118" width="32" height="32">
+  <object id="56" name="testMob" x="120" y="327" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
-  <object id="57" name="testMob" x="315" y="94" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="58" name="testMob" x="625" y="116" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="59" name="testMob" x="476" y="280" width="32" height="32">
+  <object id="58" name="testMob" x="652" y="151" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
@@ -235,25 +138,73 @@
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
-  <object id="61" name="testMob" x="726" y="413" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="62" name="testMob" x="807" y="362" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
   <object id="63" name="testMob" x="394" y="433" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
-  <object id="64" name="testMob" x="227" y="432" width="32" height="32">
+  <object id="65" name="testMob" x="271" y="319" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="66" name="testMob" x="339" y="228" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="67" name="testMob" x="260" y="256" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="68" name="testMob" x="238" y="396" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="69" name="testMob" x="458" y="356" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="70" name="testMob" x="482" y="268" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="71" name="testMob" x="265" y="176" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="72" name="testMob" x="711" y="169" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="73" name="testMob" x="828" y="182" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="74" name="testMob" x="743" y="362" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+   </properties>
+  </object>
+  <object id="75" name="testMob" x="551" y="418" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
@@ -281,26 +232,4 @@
    <polygon points="0,0 39,0.5 41.5,-66 2,-25.5"/>
   </object>
  </objectgroup>
- <layer name="slowarea" width="32" height="18" opacity="0.4">
-  <data encoding="csv">
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,52,52,52,52,52,52,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,52,52,52,52,52,52,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-</data>
- </layer>
 </map>

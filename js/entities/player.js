@@ -161,7 +161,25 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
 
             if(this.autoMove === true)
             {
-                this.setTargetMob(player, game.units.getNearestEnemy(player.getRenderPos(0.5, 0.5)));
+                if(typeof (targetList = player.data.currentWeapon.grabTargets(player)) !== "undefined")
+                {
+                    this.setTargetMob(player, targetList[0]);
+                }
+            }
+        }
+
+        // Attack !
+        if(player.doAttack(dt) === true)
+        {
+            if(typeof (targets = player.data.currentWeapon.grabTargets(player)) !== "undefined")
+            {
+                for(var target of targets.values())
+                {
+                    if(player.data.currentWeapon.isInRange(player, target))
+                    {
+                        player.data.currentWeapon.attack(player, target);
+                    }
+                }
             }
         }
     },
@@ -210,19 +228,6 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
 
     updatePlayer: function(dt)
     {
-        me.collision.check(this);
-
-        if(this.doAttack(dt) === true)
-        {
-            for(enemy of game.units.enemy)
-            {
-                if(this.data.currentWeapon.isInRange(this, enemy))
-                {
-                    this.data.currentWeapon.attack(this, enemy);
-                }
-            }
-        }
-
         return true;
     },
 
