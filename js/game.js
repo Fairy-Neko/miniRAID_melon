@@ -86,7 +86,7 @@ var game = {
                 {
                     baseAttackSpeed: game.helper.getRandomFloat(0.05, 0.08),
                     activeRange: game.helper.getRandomInt(20, 60),
-                    power: 20,
+                    power: 130,
                 }), isPlayer: true, health: 1800}));
         }
 
