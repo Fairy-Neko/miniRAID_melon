@@ -80,6 +80,7 @@ var game = {
         for(var i = 0; i < game.data.playerMax; i++)
         {
             var choice = Math.random();
+            choice = 0.6;
             // Melee attacker
             if(choice < 0.2)
             {
@@ -97,6 +98,15 @@ var game = {
                         baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4),
                         activeRange: game.helper.getRandomInt(300, 400),
                     }), isPlayer: true}));
+            }
+            // Healer
+            else if(choice < 0.7)
+            {
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "Heal girl " + i, weaponLeft: new game.weapon.TestHealStaff(
+                    {
+                        baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4),
+                        activeRange: game.helper.getRandomInt(100, 200),
+                    }), isPlayer: true, health: 10000}));
             }
             // Trival ranged attacker
             else

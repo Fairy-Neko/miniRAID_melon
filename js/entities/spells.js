@@ -6,6 +6,17 @@ game.Moveable = me.Entity.extend
     {
         this._super(me.Entity, 'init', [x, y, settings]);
 
+        // Note: the body (collision bound) will not rotate.
+        this._mv_useRotation = settings.useRotation || false;
+        this._mv_rotation = settings.rotation || 0;
+        this._mv_prevRotation = 0;
+        this._mv_scale = settings.scale || new me.Vector2d(1, 1);
+
+        if(this._mv_useRotation == true)
+        {            
+            this._applyRotate();
+        }
+
         // Center position helper
         this.renderAnchorPos = new me.Vector2d(0, 0);
         this.renderAnchorPos.x = this.pos.x + this.anchorPoint.x * this.body.width + this.renderable.pos.x;
@@ -28,6 +39,37 @@ game.Moveable = me.Entity.extend
         this.updateMoveable(dt);
         
         this._super(me.Entity, 'update', [dt]);
+
+        if(this._mv_useRotation === true)
+        {
+            this._applyRotate();
+        }
+    },
+
+    _applyRotate: function()
+    {
+        this.renderable.currentTransform = new me.Matrix2d().identity();
+        this.renderable.currentTransform.rotate(this._mv_rotation);
+        this.renderable.currentTransform.scaleV(this._mv_scale);
+    },
+
+    setRotation: function(r)
+    {
+        this._mv_rotation = r;
+        this._applyRotate();
+    },
+
+    setScale: function(x, y)
+    {
+        if(this._mv_useRotation == true)
+        {
+            this._mv_scale.set(x, y);
+            this._applyRotate();
+        }
+        else
+        {
+            this.renderable.scale(x, y);
+        }
     },
 
     updateMoveable: function(dt)
@@ -62,7 +104,7 @@ game.Moveable = me.Entity.extend
 
 game.Spell.base = game.Moveable.extend
 ({
-    init:function (x, y, source, target, settings) 
+    init:function (x, y, source, target, settings, useCollider = true) 
     {
         this._super(game.Moveable, 'init', [x, y, settings]);
 
@@ -71,6 +113,8 @@ game.Spell.base = game.Moveable.extend
 
         this.source = source;
         this.target = target;
+
+        this.useCollider = useCollider;
 
         // Not sure which collision type it should be
         // this.body.collisionType = me.collision.types.PROJECTILE_OBJECT;
@@ -91,7 +135,10 @@ game.Spell.base = game.Moveable.extend
             me.game.world.removeChild(this);
         }
 
-        me.collision.check(this);
+        if(this.useCollider == true)
+        {
+            me.collision.check(this);
+        }
         this.updateSpell(dt);
     },
 
@@ -255,6 +302,98 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
 
         this.body.vel.copy(this.speedVector.clone().scale(this.speed * me.timer.tick));
     }
+});
+
+game.Spell.TestHealBeam = game.Spell.base.extend
+({
+    init:function (x, y, source, target, settings) 
+    {
+        // We will use the rotation notation in game.Moveable.
+        settings.useRotation = true;
+
+        // subVec: source -> target
+        var subVec = target.getRenderPos(0.5, 0.5).clone().sub(source.getRenderPos(0.5, 0.5));
+
+        // Calculate the scale and rotation
+        var scaleX = subVec.length() / 16.0;
+        
+        var rotation = new me.Vector2d(1, 0).angle(subVec);
+        // Vector2d.angle() uses Math.acos, which only returns an angle between [0, pi].
+        // We should check the angle manully:
+        if(subVec.y < 0)
+        {
+            rotation = Math.PI * 2 - rotation;
+        }
+
+        settings.image = "tst_HealBeam";
+        settings.width = 16;
+        settings.height = 16;
+
+        // We want it origined at the left middle of the image.
+        // In order to rotate it properly.
+        settings.anchorPoint = new me.Vector2d(0, 0.5);
+        // settings.rotation = rotation;
+
+        this._super(game.Spell.base, 'init', [x, y, source, target, settings, false]);
+
+        this.setRotation(rotation);
+        this.setScale(scaleX, 1);
+
+        // We only use this as a image effect
+        // We heal the target directly.
+        this.body.collisionType = me.collision.types.PROJECTILE_OBJECT;
+        this.body.setCollisionMask(me.collision.types.NO_OBJECT);
+
+        this.power = settings.power || 10;
+
+        // Heal the target!
+        if(game.Mobs.checkAlive(target) == true)
+        {
+            target.recieveHeal({
+                source: this.source, 
+                heal: game.helper.getRandomInt(this.power * 0.5, this.power * 1.5),
+                isCrit: false,
+                spell: this,
+            });
+        }
+
+        // Delete self after 500ms.
+        me.timer.setTimeout(this.spellFinished.bind(this), 500);
+    },
+
+    spellFinished: function()
+    {
+        if(me.game.world.hasChild(this))
+        {
+            me.game.world.removeChild(this);
+        }
+    },
+
+    updateSpell: function(dt) 
+    {
+        if(typeof this.target !== "undefined")
+        {
+            var subVec = this.target.getRenderPos(0.5, 0.5).clone().sub(this.source.getRenderPos(0.5, 0.5));
+
+            var rotation = new me.Vector2d(1, 0).angle(subVec);
+            // Vector2d.angle() uses Math.acos, which only returns an angle between [0, pi].
+            // We should check the angle manully:
+            if(subVec.y < 0)
+            {
+                rotation = Math.PI * 2 - rotation;
+            }
+
+            this.setRotation(rotation);
+            this.setScale(subVec.length() / 16, 1);
+            this.pos.copy(this.source.pos);
+        }
+    },
+
+    onCollision: function(response, other)
+    {
+        // Don't collide to any objects
+        return false;
+    },
 });
 
 game.Spell.TestHomingIceballEnemy = game.Spell.Projectile.extend

@@ -152,6 +152,35 @@ game.weapon.TestHomingStaff = game.weapon.extend
     },
 });
 
+game.weapon.TestHealStaff = game.weapon.extend
+({
+    init: function(settings)
+    {
+        this._super(game.weapon, 'init', [settings]);
+        this.name = "test staff";
+
+        if(me.pool.exists("testHealBeam") === false)
+        {
+            me.pool.register("testHealBeam", game.Spell.TestHealBeam, true);
+        }
+    },
+
+    attack: function(mob, target)
+    {
+        var settings = {};
+        if(target.data.isPlayer === true)
+        {
+            settings.isTargetPlayer = true;
+        }
+        else
+        {
+            settings.isTargetEnemy = true;
+        }
+
+        me.game.world.addChild(me.pool.pull("testHealBeam", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+    },
+});
+
 game.weapon.TestHomingStaffEnemy = game.weapon.extend
 ({
     init: function(settings)

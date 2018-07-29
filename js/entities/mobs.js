@@ -301,6 +301,46 @@ game.Mobs.base = game.Moveable.extend(
         }
     },
 
+    recieveHeal: function({
+        source = undefined,
+        heal = 0,
+        isCrit = false,
+        spell = undefined,
+        popUp = true,
+    } = {})
+    {
+        var finalHeal = heal;
+        if(finalHeal > 0)
+        {
+            var realHeal = Math.min(this.data.maxHealth - this.data.currentHealth, finalHeal);
+            var overHeal = finalHeal - realHeal;
+            this.data.currentHealth += realHeal;
+
+            if(popUp == true)
+            {
+                var popUpPos = this.getRenderPos(0.5, 0.0);
+                if(overHeal > 0)
+                {
+                    game.UI.popupMgr.addText({
+                        text: realHeal.toString() + "(" + overHeal.toString() + ")",
+                        posX: popUpPos.x,
+                        posY: popUpPos.y,
+                    });
+                }
+                else
+                {
+                    game.UI.popupMgr.addText({
+                        text: realHeal.toString(),
+                        posX: popUpPos.x,
+                        posY: popUpPos.y,
+                    });
+                }
+            }
+
+            game.data.monitor.addHeal(realHeal, overHeal, source, this, isCrit, spell);
+        }
+    },
+
     die: function({
         source = undefined, 
         damage = {
@@ -370,7 +410,7 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 
         settings.weaponLeft = new game.weapon.TestHomingStaffEnemy
         ({
-            baseAttackSpeed: game.helper.getRandomFloat(3, 5),
+            baseAttackSpeed: game.helper.getRandomFloat(.3, .5),
             activeRange: game.helper.getRandomInt(100, 100),
         });
 

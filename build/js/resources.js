@@ -40,6 +40,11 @@ game.resources = [
         "src": "data/img/object- layer.png"
     },
     {
+        "name": "tst_HealBeam",
+        "type": "image",
+        "src": "data/img/tst_HealBeam.png"
+    },
+    {
         "name": "FixedSys",
         "type": "image",
         "src": "data/fnt/FixedSys.png"

@@ -167,6 +167,7 @@ game.dataBackend.BattleMonitor = me.Object.extend
     { 
         this.time = 0;
         this.damageDict = {};
+        this.healDict = {};
     },
 
     update: function(dt)
@@ -182,6 +183,7 @@ game.dataBackend.BattleMonitor = me.Object.extend
     {
         this.time = 0;
         this.damageDict = {};
+        this.healDict = {};
     },
 
     addDamage: function(damage, dmgType, source, target, isCrit, spell)
@@ -216,6 +218,37 @@ game.dataBackend.BattleMonitor = me.Object.extend
             {
                 this.damageDict[source.data.name].spellDict[spell.name] = this.damageDict[source.data.name].spellDict[spell.name] || 0;
                 this.damageDict[source.data.name].spellDict[spell.name] += damage;
+            }
+        }
+    },
+
+    addHeal: function(realHeal, overHeal, source, taret, isCrit, spell)
+    {
+        if(source.data.isPlayer === true)
+        {
+            // Create a dict if it does not exist
+            this.healDict[source.data.name] = this.healDict[source.data.name] || 
+            {
+                totalHeal: 0,
+                realHeal: 0,
+                overHeal: 0,
+                // TODO: crit
+                targetDict: {},
+                spellDict: {},
+                player: source,
+            };
+
+            this.healDict[source.data.name].totalHeal += realHeal + overHeal;
+            this.healDict[source.data.name].realHeal += realHeal;
+            this.healDict[source.data.name].overHeal += overHeal;
+
+            //Category: spell
+            if(typeof spell !== "undefined")
+            {
+                this.healDict[source.data.name].spellDict[spell.name] = this.healDict[source.data.name].spellDict[spell.name] || { totalHeal: 0, realHeal: 0, overHeal: 0 };
+                this.healDict[source.data.name].spellDict[spell.name].totalHeal += realHeal + overHeal;
+                this.healDict[source.data.name].spellDict[spell.name].realHeal += realHeal;
+                this.healDict[source.data.name].spellDict[spell.name].overHeal += overHeal;
             }
         }
     },
