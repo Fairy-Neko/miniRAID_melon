@@ -210,6 +210,12 @@
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
+  <object id="80" name="testBoss" x="402" y="334" width="56" height="56">
+   <properties>
+    <property name="framewidth" type="int" value="56"/>
+    <property name="image" value="fatthing"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="collision">
   <object id="8" x="-5" y="-12" width="1039.5" height="21"/>

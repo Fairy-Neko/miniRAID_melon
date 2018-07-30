@@ -138,6 +138,41 @@ game.weapon.TestStaff = game.weapon.extend
     },
 });
 
+game.weapon.TestBossStaff = game.weapon.extend
+({
+    init: function(settings)
+    {
+        this._super(game.weapon, 'init', [settings]);
+        this.name = "test boss staff";
+
+        this.power = settings.power || 5;
+
+        if(me.pool.exists("testFireball") === false)
+        {
+            me.pool.register("testFireball", game.Spell.TestFireball, true);
+        }
+    },
+
+    attack: function(mob, target)
+    {
+        var settings = {};
+        
+        settings.isTargetPlayer = true;
+        settings.image = "heart";
+        settings.width = 54;
+        settings.height = 54;
+
+        settings.power = this.power;
+
+        me.game.world.addChild(me.pool.pull("testFireball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+    },
+
+    grabTargets: function(mob)
+    {
+        return result = game.units.getNearest(mob.getRenderPos(0.5, 0.5), isPlayer = !mob.data.isPlayer, count = this.targetCount);
+    },
+});
+
 game.weapon.TestHomingStaff = game.weapon.extend
 ({
     init: function(settings)

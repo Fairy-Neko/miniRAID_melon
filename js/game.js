@@ -70,6 +70,7 @@ var game = {
 
         // add our player entity in the entity pool
         me.pool.register("testMob", game.Mobs.TestMob);
+        me.pool.register("testBoss", game.Mobs.TestBoss);
         me.pool.register("testIcyZone", game.testIcyZone);
         me.pool.register("playerSpawnPoint", game.playerSpawnPoint);
         // me.pool.register("playerSpawnPoint", game.PlayerMobs.test);

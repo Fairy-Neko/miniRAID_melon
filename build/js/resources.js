@@ -15,6 +15,11 @@ game.resources = [
         "src": "data/img/crystalcoin.png"
     },
     {
+        "name": "fatthing",
+        "type": "image",
+        "src": "data/img/fatthing.png"
+    },
+    {
         "name": "goldcoin",
         "type": "image",
         "src": "data/img/goldcoin.png"
@@ -28,6 +33,11 @@ game.resources = [
         "name": "ground_tiles",
         "type": "image",
         "src": "data/img/ground_tiles.png"
+    },
+    {
+        "name": "heart",
+        "type": "image",
+        "src": "data/img/heart.png"
     },
     {
         "name": "magical_girl",
