@@ -199,7 +199,6 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
 ({
     init: function(x, y, settings)
     {
-        settings.image = "magical_girl";
         settings.width = 128;
         settings.height = 128;
         settings.framewidth = 32;

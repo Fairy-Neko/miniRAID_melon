@@ -48,6 +48,7 @@ game.dataBackend.Mob = me.Object.extend
     {
         this.name = settings.name || "noname";
         // this.position = {x: this.body.left, y: this.body.top};
+        this.image = settings.image || "magical_girl";
 
         // health related
         this.maxHealth = settings.health || 100;

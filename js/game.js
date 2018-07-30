@@ -88,7 +88,7 @@ var game = {
                     baseAttackSpeed: game.helper.getRandomFloat(0.05, 0.08),
                     activeRange: game.helper.getRandomInt(20, 60),
                     power: 130,
-                }), isPlayer: true, health: 1800}));
+                }), isPlayer: true, health: 1800, image: "tank_girl"}));
         }
 
         // Healer
@@ -100,7 +100,7 @@ var game = {
                     activeRange: game.helper.getRandomInt(100, 150),
                     targetCount: 1,
                     power: 300,
-                }), isPlayer: true, health: 800}));
+                }), isPlayer: true, health: 800, image: "healer_girl"}));
         }
 
         // DPS
@@ -115,7 +115,7 @@ var game = {
                         activeRange: game.helper.getRandomInt(200, 300),
                         targetCount: 16,
                         power: 150,
-                    }), isPlayer: true, health: 500}));
+                    }), isPlayer: true, health: 500, image: "magical_girl"}));
             }
             else
             {
@@ -125,7 +125,7 @@ var game = {
                         activeRange: game.helper.getRandomInt(250, 350),
                         targetCount: 16,
                         power: 200,
-                    }), isPlayer: true, health: 500}));
+                    }), isPlayer: true, health: 500, image: "magical_girl"}));
             }
         }
 

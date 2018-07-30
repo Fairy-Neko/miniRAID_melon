@@ -11,6 +11,9 @@ game.Mobs.UnitManager = me.Object.extend
 
         me.input.registerPointerEvent('pointerdown', me.game.viewport, this.pointerDown.bind(this));
         me.input.bindKey(me.input.KEY.F, "f");
+        me.input.bindKey(me.input.KEY.R, "r");
+
+        this.playerRotation = 0;
     },
 
     pointerDown: function(pointer)
@@ -22,22 +25,23 @@ game.Mobs.UnitManager = me.Object.extend
         this.origin.set(pointer.gameX, pointer.gameY);
 
         var playerNum = 0;
+        var playerSparse = game.data.playerSparse;
+
         if(me.input.isKeyPressed("f"))
         {
-            for(var player of this.player)
-            {
-                player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(60, 0).rotate(playerNum / this.player.size * 2 * Math.PI)));
-                playerNum++;
-            }
+            playerSparse = 60;
         }
-        else
+        if(me.input.isKeyPressed("r"))
         {
-            for(var player of this.player)
-            {
-                player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(game.data.playerSparse, 0).rotate(playerNum / this.player.size * 2 * Math.PI)));
-                playerNum++;
-            }
+            this.playerRotation += 2;
         }
+
+        for(var player of this.player)
+        {
+            player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(playerSparse, 0).rotate((playerNum + this.playerRotation) / this.player.size * 2 * Math.PI)));
+            playerNum++;
+        }
+
         return true;
     },
 

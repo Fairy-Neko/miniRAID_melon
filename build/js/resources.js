@@ -35,6 +35,11 @@ game.resources = [
         "src": "data/img/ground_tiles.png"
     },
     {
+        "name": "healer_girl",
+        "type": "image",
+        "src": "data/img/healer_girl.png"
+    },
+    {
         "name": "heart",
         "type": "image",
         "src": "data/img/heart.png"
@@ -48,6 +53,11 @@ game.resources = [
         "name": "object- layer",
         "type": "image",
         "src": "data/img/object- layer.png"
+    },
+    {
+        "name": "tank_girl",
+        "type": "image",
+        "src": "data/img/tank_girl.png"
     },
     {
         "name": "tst_HealBeam",
