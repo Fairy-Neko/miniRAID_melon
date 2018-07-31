@@ -20,6 +20,7 @@ game.Mobs.UnitManager = me.Object.extend
 
         me.input.registerPointerEvent('pointerdown', me.game.viewport, this.pointerDown.bind(this));
         me.input.registerPointerEvent('pointerup', me.game.viewport, this.pointerUp.bind(this));
+        me.input.registerPointerEvent('pointerleave', me.game.viewport, this.pointerLeave.bind(this));
         me.input.registerPointerEvent('pointermove', me.game.viewport, this.pointerMove.bind(this));
 
         me.input.bindKey(me.input.KEY.F, "f");
@@ -89,7 +90,6 @@ game.Mobs.UnitManager = me.Object.extend
     pointerDown: function(pointer)
     {
         pointer.event.preventDefault();
-        console.log(this.isMouseRight(pointer));
 
         // Drag a rect
         if(this.isMouseLeft(pointer))
@@ -172,6 +172,14 @@ game.Mobs.UnitManager = me.Object.extend
         {
             this.isDragging = false;
         }
+
+        return true;
+    },
+
+    pointerLeave: function(pointer)
+    {
+        this.isDown = false;
+        this.isDragging = false;
 
         return true;
     },

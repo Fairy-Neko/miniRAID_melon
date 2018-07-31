@@ -175,6 +175,17 @@ var game = {
             rawFile.send(null);
         },
 
+        genAnimFrames: function(start, end)
+        {
+            var array = [];
+            for(var i = start; i <= end; i++)
+            {
+                array.push(i);
+            }
+
+            return array;
+        },
+
         vec2:
         {
             dot: function(a, b)

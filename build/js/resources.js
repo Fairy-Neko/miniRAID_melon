@@ -35,6 +35,11 @@ game.resources = [
         "src": "data/img/ground_tiles.png"
     },
     {
+        "name": "Heal_32x64px",
+        "type": "image",
+        "src": "data/img/Heal_32x64px.png"
+    },
+    {
         "name": "healer_girl",
         "type": "image",
         "src": "data/img/healer_girl.png"
@@ -43,6 +48,21 @@ game.resources = [
         "name": "heart",
         "type": "image",
         "src": "data/img/heart.png"
+    },
+    {
+        "name": "Hit_32x32px",
+        "type": "image",
+        "src": "data/img/Hit_32x32px.png"
+    },
+    {
+        "name": "Hit_64x64px",
+        "type": "image",
+        "src": "data/img/Hit_64x64px.png"
+    },
+    {
+        "name": "Magic_Hit_32x32px",
+        "type": "image",
+        "src": "data/img/Magic_Hit_32x32px.png"
     },
     {
         "name": "magical_girl",

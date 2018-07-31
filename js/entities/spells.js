@@ -104,6 +104,42 @@ game.Moveable = me.Entity.extend
     },
 });
 
+game.Spell.magicalHitSprite = me.Sprite.extend
+({
+    init: function(x, y, settings)
+    {
+        settings.image = settings.image || "Hit_64x64px";
+        settings.framewidth = settings.framewidth || 64;
+        settings.frameheight = settings.frameheight || 64;
+
+        this._super(me.Sprite, 'init', [x, y, settings]);
+
+        this.addAnimation("play", game.helper.genAnimFrames(0, 11), 32);
+        this.setCurrentAnimation("play", (function(){
+            me.game.world.removeChild(this);
+            return false;
+        }).bind(this));
+    },
+});
+
+game.Spell.HealFxSprite = me.Sprite.extend
+({
+    init: function(x, y, settings)
+    {
+        settings.image = settings.image || "Heal_32x64px";
+        settings.framewidth = settings.framewidth || 32;
+        settings.frameheight = settings.frameheight || 64;
+
+        this._super(me.Sprite, 'init', [x, y, settings]);
+
+        this.addAnimation("play", game.helper.genAnimFrames(0, 29), 32);
+        this.setCurrentAnimation("play", (function(){
+            me.game.world.removeChild(this);
+            return false;
+        }).bind(this));
+    },
+});
+
 game.Spell.base = game.Moveable.extend
 ({
     init:function (x, y, source, target, settings, useCollider = true) 
@@ -151,10 +187,17 @@ game.Spell.base = game.Moveable.extend
         // make sure it cannot be collected "again"
         this.body.setCollisionMask(me.collision.types.NO_OBJECT);
 
+        this.onDestroy(other);
+
         if(me.game.world.hasChild(this))
         {
             me.game.world.removeChild(this);
         }
+    },
+
+    onDestroy: function(other)
+    {
+
     },
 
     onCollision: function(response, other)
@@ -282,6 +325,11 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
 
         this.speed = settings.projectileSpeed || 200;
         this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
+
+        // if(me.pool.exists("magicalHit") === false)
+        // {
+        //     me.pool.register("magicalHit", game.Spell.magicalHitSprite, true);
+        // }
     },
 
     onMobCollision: function(other)
@@ -300,6 +348,11 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
         }
     },
 
+    onDestroy: function(other)
+    {
+        // me.game.world.addChild(me.pool.pull("magicalHit", this.renderAnchorPos.x, this.renderAnchorPos.y, {}));
+    },
+
     updateProjectile: function(dt)
     {
         // Homing
@@ -316,6 +369,11 @@ game.Spell.TestHealBeam = game.Spell.base.extend
 ({
     init:function (visualSource, source, target, settings) 
     {
+        // if(me.pool.exists("healFx") === false)
+        // {
+        //     me.pool.register("healFx", game.Spell.HealFxSprite, true);
+        // }
+
         // We will use the rotation notation in game.Moveable.
         settings.useRotation = true;
 
@@ -367,6 +425,8 @@ game.Spell.TestHealBeam = game.Spell.base.extend
                 isCrit: false,
                 spell: this,
             });
+
+            // me.game.world.addChild(me.pool.pull("healFx", target.renderAnchorPos.x, target.renderAnchorPos.y, {}));
         }
 
         this.timer = 500;
