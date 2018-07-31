@@ -34,7 +34,7 @@ class Buff
         this.popupColor = popupColor;
 
         //Where does this buff come from? and which mob does it belongs to?
-        //This should be changed in recieveBuff() of mobs
+        //This should be changed in receiveBuff() of mobs
         this.source = undefined;
         this.parent = undefined;
     }
@@ -154,7 +154,7 @@ class Fired extends Buff
 
         for(;this.fireCount < Math.floor(this.timer / this.damageGap); this.fireCount++)
         {
-            mob.recieveDamage({
+            mob.receiveDamage({
                 source: this.source,
                 damage: {
                     fire: game.helper.getRandomInt(this.damageMin, this.damageMax + 1),

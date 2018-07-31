@@ -128,11 +128,11 @@ game.Mobs.UnitManager = me.Object.extend
             {
                 if(boardcastObj.isDamage === true)
                 {
-                    obj.agent.onFocusRecieveDamage(boardcastObj);
+                    obj.agent.onFocusReceiveDamage(boardcastObj);
                 }
                 else
                 {
-                    obj.agent.onFocusRecieveHeal(boardcastObj);
+                    obj.agent.onFocusReceiveHeal(boardcastObj);
                 }
             }
         }
@@ -269,12 +269,12 @@ game.Mobs.base = game.Moveable.extend(
     },
 
     // Will be called when a buff is going to affect the mob.
-    // If anything some object with buff ability (e.g. fireball can fire sth up) hits has method recieveBuff(),
-    // recieveBuff() will be called and the mob will be buffed.
-    // recieveBuff() should be the final step of being buffed, and if the mob resists some buff this should not be called.
+    // If anything some object with buff ability (e.g. fireball can fire sth up) hits has method receiveBuff(),
+    // receiveBuff() will be called and the mob will be buffed.
+    // receiveBuff() should be the final step of being buffed, and if the mob resists some buff this should not be called.
     // e.g. in some inherited classes use:
-    //                                       if(...){ nothing happens; } else { super.recieveBuff() }.
-    recieveBuff: function({
+    //                                       if(...){ nothing happens; } else { super.receiveBuff() }.
+    receiveBuff: function({
         source = undefined, 
         buff = undefined,
         popUp = true
@@ -282,7 +282,7 @@ game.Mobs.base = game.Moveable.extend(
     {
         if(buff != undefined)
         {
-            // console.log("[" + this.name + "] : Recieved buff <" + buff.name + "> from <" + source.name, "> !");
+            // console.log("[" + this.name + "] : Received buff <" + buff.name + "> from <" + source.name, "> !");
 
             this.data.buffList.add(buff);
 
@@ -298,16 +298,16 @@ game.Mobs.base = game.Moveable.extend(
         }
     },
 
-    // Same as recieveBuff(),
-    // this method will be used to recieve damage from any object.
+    // Same as receiveBuff(),
+    // this method will be used to receive damage from any object.
     // this method will calculate damage reducement *only* based on mob's resist stats,
     // So if you have any other damage calculation processes (e.g. fire resist necklace / -3 fire dmg), 
-    // do it first and then call super.recieveDamage().
+    // do it first and then call super.receiveDamage().
     
     // This method will also popup a text with the final amount of damage, 
     // with corresponding color defined in tables.js (var damageColor).
     // this action could be disabled by setting popUp = false.
-    recieveDamage: function({
+    receiveDamage: function({
         source = undefined, 
         damage = {
             // slash = 0,
@@ -358,7 +358,7 @@ game.Mobs.base = game.Moveable.extend(
             isCrit: isCrit,
             spell: spell,
         };
-        this.agent.onRecieveDamage(damageObj);
+        this.agent.onReceiveDamage(damageObj);
         game.units.boardcastDamage(damageObj);
 
         for(dmg in finalDmg)
@@ -373,7 +373,7 @@ game.Mobs.base = game.Moveable.extend(
         }
     },
 
-    recieveHeal: function({
+    receiveHeal: function({
         source = undefined,
         heal = 0,
         isCrit = false,
@@ -423,7 +423,7 @@ game.Mobs.base = game.Moveable.extend(
             isCrit: isCrit,
             spell: spell,
         };
-        this.agent.onRecieveHeal(healObj);
+        this.agent.onReceiveHeal(healObj);
         game.units.boardcastHeal(healObj);
     },
 
@@ -512,7 +512,7 @@ game.Mobs.TestMob = game.Mobs.base.extend(
         
         if(Math.random() < 0)
         {
-            this.recieveBuff({source: this, buff: new Fired({time: 5.0})});
+            this.receiveBuff({source: this, buff: new Fired({time: 5.0})});
         }
     },
 
@@ -542,7 +542,7 @@ game.MobAgent.base = me.Object.extend
     },
     updateMob(mob, dt) {},
     
-    onRecieveDamage({
+    onReceiveDamage({
         source, 
         damage, 
         finalDamage, 
@@ -551,7 +551,7 @@ game.MobAgent.base = me.Object.extend
         spell, 
     } = {}) {},
 
-    onRecieveHeal({
+    onReceiveHeal({
         source, 
         totalHeal, 
         realHeal, 
@@ -559,7 +559,7 @@ game.MobAgent.base = me.Object.extend
         spell, 
     } = {}) {},
 
-    onFocusRecieveDamage({
+    onFocusReceiveDamage({
         source, 
         target, 
         damage, 
@@ -569,7 +569,7 @@ game.MobAgent.base = me.Object.extend
         spell, 
     } = {}) {},
 
-    onFocusRecieveHeal({
+    onFocusReceiveHeal({
         source,
         target,  
         totalHeal, 
@@ -759,7 +759,7 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         this.tauntList[source.data.ID].taunt += taunt;
     },
 
-    onRecieveDamage({
+    onReceiveDamage({
         source, 
         damage, 
         finalDamage, 
@@ -779,7 +779,7 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         this.tauntList[source.data.ID].taunt += damageTotal * source.data.tauntMul;
     },
 
-    onFocusRecieveHeal({
+    onFocusReceiveHeal({
         source,
         target,  
         totalHeal, 

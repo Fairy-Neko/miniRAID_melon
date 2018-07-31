@@ -242,9 +242,9 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
 
     onMobCollision: function(other)
     {
-        if(typeof other.recieveDamage !== "undefined")
+        if(typeof other.receiveDamage !== "undefined")
         {
-            other.recieveDamage({
+            other.receiveDamage({
                 source: this.source,
                 damage: {
                     fire: game.helper.getRandomInt(this.power * 0.5, this.power * 1.5),
@@ -283,9 +283,9 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
 
     onMobCollision: function(other)
     {
-        if(typeof other.recieveDamage !== "undefined")
+        if(typeof other.receiveDamage !== "undefined")
         {
-            other.recieveDamage({
+            other.receiveDamage({
                 source: this.source,
                 damage: {
                     ice: game.helper.getRandomInt(this.power * 0.5, this.power * 1.5),
@@ -358,7 +358,7 @@ game.Spell.TestHealBeam = game.Spell.base.extend
         // Heal the target!
         if(game.Mobs.checkAlive(target) == true)
         {
-            target.recieveHeal({
+            target.receiveHeal({
                 source: this.source, 
                 heal: game.helper.getRandomInt(this.power * 0.5, this.power * 1.5),
                 isCrit: false,
