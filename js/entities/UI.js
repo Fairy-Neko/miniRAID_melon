@@ -76,7 +76,7 @@ game.UI.PopupTextManager = me.Renderable.extend ({
         this.font['FixedSys'] = new me.BitmapFont(me.loader.getBinary('FixedSys'), me.loader.getImage('FixedSys'));
         this.font['FixedSys'].set("center");
 
-        // this.font['Arial'] = new me.Font("Arial", 8, "#ffffff", "center");
+        this.font['Arial'] = new me.Font("Arial", 8, "#ffffff", "center");
 
         this.textList = new Set();
     },
@@ -91,8 +91,8 @@ game.UI.PopupTextManager = me.Renderable.extend ({
         posX = game.data.width / 2.0,
         posY = game.data.height / 2.0,
         color = new me.Color(1, 1, 1, 1),
-        fontFamily = "FixedSys",
-        // fontFamily = "Arial",
+        // fontFamily = "FixedSys",
+        fontFamily = "Arial",
     } = {})
     {
         var textObj = {
@@ -148,9 +148,13 @@ game.UI.PopupTextManager = me.Renderable.extend ({
         {
             // vv This cannot work vv
             // this.font[txt.fontFamily].fillStyle = txt.color;
-            // this.font[txt.fontFamily].setFont("Arial", 10, txt.color);
+
+            // This works !!!!!!!
+            this.font[txt.fontFamily].setFont("Arial", 18, txt.color);
+            // this.font[txt.fontFamily].lineWidth = 1;
 
             this.font[txt.fontFamily].draw(context, txt.text, txt.posX, txt.posY);
+            // this.font[txt.fontFamily].drawStroke(context, txt.text, txt.posX, txt.posY);
         }        
     }
 });

@@ -24,14 +24,16 @@ var game = {
             slash: "white",
             knock: "white",
             pierce: "white",
-            fire: new me.Color(1, 1, 0, 1),
-            ice: new me.Color(1, 0, 1, 1),
+            fire: "#ff0000",
+            ice: "#0000ff",
             water: "blue",
             nature: "green",
             wind: "lightgreen",
             thunder: "yellow",
             light: "lightyellow"
         },
+
+        healColor: "#00ff00",
     },
 
     collisionTypes:
