@@ -138,6 +138,41 @@ game.weapon.TestStaff = game.weapon.extend
     },
 });
 
+game.weapon.TestBossStaff = game.weapon.extend
+({
+    init: function(settings)
+    {
+        this._super(game.weapon, 'init', [settings]);
+        this.name = "test boss staff";
+
+        this.power = settings.power || 5;
+
+        if(me.pool.exists("testFireball") === false)
+        {
+            me.pool.register("testFireball", game.Spell.TestFireball, true);
+        }
+    },
+
+    attack: function(mob, target)
+    {
+        var settings = {};
+        
+        settings.isTargetPlayer = true;
+        settings.image = "heart";
+        settings.width = 54;
+        settings.height = 54;
+
+        settings.power = this.power;
+
+        me.game.world.addChild(me.pool.pull("testFireball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+    },
+
+    grabTargets: function(mob)
+    {
+        return result = game.units.getNearest(mob.getRenderPos(0.5, 0.5), isPlayer = !mob.data.isPlayer, count = this.targetCount);
+    },
+});
+
 game.weapon.TestHomingStaff = game.weapon.extend
 ({
     init: function(settings)
@@ -206,36 +241,44 @@ game.weapon.TestHealStaff = game.weapon.extend
         }
 
         settings.power = this.power;
-
-        me.game.world.addChild(me.pool.pull("testHealBeam", mob, mob, target, settings));
-
-        // Chain healing
-        var currentStartMob = target;
-        var nextMob = undefined;
-        for(var i = 0; i < 3; i++)
+        
+        if(target !== undefined)
         {
-            var result = game.units.getUnitList({
-                sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
-                availableTest: function(a)
+            me.game.world.addChild(me.pool.pull("testHealBeam", mob, mob, target, settings));
+
+            // Chain healing
+            var currentStartMob = target;
+            var nextMob = undefined;
+            for(var i = 0; i < 3; i++)
+            {
+                var result = game.units.getUnitList({
+                    sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
+                    availableTest: function(a)
+                    {
+                        return a != nextMob && this.isInRange(currentStartMob, a);
+                    }.bind(this),
+                    isPlayer: mob.data.isPlayer,
+                });
+
+                if(result)
                 {
-                    return a != nextMob && this.isInRange(currentStartMob, a);
-                }.bind(this),
-                isPlayer: mob.data.isPlayer,
-            });
+                    nextMob = result[0];
+                }
+                else
+                {
+                    break;
+                }
 
-            if(result)
-            {
-                nextMob = result[0];
+                settings.power *= 0.6;
+
+                if(nextMob === undefined)
+                {
+                    break;
+                }
+
+                me.game.world.addChild(me.pool.pull("testHealBeam", currentStartMob, mob, nextMob, settings));
+                currentStartMob = nextMob;
             }
-            else
-            {
-                break;
-            }
-
-            settings.power *= 0.6;
-
-            me.game.world.addChild(me.pool.pull("testHealBeam", currentStartMob, mob, nextMob, settings));
-            currentStartMob = nextMob;
         }
     },
 

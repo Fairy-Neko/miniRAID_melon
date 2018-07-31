@@ -15,6 +15,11 @@ game.resources = [
         "src": "data/img/crystalcoin.png"
     },
     {
+        "name": "fatthing",
+        "type": "image",
+        "src": "data/img/fatthing.png"
+    },
+    {
         "name": "goldcoin",
         "type": "image",
         "src": "data/img/goldcoin.png"
@@ -30,6 +35,16 @@ game.resources = [
         "src": "data/img/ground_tiles.png"
     },
     {
+        "name": "healer_girl",
+        "type": "image",
+        "src": "data/img/healer_girl.png"
+    },
+    {
+        "name": "heart",
+        "type": "image",
+        "src": "data/img/heart.png"
+    },
+    {
         "name": "magical_girl",
         "type": "image",
         "src": "data/img/magical_girl.png"
@@ -38,6 +53,11 @@ game.resources = [
         "name": "object- layer",
         "type": "image",
         "src": "data/img/object- layer.png"
+    },
+    {
+        "name": "tank_girl",
+        "type": "image",
+        "src": "data/img/tank_girl.png"
     },
     {
         "name": "tst_HealBeam",

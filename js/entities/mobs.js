@@ -10,6 +10,10 @@ game.Mobs.UnitManager = me.Object.extend
         this.enemy = new Set();
 
         me.input.registerPointerEvent('pointerdown', me.game.viewport, this.pointerDown.bind(this));
+        me.input.bindKey(me.input.KEY.F, "f");
+        me.input.bindKey(me.input.KEY.R, "r");
+
+        this.playerRotation = 0;
     },
 
     pointerDown: function(pointer)
@@ -21,11 +25,23 @@ game.Mobs.UnitManager = me.Object.extend
         this.origin.set(pointer.gameX, pointer.gameY);
 
         var playerNum = 0;
+        var playerSparse = game.data.playerSparse;
+
+        if(me.input.isKeyPressed("f"))
+        {
+            playerSparse = 60;
+        }
+        if(me.input.isKeyPressed("r"))
+        {
+            this.playerRotation += 2;
+        }
+
         for(var player of this.player)
         {
-            player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(game.data.playerSparse, 0).rotate(playerNum / this.player.size * 2 * Math.PI)));
+            player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(playerSparse, 0).rotate((playerNum + this.playerRotation) / this.player.size * 2 * Math.PI)));
             playerNum++;
         }
+
         return true;
     },
 
@@ -518,6 +534,62 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 
     updateMob: function(dt)
     {
+        me.collision.check(this);
+    },
+
+    onCollision: function(response, other)
+    {
+        if(other.body.collisionType !== me.collision.types.WORLD_SHAPE)
+        {
+            return false;
+        }
+        return true;
+    }
+});
+
+//For Fun(x
+game.Mobs.TestBoss = game.Mobs.base.extend(
+{
+    init: function(x, y, settings)
+    {
+        settings.health = 400000;
+
+        settings.weaponLeft = new game.weapon.TestBossStaff
+        ({
+            baseAttackSpeed: game.helper.getRandomFloat(2, 3),
+            activeRange: game.helper.getRandomInt(100, 500),
+            power: 600,
+            targetCount: 1,
+        });
+
+        this._super(game.Mobs.base, 'init', [x, y, settings]);
+        
+        if(Math.random() < 0)
+        {
+            this.recieveBuff({source: this, buff: new Fired({time: 5.0})});
+        }
+    },
+
+    updateMob: function(dt)
+    {
+        // move the mob a little bit to left
+        this.body.vel.x = this.data.getMovingSpeed() * Math.sin(me.timer.getTime() * 0.001) * me.timer.tick;
+        this.body.update(dt);
+
+        if(this.doAttack(dt) === true)
+        {
+            if(typeof (targets = this.data.currentWeapon.grabTargets(this)) !== "undefined")
+            {
+                for(var target of targets.values())
+                {
+                    if(this.data.currentWeapon.isInRange(this, target))
+                    {
+                        this.data.currentWeapon.attack(this, target);
+                    }
+                }
+            }
+        }
+
         me.collision.check(this);
     },
 

@@ -226,11 +226,14 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
     init: function (x, y, source, target, settings) 
     {
         // Do not ask why it is a gold coin (x
+        settings.anchorPoint = new me.Vector2d(0.5, 0.5);
+        settings.name = "testFireball";
+        if(!settings.image)
+        {
         settings.image = "goldcoin";
         settings.width = 16;
         settings.height = 16;
-        settings.anchorPoint = new me.Vector2d(0.5, 0.5);
-        settings.name = "testFireball";
+        }
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
 

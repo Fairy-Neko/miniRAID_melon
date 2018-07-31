@@ -73,6 +73,7 @@ var game = {
 
         // add our player entity in the entity pool
         me.pool.register("testMob", game.Mobs.TestMob);
+        me.pool.register("testBoss", game.Mobs.TestBoss);
         me.pool.register("testIcyZone", game.testIcyZone);
         me.pool.register("playerSpawnPoint", game.playerSpawnPoint);
         // me.pool.register("playerSpawnPoint", game.PlayerMobs.test);
@@ -91,7 +92,7 @@ var game = {
                     activeRange: game.helper.getRandomInt(40, 60),
                     targetCount: 20,
                     power: 20,
-                }), isPlayer: true, health: 1800, tauntMul: 5.0,}));
+                }), isPlayer: true, health: 1800, tauntMul: 5.0, image: "tank_girl",}));
         }
 
         // Healer
@@ -103,7 +104,7 @@ var game = {
                     activeRange: game.helper.getRandomInt(100, 150),
                     targetCount: 1,
                     power: 300,
-                }), isPlayer: true, health: 800}));
+                }), isPlayer: true, health: 800, image: "healer_girl"}));
         }
 
         // DPS
@@ -118,7 +119,7 @@ var game = {
                         activeRange: game.helper.getRandomInt(200, 300),
                         targetCount: 16,
                         power: 150,
-                    }), isPlayer: true, health: 500}));
+                    }), isPlayer: true, health: 500, image: "magical_girl"}));
             }
             else
             {
@@ -128,7 +129,7 @@ var game = {
                         activeRange: game.helper.getRandomInt(250, 350),
                         targetCount: 16,
                         power: 200,
-                    }), isPlayer: true, health: 500}));
+                    }), isPlayer: true, health: 500, image: "magical_girl"}));
             }
         }
 
