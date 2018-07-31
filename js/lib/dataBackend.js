@@ -9,6 +9,9 @@ game.dataBackend = me.Object.extend
 
         // Array saving Inventory(bag) data.
         this.inventory = [];
+
+        // Used to generate ID for mobs.
+        this.mobCount = -1;
     },
 
     addPlayer: function(player)
@@ -39,6 +42,12 @@ game.dataBackend = me.Object.extend
     getPlayerList: function()
     {
         return this.playerList;
+    },
+
+    getID: function()
+    {
+        this.mobCount++;
+        return this.mobCount;
     }
 });
 
@@ -123,6 +132,12 @@ game.dataBackend.Mob = me.Object.extend
 
         // Is this mob a player?
         this.isPlayer = settings.isPlayer || false;
+
+        // How much taunt will this mob generate?
+        this.tauntMul = settings.tauntMul || 1.0;
+
+        // A Specific identify name only for this mob
+        this.ID = game.data.backend.getID();
     },
 
     getMovingSpeed: function()

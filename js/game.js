@@ -15,6 +15,9 @@ var game = {
         playerSparse: 25,
         playerMax: 8,
 
+        // How much heal will taunt? (multiplier)
+        healTaunt: 2,
+
         damageColor : {
             slash: "white",
             knock: "white",
@@ -86,9 +89,10 @@ var game = {
             this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(T) Magical girl " + i, weaponLeft: new game.weapon.TestStaff(
                 {
                     baseAttackSpeed: game.helper.getRandomFloat(0.05, 0.08),
-                    activeRange: game.helper.getRandomInt(20, 60),
-                    power: 130,
-                }), isPlayer: true, health: 1800, image: "tank_girl"}));
+                    activeRange: game.helper.getRandomInt(40, 60),
+                    targetCount: 20,
+                    power: 20,
+                }), isPlayer: true, health: 1800, tauntMul: 5.0, image: "tank_girl",}));
         }
 
         // Healer

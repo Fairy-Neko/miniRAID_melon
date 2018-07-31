@@ -11,3 +11,6 @@ Some resources used from OpenGameArt.org:
 https://opengameart.org/content/witch-bluehat-girl-and-kittens-plaformer  
 https://opengameart.org/content/whispers-of-avalon-grassland-tileset  
 https://opengameart.org/content/coins-pixel-art-silver-gold-crystal-and-more  
+  
+  
+Please create a new branch when adding new features. Then merge them to master. Thanks.

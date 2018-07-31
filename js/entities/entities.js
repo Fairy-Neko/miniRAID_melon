@@ -105,9 +105,9 @@ game.testIcyZone = me.Entity.extend({
 
     onCollision: function (response, other)
     {
-        if(typeof other.recieveBuff !== "undefined" && other.data.buffList.size == 0)
+        if(typeof other.receiveBuff !== "undefined" && other.data.buffList.size == 0)
         {
-            other.recieveBuff({source: this, buff: new IceSlowed({time: 2.0})});
+            other.receiveBuff({source: this, buff: new IceSlowed({time: 2.0})});
         }
 
         return false;
