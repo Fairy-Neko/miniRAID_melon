@@ -14,4 +14,9 @@ https://opengameart.org/content/whispers-of-avalon-grassland-tileset
 https://opengameart.org/content/coins-pixel-art-silver-gold-crystal-and-more  
   
   
-Please create a new branch when adding new features. Then merge them to master. Thanks.
+Please create a new branch when adding new features. Then merge them to master. Thanks.  
+  
+  
+Please see a brief "introduction" here if interested.  
+Plz feel free to edit it www  
+https://docs.google.com/document/d/1r4w9rFSi2a14SZv12fMZX-VT_kGA2rZBtF2Vc8jQ6Y0/edit?usp=sharing  
