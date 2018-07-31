@@ -14,6 +14,8 @@ var game = {
 
         playerSparse: 25,
         playerMax: 8,
+        useAutomove : true,
+        moveThreshold : 150,
 
         // How much heal will taunt? (multiplier)
         healTaunt: 2,
@@ -86,24 +88,24 @@ var game = {
         // Tank
         for(var i = 0; i < playerType[0]; i++)
         {
-            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(T) Magical girl " + i, weaponLeft: new game.weapon.TestStaff(
+            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(T) girl " + i, weaponLeft: new game.weapon.TestStaff(
                 {
                     baseAttackSpeed: game.helper.getRandomFloat(0.05, 0.08),
                     activeRange: game.helper.getRandomInt(40, 60),
                     targetCount: 20,
                     power: 20,
-                }), isPlayer: true, health: 1800, tauntMul: 5.0, image: "tank_girl",}));
+                }), isPlayer: true, health: 1200, tauntMul: 5.0, image: "tank_girl",}));
         }
 
         // Healer
         for(var i = 0; i < playerType[1]; i++)
         {
-            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(H) Magical girl " + i, weaponLeft: new game.weapon.TestHealStaff(
+            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(H) girl " + i, weaponLeft: new game.weapon.TestHealStaff(
                 {
-                    baseAttackSpeed: game.helper.getRandomFloat(0.5, 0.7),
+                    baseAttackSpeed: game.helper.getRandomFloat(1.0, 1.3),
                     activeRange: game.helper.getRandomInt(100, 150),
                     targetCount: 1,
-                    power: 300,
+                    power: 150,
                 }), isPlayer: true, health: 800, image: "healer_girl"}));
         }
 
@@ -113,22 +115,22 @@ var game = {
             var choice = Math.random();
             if(choice < 0.5)
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) Magic_l girl " + i, weaponLeft: new game.weapon.TestHomingStaff(
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, weaponLeft: new game.weapon.TestHomingStaff(
                     {
-                        baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4),
+                        baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
                         activeRange: game.helper.getRandomInt(200, 300),
-                        targetCount: 16,
+                        targetCount: 6,
                         power: 150,
                     }), isPlayer: true, health: 500, image: "magical_girl"}));
             }
             else
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) Magical girl " + i, weaponLeft: new game.weapon.TestStaff(
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (M) " + i, weaponLeft: new game.weapon.TestStaff(
                     {
-                        baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.4),
-                        activeRange: game.helper.getRandomInt(250, 350),
-                        targetCount: 16,
-                        power: 200,
+                        baseAttackSpeed: game.helper.getRandomFloat(0.1, 0.15),
+                        activeRange: game.helper.getRandomInt(50, 70),
+                        targetCount: 2,
+                        power: 120,
                     }), isPlayer: true, health: 500, image: "magical_girl"}));
             }
         }

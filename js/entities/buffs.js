@@ -90,6 +90,33 @@ class Buff
     // Be triggered when the mob has finished a special attack.
     onAfterSpecialAttack(mob) {}
 
+    // Following functions return a boolean.
+    // True:    the damage / heal was modified.
+    // False:   the damage / heal was not modified.
+    
+    // XXFinal will happen after resist calculation, and vice versa.
+    // You can modify the values in damage / heal in order to change the final result.
+
+    onDealDamage({ target, damage, isCrit, spell } = {}) { return false; }
+    onDealDamageFinal({ target, damage, isCrit, spell } = {}) { return false; }
+
+    onDealHeal({ target, heal, isCrit, spell } = {}) { return false; }
+    onDealHealFinal({ target, heal, isCrit, spell } = {}) { return false; }
+    
+    onReceiveDamage({ source, damage, isCrit, spell } = {}) { return false; }
+    onReceiveDamageFinal({ source, damage, isCrit, spell } = {}) { return false; }
+
+    onReceiveHeal({ source, heal, isCrit, spell } = {}) { return false; }
+    onReceiveHealFinal({ source, heal, isCrit, spell } = {}) { return false; }
+
+    onFocusReceiveDamage({ source, target, damage, isCrit, spell } = {}) { return false; }
+    onFocusReceiveDamageFinal({ source, target, damage, isCrit, spell } = {}) { return false; }
+
+    onFocusReceiveHeal({ source, target, heal, isCrit, spell } = {}) { return false; }
+    onFocusReceiveHealFinal({ source, target, heal, isCrit, spell } = {}) { return false; }
+
+    onDeath({ source, damage, isCrit, spell } = {}) { return false; }
+
     // Be triggered when the mob is going to be rendered.
     // e.g. change sprite color here etc.
     onRender(mob) {}

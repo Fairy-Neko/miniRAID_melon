@@ -8,38 +8,169 @@ game.Mobs.UnitManager = me.Object.extend
 
         this.player = new Set();
         this.enemy = new Set();
+        this.selectedPlayerCount = 0;
+
+        this.isDown = false;
+        this.isDragging = false;
+        this.timeCounter = 0;
+
+        this.rectOrigin = new me.Vector2d(0, 0);
+        this.rectTarget = new me.Vector2d(0, 0);
+        this.selectingRect = new me.Rect(0, 0, 0, 0);
 
         me.input.registerPointerEvent('pointerdown', me.game.viewport, this.pointerDown.bind(this));
+        me.input.registerPointerEvent('pointerup', me.game.viewport, this.pointerUp.bind(this));
+        me.input.registerPointerEvent('pointermove', me.game.viewport, this.pointerMove.bind(this));
+
         me.input.bindKey(me.input.KEY.F, "f");
         me.input.bindKey(me.input.KEY.R, "r");
 
         this.playerRotation = 0;
     },
 
+    update: function(dt)
+    {
+        if(this.isDragging == true)
+        {
+            game.UI.selectingRect.show = true;
+
+            game.UI.selectingRect.min.copy(this.rectOrigin);
+            game.UI.selectingRect.max.copy(this.rectTarget);
+
+            var minX = Math.min(this.rectOrigin.x, this.rectTarget.x);
+            var minY = Math.min(this.rectOrigin.y, this.rectTarget.y);
+            var maxX = Math.max(this.rectOrigin.x, this.rectTarget.x);
+            var maxY = Math.max(this.rectOrigin.y, this.rectTarget.y);
+
+            this.selectingRect.setShape(0, 0, maxX - minX, maxY - minY);
+            for(let player of this.player)
+            {
+                var pt = player.getRenderPos(0.5, 0.5).clone();
+                if(this.selectingRect.containsPoint(pt.x - minX, pt.y - minY))
+                {
+                    player.inControl = true;
+                }
+                else
+                {
+                    player.inControl = false;
+                }
+            }
+        }
+        else
+        {
+            game.UI.selectingRect.show = false;
+        }
+    },
+
+    isMouseLeft: function(pointer)
+    {
+        if ("which" in pointer.event)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+            return pointer.event.which == 1; 
+        else if ("button" in pointer.event)  // IE, Opera 
+            return pointer.event.button == 0; 
+    },
+
+    isMouseMiddle: function(pointer)
+    {
+        if ("which" in pointer.event)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+            return pointer.event.which == 2; 
+        else if ("button" in pointer.event)  // IE, Opera 
+            return pointer.event.button == 1; 
+    },
+
+    isMouseRight: function(pointer)
+    {
+        if ("which" in pointer.event)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+            return pointer.event.which == 3; 
+        else if ("button" in pointer.event)  // IE, Opera 
+            return pointer.event.button == 2; 
+    },
+
     pointerDown: function(pointer)
     {
-        if(typeof this.origin === "undefined")
-        {
-            this.origin = new me.Vector2d(0, 0);
-        }
-        this.origin.set(pointer.gameX, pointer.gameY);
+        pointer.event.preventDefault();
+        console.log(this.isMouseRight(pointer));
 
-        var playerNum = 0;
-        var playerSparse = game.data.playerSparse;
+        // Drag a rect
+        if(this.isMouseLeft(pointer))
+        {
+            this.isDown = true;
+            this.isDragging = true;
 
-        if(me.input.isKeyPressed("f"))
-        {
-            playerSparse = 60;
-        }
-        if(me.input.isKeyPressed("r"))
-        {
-            this.playerRotation += 2;
+            this.rectOrigin.set(pointer.gameX, pointer.gameY);
+            this.rectTarget.set(pointer.gameX, pointer.gameY);
+
+            return true;
         }
 
-        for(var player of this.player)
+        // Move player
+        if(this.isMouseRight(pointer))
         {
-            player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(playerSparse, 0).rotate((playerNum + this.playerRotation) / this.player.size * 2 * Math.PI)));
-            playerNum++;
+            this.selectedPlayerCount = 0;
+            for(var player of this.player)
+            {
+                if(player.inControl == true)
+                {
+                    this.selectedPlayerCount += 1;
+                }
+            }
+
+            if(typeof this.origin === "undefined")
+            {
+                this.origin = new me.Vector2d(0, 0);
+            }
+            this.origin.set(pointer.gameX, pointer.gameY);
+
+            var playerNum = 0;
+
+            var playerSparse = game.data.playerSparse;
+
+            if(me.input.isKeyPressed("f"))
+            {
+                playerSparse = 60;
+            }
+            if(me.input.isKeyPressed("r"))
+            {
+                this.playerRotation += 2;
+            }
+
+            if(this.selectedPlayerCount == 1)
+            {
+                playerSparse = 0;
+            }
+
+            for(var player of this.player)
+            {
+                if(player.inControl == true)
+                {
+                    console.log(this.origin);
+                    player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(playerSparse, 0).rotate((playerNum + this.playerRotation) / this.selectedPlayerCount * 2 * Math.PI)));
+                    playerNum++;
+                }
+            }
+
+            return false;
+        }
+    },
+
+    pointerMove: function(pointer)
+    {
+        // this.timeCounter += me.timer.lastUpdate;
+        // console.log(this.timeCounter);
+
+        if(this.isDragging)
+        {
+            this.rectTarget.set(pointer.gameX, pointer.gameY);
+        }
+    },
+
+    pointerUp: function(pointer)
+    {
+        this.isDown = false;
+
+        if(this.isMouseLeft(pointer))
+        {
+            this.isDragging = false;
         }
 
         return true;
@@ -136,7 +267,7 @@ game.Mobs.UnitManager = me.Object.extend
         return result.slice(0, Math.min(count, result.length));
     },
 
-    _boardcastAgent: function(set, boardcastObj)
+    _boardcastAgent: function(set, boardcastObj, isFinal = true)
     {
         for(var obj of set)
         {
@@ -144,28 +275,42 @@ game.Mobs.UnitManager = me.Object.extend
             {
                 if(boardcastObj.isDamage === true)
                 {
-                    obj.agent.onFocusReceiveDamage(boardcastObj);
+                    if(isFinal === true)
+                    {
+                        obj.agent.onFocusReceiveDamageFinal(boardcastObj);
+                    }
+                    else
+                    {
+                        obj.agent.onFocusReceiveDamage(boardcastObj);
+                    }
                 }
                 else
                 {
-                    obj.agent.onFocusReceiveHeal(boardcastObj);
+                    if(isFinal === true)
+                    {
+                        obj.agent.onFocusReceiveHealFinal(boardcastObj);
+                    }
+                    else
+                    {
+                        obj.agent.onFocusReceiveHeal(boardcastObj);
+                    }
                 }
             }
         }
     },
 
-    boardcastDamage: function(damage)
+    boardcastDamage: function(damage, isFinal = true)
     {
         damage.isDamage = true;
-        this._boardcastAgent(this.player, damage);   
-        this._boardcastAgent(this.enemy, damage);   
+        this._boardcastAgent(this.player, damage, isFinal);   
+        this._boardcastAgent(this.enemy, damage, isFinal);   
     },
 
-    boardcastHeal: function(heal)
+    boardcastHeal: function(heal, isFinal = true)
     {
         heal.isDamage = false;
-        this._boardcastAgent(this.player, heal);   
-        this._boardcastAgent(this.enemy, heal);  
+        this._boardcastAgent(this.player, heal, isFinal);   
+        this._boardcastAgent(this.enemy, heal, isFinal);  
     },
 });
 
@@ -325,18 +470,7 @@ game.Mobs.base = game.Moveable.extend(
     // this action could be disabled by setting popUp = false.
     receiveDamage: function({
         source = undefined, 
-        damage = {
-            // slash = 0,
-            // knock = 0,
-            // pierce = 0,
-            // fire = 0,
-            // ice = 0,
-            // water = 0,
-            // nature = 0,
-            // wind = 0,
-            // thunder = 0,
-            // light = 0
-        } = {},
+        damage = {},
         isCrit = false,
         spell = undefined,
         popUp = true
@@ -345,14 +479,28 @@ game.Mobs.base = game.Moveable.extend(
         var finalDmg = {};
         var dmgTotal = 0;
 
+        // Let buffs and agents know what is happening
+        var damageObj = {
+            source: source,
+            target: this,
+            damage: damage,
+            isCrit: isCrit,
+            spell: spell,
+        };
+
+        this._callBuffAndAgents('onReceiveDamage', damageObj);
+        source._callBuffAndAgents('onDealDamage', damageObj);
+        game.units.boardcastDamage(damageObj, false);
+
+        // Do the calculation
         for(var dmgType in damage)
         {
             // damage% = 0.9659 ^ resist
             // This is, every 1 point of resist reduces corresponding damage by 3.41%, 
             // which will reach 50% damage reducement at 20 points.
             finalDmg[dmgType] = Math.ceil(damage[dmgType] * (Math.pow(0.9659, this.data.battleStats.resist[dmgType])));
-            dmgTotal += finalDmg[dmgType];
 
+            // Show popUp texts
             if(popUp == true && finalDmg[dmgType] > 0)
             {
                 var popUpPos = this.getRenderPos(0.5, 0.0);
@@ -365,18 +513,14 @@ game.Mobs.base = game.Moveable.extend(
             }
         }
 
-        var damageObj = {
-            source: source,
-            target: this,
-            damage: damage,
-            finalDamage: finalDmg,
-            damageTotal: dmgTotal,
-            isCrit: isCrit,
-            spell: spell,
-        };
-        this.agent.onReceiveDamage(damageObj);
-        game.units.boardcastDamage(damageObj);
+        // Let buffs and agents know what is happening
+        damageObj.damage = finalDmg;
 
+        this._callBuffAndAgents('onReceiveDamageFinal', damageObj);
+        source._callBuffAndAgents('onDealDamageFinal', damageObj);
+        game.units.boardcastDamage(damageObj, true);
+
+        // Decrese HP and check if I am dead
         for(dmg in finalDmg)
         {
             this.data.currentHealth -= finalDmg[dmg];
@@ -397,66 +541,70 @@ game.Mobs.base = game.Moveable.extend(
         popUp = true,
     } = {})
     {
-        var finalHeal = heal;
-        var realHeal = 0;
-        var overHeal = 0;
+        // Package the healing in to an object so that buffs and agents can
+        // modify them.
+        var healObject = {real: heal, over: 0};
 
-        if(finalHeal > 0)
-        {
-            realHeal = Math.min(this.data.maxHealth - this.data.currentHealth, finalHeal);
-            overHeal = finalHeal - realHeal;
-            this.data.currentHealth += realHeal;
-
-            if(popUp == true)
-            {
-                var popUpPos = this.getRenderPos(0.5, 0.0);
-                if(overHeal > 0)
-                {
-                    game.UI.popupMgr.addText({
-                        text: realHeal.toString() + "(" + overHeal.toString() + ")",
-                        posX: popUpPos.x,
-                        posY: popUpPos.y,
-                    });
-                }
-                else
-                {
-                    game.UI.popupMgr.addText({
-                        text: realHeal.toString(),
-                        posX: popUpPos.x,
-                        posY: popUpPos.y,
-                    });
-                }
-            }
-
-            game.data.monitor.addHeal(realHeal, overHeal, source, this, isCrit, spell);
-        }
-
+        // Let buffs and agents know what is happening
         var healObj = {
             source: source,
             target: this,
-            totalHeal: finalHeal,
-            realHeal: realHeal,
+            heal: healObject,
             isCrit: isCrit,
             spell: spell,
         };
-        this.agent.onReceiveHeal(healObj);
-        game.units.boardcastHeal(healObj);
+
+        this._callBuffAndAgents('onReceiveHeal', healObj);
+        source._callBuffAndAgents('onDealHeal', healObj);
+        game.units.boardcastHeal(healObj, false);
+
+        // Do the calculation
+        // _finalHeal: total amount of healing (real + over)
+        var _finalHeal = heal * 1.0; // Maybe something like heal resist etc.
+        var finalHeal = {real: _finalHeal, over: 0};
+
+        // calculate overHealing using current HP and max HP.
+        finalHeal.real = Math.min(this.data.maxHealth - this.data.currentHealth, _finalHeal);
+        finalHeal.over = _finalHeal - finalHeal.real;
+
+        // Let buffs and agents know what is happening
+        healObj.heal = finalHeal;
+
+        this._callBuffAndAgents('onReceiveHeal', healObj);
+        source._callBuffAndAgents('onDealHeal', healObj);
+        game.units.boardcastHeal(healObj, true);
+
+        // Increase the HP.
+        this.data.currentHealth += finalHeal.real;
+
+        // Show popUp text with overhealing hint
+        if(popUp == true && _finalHeal > 0)
+        {
+            var popUpPos = this.getRenderPos(0.5, 0.0);
+            if(finalHeal.over > 0)
+            {
+                game.UI.popupMgr.addText({
+                    text: finalHeal.real.toString() + "(" + finalHeal.over.toString() + ")",
+                    posX: popUpPos.x,
+                    posY: popUpPos.y,
+                });
+            }
+            else
+            {
+                game.UI.popupMgr.addText({
+                    text: finalHeal.real.toString(),
+                    posX: popUpPos.x,
+                    posY: popUpPos.y,
+                });
+            }
+        }
+
+        game.data.monitor.addHeal(finalHeal.real, finalHeal.over, source, this, isCrit, spell);
     },
 
     die: function({
         source = undefined, 
-        damage = {
-            slash = 0,
-            knock = 0,
-            pierce = 0,
-            fire = 0,
-            ice = 0,
-            water = 0,
-            nature = 0,
-            wind = 0,
-            thunder = 0,
-            light = 0
-        } = {},
+        damage = {},
     } = {})
     {
         if(this.onDeath(source, damage) === true)
@@ -478,24 +626,25 @@ game.Mobs.base = game.Moveable.extend(
         }
     },
 
-    onDeath: function({
-        source = undefined, 
-        damage = {
-            slash = 0,
-            knock = 0,
-            pierce = 0,
-            fire = 0,
-            ice = 0,
-            water = 0,
-            nature = 0,
-            wind = 0,
-            thunder = 0,
-            light = 0
-        } = {},
-    } = {})
+    // Function used to tell buffs and agents what was going on
+    // when damage and heal happens. They can modify them.
+    _callBuffAndAgents: function(method, args)
+    {
+        var flag = false;
+
+        for(let buff of this.data.buffList.values())
+        {
+            flag = flag | buff[method](args);
+        }
+        flag = flag | this.agent[method](args);
+
+        return flag;
+    },
+
+    onDeath: function({ source, damage, isCrit, spell } = {})
     {
         return true;
-    }
+    },
 });
 
 game.Mobs.checkAlive = function(target)
@@ -508,13 +657,13 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 {
     init: function(x, y, settings)
     {
-        settings.health = 20000;
+        settings.health = 12000;
 
         settings.weaponLeft = new game.weapon.TestHomingStaff
         ({
             baseAttackSpeed: game.helper.getRandomFloat(0.3, 0.5),
-            activeRange: game.helper.getRandomInt(20, 60),
-            power: 20,
+            activeRange: game.helper.getRandomInt(30, 60),
+            power: 30,
             targetCount: 1,
         });
 
@@ -552,7 +701,7 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
 {
     init: function(x, y, settings)
     {
-        settings.health = 400000;
+        settings.health = 160000;
 
         settings.weaponLeft = new game.weapon.TestBossStaff
         ({
@@ -562,33 +711,34 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
             targetCount: 1,
         });
 
+        settings.agent = game.MobAgent.TauntBased;
+
         this._super(game.Mobs.base, 'init', [x, y, settings]);
         
-        if(Math.random() < 0)
-        {
-            this.recieveBuff({source: this, buff: new Fired({time: 5.0})});
-        }
+        //Animations
+        this.renderable.addAnimation("idle", [0, 1, 2, 3, 4, 5, 6, 7]);
+        this.renderable.addAnimation("move", [0, 1, 2, 3, 4, 5, 6, 7]);
     },
 
     updateMob: function(dt)
     {
         // move the mob a little bit to left
-        this.body.vel.x = this.data.getMovingSpeed() * Math.sin(me.timer.getTime() * 0.001) * me.timer.tick;
+        // this.body.vel.x = this.data.getMovingSpeed() * Math.sin(me.timer.getTime() * 0.001) * me.timer.tick;
         this.body.update(dt);
 
-        if(this.doAttack(dt) === true)
-        {
-            if(typeof (targets = this.data.currentWeapon.grabTargets(this)) !== "undefined")
-            {
-                for(var target of targets.values())
-                {
-                    if(this.data.currentWeapon.isInRange(this, target))
-                    {
-                        this.data.currentWeapon.attack(this, target);
-                    }
-                }
-            }
-        }
+        // if(this.doAttack(dt) === true)
+        // {
+        //     if(typeof (targets = this.data.currentWeapon.grabTargets(this)) !== "undefined")
+        //     {
+        //         for(var target of targets.values())
+        //         {
+        //             if(this.data.currentWeapon.isInRange(this, target))
+        //             {
+        //                 this.data.currentWeapon.attack(this, target);
+        //             }
+        //         }
+        //     }
+        // }
 
         me.collision.check(this);
     },
@@ -613,51 +763,33 @@ game.MobAgent.base = me.Object.extend
         this.focusList = new Set();
     },
     updateMob(mob, dt) {},
+
+    // Following functions return a boolean.
+    // True:    the damage / heal was modified.
+    // False:   the damage / heal was not modified.
     
-    onReceiveDamage({
-        source, 
-        damage, 
-        finalDamage, 
-        damageTotal,
-        isCrit,
-        spell, 
-    } = {}) {},
+    // XXFinal will happen after resist calculation, and vice versa.
+    // You can modify the values in damage / heal in order to change the final result.
 
-    onReceiveHeal({
-        source, 
-        totalHeal, 
-        realHeal, 
-        isCrit,
-        spell, 
-    } = {}) {},
+    onDealDamage: function({ target, damage, isCrit, spell } = {}) { return false; },
+    onDealDamageFinal: function({ target, damage, isCrit, spell } = {}) { return false; },
 
-    onFocusReceiveDamage({
-        source, 
-        target, 
-        damage, 
-        finalDamage,
-        damageTotal, 
-        isCrit,
-        spell, 
-    } = {}) {},
+    onDealHeal: function({ target, heal, isCrit, spell } = {}) { return false; },
+    onDealHealFinal: function({ target, heal, isCrit, spell } = {}) { return false; },
+    
+    onReceiveDamage: function({ source, damage, isCrit, spell } = {}) { return false; },
+    onReceiveDamageFinal: function({ source, damage, isCrit, spell } = {}) { return false; },
 
-    onFocusReceiveHeal({
-        source,
-        target,  
-        totalHeal, 
-        realHeal, 
-        isCrit,
-        spell, 
-    } = {}) {},
+    onReceiveHeal: function({ source, heal, isCrit, spell } = {}) { return false; },
+    onReceiveHealFinal: function({ source, heal, isCrit, spell } = {}) { return false; },
 
-    onDeath({
-        source, 
-        damage, 
-        finalDamage,
-        damageTotal, 
-        isCrit,
-        spell, 
-    } = {}) {},
+    onFocusReceiveDamage: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+    onFocusReceiveDamageFinal: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+
+    onFocusReceiveHeal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
+    onFocusReceiveHealFinal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
+
+    onDeath: function({ source, damage, isCrit, spell } = {}) { return false; },
 });
 
 game.MobAgent.TauntBased = game.MobAgent.base.extend
@@ -809,6 +941,7 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         else if (typeof nextTarget === "undefined")
         {
             // TODO: popUp a "?" as the mob losted its target
+            this.targetMob = undefined;
         }
     },
 
@@ -828,14 +961,18 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         this.tauntList[source.data.ID].taunt += taunt;
     },
 
-    onReceiveDamage({
-        source, 
-        damage, 
-        finalDamage, 
-        damageTotal,
-        isCrit,
-        spell, 
-    } = {}) 
+    // Test if we can modify the result here !
+    // Yes we CAN ! (uncomment this and mob using this agent will deal no damage)
+    // onDealDamage({ target, damage, isCrit, spell } = {}) 
+    // {
+    //     for(var dmg in damage)
+    //     {
+    //         damage[dmg] = 0;
+    //     } 
+    //     return true; 
+    // },
+
+    onReceiveDamageFinal({ source, damage, isCrit, spell } = {}) 
     {
         // Add the damage source in to our focus list,
         if(!this.focusList.has(source))
@@ -844,18 +981,20 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
             this.tauntList[source.data.ID] = {taunt: 0};
         }
 
+        var damageTotal = 0;
+        for(dmg in damage)
+        {
+            damageTotal += damage[dmg];
+        }
+
         // and create the taunt of that target based on damage
         this.tauntList[source.data.ID].taunt += damageTotal * source.data.tauntMul;
+
+        // We do not change the values
+        return false;
     },
 
-    onFocusReceiveHeal({
-        source,
-        target,  
-        totalHeal, 
-        realHeal, 
-        isCrit,
-        spell, 
-    } = {}) 
+    onFocusReceiveHealFinal({ source, target, heal, isCrit, spell } = {}) 
     {
         // Add the healing source in to our focus list,
         if(!this.focusList.has(source))
@@ -865,6 +1004,6 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         }
 
         // and create the taunt of that target based on healing
-        this.tauntList[source.data.ID].taunt += realHeal * source.data.tauntMul * game.data.healTaunt;
+        this.tauntList[source.data.ID].taunt += (heal.real + heal.over) * source.data.tauntMul * game.data.healTaunt;
     },
 })

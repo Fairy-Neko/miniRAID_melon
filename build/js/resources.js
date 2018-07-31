@@ -60,6 +60,11 @@ game.resources = [
         "src": "data/img/tank_girl.png"
     },
     {
+        "name": "targetTriangle",
+        "type": "image",
+        "src": "data/img/targetTriangle.png"
+    },
+    {
         "name": "tst_HealBeam",
         "type": "image",
         "src": "data/img/tst_HealBeam.png"

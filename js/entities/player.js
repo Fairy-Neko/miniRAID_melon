@@ -9,11 +9,31 @@ game.PlayerMobs.base = game.Mobs.base.extend
         settings.agent = game.PlayerAgent.Simple;
 
         this._super(game.Mobs.base, 'init', [x, y, settings]);
+
+        this.targetTriangle = new me.Sprite(100, 100, {
+            image: "targetTriangle",
+            width: 16,
+            height: 16,
+            anchorPoint: new me.Vector2d(0.5, 0.5),
+        });
+
+        me.game.world.addChild(this.targetTriangle, 10);
+
+        this.inControl = false;
     },
 
     updateMob: function(dt)
     {
+        this.targetTriangle.pos.copy(this.getRenderPos(0.5, 0.0));
+        this.targetTriangle.alpha = this.inControl ? 1 : 0;
+
         this.updatePlayer(dt);
+    },
+
+    onDeath: function({ source, damage, isCrit, spell } = {})
+    {
+        me.game.world.removeChild(this.targetTriangle);
+        return true;
     },
 
     updatePlayer: function(dt)
@@ -56,7 +76,8 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
         this.targetMob = undefined;
 
         // Will the player move automatically (to nearest mob) if it is free ?
-        this.autoMove = true;
+        this.autoMove = game.data.useAutomove;
+        // this.autoMove = true;
 
         // idleCount will count down from idleFrame if player is in idle (-1 / frame) to smooth the animation.
         // Only if idleCount = 0, the player will be "idle".
@@ -72,6 +93,7 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
 
     updateMob(player, dt)
     {
+        this.autoMove = game.data.useAutomove;
         this.footPos = player.getRenderPos(0.5, 0.5);
 
         if(typeof this.targetPos !== "undefined")
@@ -160,9 +182,12 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
 
             if(this.autoMove === true)
             {
-                if(typeof (targetList = player.data.currentWeapon.grabTargets(player)) !== "undefined")
+                if(player.data.currentWeapon)
                 {
-                    this.setTargetMob(player, targetList[0]);
+                    if(typeof (targetList = player.data.currentWeapon.grabTargets(player)) !== "undefined")
+                    {
+                        this.setTargetMob(player, targetList[0]);
+                    }
                 }
             }
         }

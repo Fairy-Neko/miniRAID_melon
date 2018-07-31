@@ -168,7 +168,7 @@
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
-  <object id="69" name="testMob" x="458" y="356" width="32" height="32">
+  <object id="69" name="testMob" x="410" y="373" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
@@ -210,7 +210,7 @@
     <property name="image" value="gripe_run_right"/>
    </properties>
   </object>
-  <object id="80" name="testBoss" x="402" y="334" width="56" height="56">
+  <object id="80" name="testBoss" x="467" y="363" width="56" height="56">
    <properties>
     <property name="framewidth" type="int" value="56"/>
     <property name="image" value="fatthing"/>
