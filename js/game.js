@@ -15,6 +15,9 @@ var game = {
         playerSparse: 25,
         playerMax: 8,
 
+        // How much heal will taunt? (multiplier)
+        healTaunt: 2,
+
         damageColor : {
             slash: "white",
             knock: "white",

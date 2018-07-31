@@ -119,6 +119,38 @@ game.Mobs.UnitManager = me.Object.extend
         var result = this.getUnitListAll(function(a, b) {return a.getRenderPos(0.5, 0.5).distance(position) - b.getRenderPos(0.5, 0.5).distance(position);});
         return result.slice(0, Math.min(count, result.length));
     },
+
+    _boardcastAgent: function(set, boardcastObj)
+    {
+        for(var obj of set)
+        {
+            if(obj.agent.focusList.has(boardcastObj.target))
+            {
+                if(boardcastObj.isDamage === true)
+                {
+                    obj.agent.onFocusRecieveDamage(boardcastObj);
+                }
+                else
+                {
+                    obj.agent.onFocusRecieveHeal(boardcastObj);
+                }
+            }
+        }
+    },
+
+    boardcastDamage: function(damage)
+    {
+        damage.isDamage = true;
+        this._boardcastAgent(this.player, damage);   
+        this._boardcastAgent(this.enemy, damage);   
+    },
+
+    boardcastHeal: function(heal)
+    {
+        heal.isDamage = false;
+        this._boardcastAgent(this.player, heal);   
+        this._boardcastAgent(this.enemy, heal);  
+    },
 });
 
 game.Mobs.UnitManager.sortByHealth = function(a, b)
@@ -151,6 +183,15 @@ game.Mobs.base = game.Moveable.extend(
         this.alwaysUpdate = true;
         this.body.gravity = 0;
 
+        if(settings.agent)
+        {
+            this.agent = new settings.agent(this, settings);
+        }
+        else
+        {
+            this.agent = new game.MobAgent.base(this, settings);
+        }
+
         this.attackCounter = 0;
 
         this.data = settings.backendData || new game.dataBackend.Mob(settings);
@@ -181,6 +222,7 @@ game.Mobs.base = game.Moveable.extend(
         }
 
         me.collision.check(this);
+        this.agent.updateMob(this, dt);
         this.updateMob(dt);
 
         // Update all buffes
@@ -284,6 +326,7 @@ game.Mobs.base = game.Moveable.extend(
     } = {})
     {
         var finalDmg = {};
+        var dmgTotal = 0;
 
         for(var dmgType in damage)
         {
@@ -291,7 +334,8 @@ game.Mobs.base = game.Moveable.extend(
             // This is, every 1 point of resist reduces corresponding damage by 3.41%, 
             // which will reach 50% damage reducement at 20 points.
             finalDmg[dmgType] = Math.ceil(damage[dmgType] * (Math.pow(0.9659, this.data.battleStats.resist[dmgType])));
-            
+            dmgTotal += finalDmg[dmgType];
+
             if(popUp == true && finalDmg[dmgType] > 0)
             {
                 var popUpPos = this.getRenderPos(0.5, 0.0);
@@ -302,16 +346,28 @@ game.Mobs.base = game.Moveable.extend(
                     posY: popUpPos.y,
                 });
             }
+        }
 
-            for(dmg in finalDmg)
+        var damageObj = {
+            source: source,
+            target: this,
+            damage: damage,
+            finalDamage: finalDmg,
+            damageTotal: dmgTotal,
+            isCrit: isCrit,
+            spell: spell,
+        };
+        this.agent.onRecieveDamage(damageObj);
+        game.units.boardcastDamage(damageObj);
+
+        for(dmg in finalDmg)
+        {
+            this.data.currentHealth -= finalDmg[dmg];
+            game.data.monitor.addDamage(finalDmg[dmg], dmg, source, this, isCrit, spell);
+
+            if(this.data.currentHealth <= 0)
             {
-                this.data.currentHealth -= finalDmg[dmg];
-                game.data.monitor.addDamage(finalDmg[dmg], dmg, source, this, isCrit, spell);
-
-                if(this.data.currentHealth <= 0)
-                {
-                    this.die(source, damage);
-                }
+                this.die(source, damage);
             }
         }
     },
@@ -325,10 +381,13 @@ game.Mobs.base = game.Moveable.extend(
     } = {})
     {
         var finalHeal = heal;
+        var realHeal = 0;
+        var overHeal = 0;
+
         if(finalHeal > 0)
         {
-            var realHeal = Math.min(this.data.maxHealth - this.data.currentHealth, finalHeal);
-            var overHeal = finalHeal - realHeal;
+            realHeal = Math.min(this.data.maxHealth - this.data.currentHealth, finalHeal);
+            overHeal = finalHeal - realHeal;
             this.data.currentHealth += realHeal;
 
             if(popUp == true)
@@ -354,6 +413,17 @@ game.Mobs.base = game.Moveable.extend(
 
             game.data.monitor.addHeal(realHeal, overHeal, source, this, isCrit, spell);
         }
+
+        var healObj = {
+            source: source,
+            target: this,
+            totalHeal: finalHeal,
+            realHeal: realHeal,
+            isCrit: isCrit,
+            spell: spell,
+        };
+        this.agent.onRecieveHeal(healObj);
+        game.units.boardcastHeal(healObj);
     },
 
     die: function({
@@ -477,5 +547,165 @@ game.MobAgent = game.MobAgent || {};
 
 game.MobAgent.base = me.Object.extend
 ({
-    init() {},
+    init(mob, settings) 
+    {
+        this.focusList = new Set();
+    },
+    updateMob(mob, dt) {},
+    
+    onRecieveDamage({
+        source, 
+        damage, 
+        finalDamage, 
+        damageTotal,
+        isCrit,
+        spell, 
+    } = {}) {},
+
+    onRecieveHeal({
+        source, 
+        totalHeal, 
+        realHeal, 
+        isCrit,
+        spell, 
+    } = {}) {},
+
+    onFocusRecieveDamage({
+        source, 
+        target, 
+        damage, 
+        finalDamage,
+        damageTotal, 
+        isCrit,
+        spell, 
+    } = {}) {},
+
+    onFocusRecieveHeal({
+        source,
+        target,  
+        totalHeal, 
+        realHeal, 
+        isCrit,
+        spell, 
+    } = {}) {},
+
+    onDeath({
+        source, 
+        damage, 
+        finalDamage,
+        damageTotal, 
+        isCrit,
+        spell, 
+    } = {}) {},
+});
+
+game.MobAgent.TauntBased = game.MobAgent.base.extend
+({
+    init(mob, settings)
+    {
+        this.tauntList = {};
+        this.targetMob = undefined;
+    },
+
+    updateMob(mob, dt)
+    {
+        this.updateTaunt();
+
+        // borrowed from playerAgent
+        
+    },
+
+    updateTaunt()
+    {
+        // Find current target with highest taunt
+        var maxValue = 0;
+        var nextTarget = undefined;
+
+        // Use iteration instead of sort to save a O(logN) time.
+        // Don't know if this will slower than obj -> array -> sort() cuz javascript vs native...
+        // But we need update the list though
+        for(var tmpTargetMob of this.focusList)
+        {
+            // Remove the mob if it is dead or it has no taunt
+            if(!game.Mobs.checkAlive(tmpTargetMob) || this.tauntList[tmpTargetMob.data.ID].taunt <= 0)
+            {
+                this.focusList.delete(tmpTargetMob);
+                delete this.tauntList[tmpTargetMob.data.ID];
+            }
+            else
+            {
+                if(this.tauntList[tmpTargetMob.data.ID].taunt > maxValue)
+                {
+                    maxValue = this.tauntList[tmpTargetMob.data.ID].taunt;
+                    nextTarget = tmpTargetMob;
+                }
+            }
+        }
+
+        if(nextTarget && nextTarget != this.targetMob)
+        {
+            // TODO: popUp a "!" and a red line for taunt focus
+            this.targetMob = nextTarget;
+        }
+        else if (typeof nextTarget === "undefined")
+        {
+            // TODO: popUp a "?"
+        }
+    },
+
+    // Some skills that will change taunt value directly 
+    // (e.g. Taunt(skill), Wind rush(some skill that will reduce some taunt from target), etc.)
+    changeTaunt({
+        source,
+        taunt,
+    })
+    {
+        if(!this.focusList.has(source))
+        {
+            this.focusList.add(source);
+            this.tauntList[source.data.ID] = {taunt: 0};
+        }
+
+        this.tauntList[source.data.ID].taunt += taunt;
+    },
+
+    onRecieveDamage({
+        source, 
+        damage, 
+        finalDamage, 
+        damageTotal,
+        isCrit,
+        spell, 
+    } = {}) 
+    {
+        // Add the damage source in to our focus list,
+        if(!this.focusList.has(source))
+        {
+            this.focusList.add(source);
+            this.tauntList[source.data.ID] = {taunt: 0};
+        }
+
+        // and create the taunt of that target based on damage
+        this.tauntList[source.data.ID].taunt += damageTotal * source.data.tauntMul;
+    },
+
+    onFocusRecieveHeal({
+        source,
+        target,  
+        totalHeal, 
+        realHeal, 
+        isCrit,
+        spell, 
+    } = {}) 
+    {
+        // Add the healing source in to our focus list,
+        if(!this.focusList.has(source))
+        {
+            this.focusList.add(source);
+            this.tauntList[source.data.ID] = {taunt: 0};
+        }
+
+        // and create the taunt of that target based on healing
+        this.tauntList[source.data.ID].taunt += realHeal * source.data.tauntMul * game.data.healTaunt;
+    },
 })

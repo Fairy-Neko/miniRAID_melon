@@ -6,15 +6,13 @@ game.PlayerMobs.base = game.Mobs.base.extend
     {
         settings.isPlayer = true;
 
-        this._super(game.Mobs.base, 'init', [x, y, settings]);
+        settings.agent = game.PlayerAgent.Simple;
 
-        this.agent = new game.PlayerAgent.Simple(this);
+        this._super(game.Mobs.base, 'init', [x, y, settings]);
     },
 
     updateMob: function(dt)
     {
-        this.agent.updatePlayer(this, dt);
-
         this.updatePlayer(dt);
 
         this.body.update(dt);
@@ -33,11 +31,14 @@ game.PlayerMobs.base = game.Mobs.base.extend
 
 game.PlayerAgent = game.PlayerAgent || {};
 // Interface for AI Agent controlling a player character
-game.PlayerAgent.base = me.Object.extend
+game.PlayerAgent.base = game.MobAgent.base.extend
 ({
-    init(player, settings) {},
+    init(player, settings) 
+    {
+        this._super(game.MobAgent.base, 'init', [player, settings]);
+    },
 
-    updatePlayer(player, dt) {},
+    updateMob(player, dt) {},
 
     setTargetPos(player, position, dt) {},
 
@@ -71,7 +72,7 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
         // TODO: smooth when hit world object ?
     },
 
-    updatePlayer(player, dt)
+    updateMob(player, dt)
     {
         this.footPos = player.getRenderPos(0.5, 0.8);
 
