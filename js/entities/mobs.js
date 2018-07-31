@@ -224,6 +224,7 @@ game.Mobs.base = game.Moveable.extend(
         me.collision.check(this);
         this.agent.updateMob(this, dt);
         this.updateMob(dt);
+        this.body.update(dt);
 
         // Update all buffes
         // Since we cannot access draw() so we call onRender() here (end of update).
@@ -495,13 +496,19 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 
         settings.weaponLeft = new game.weapon.TestHomingStaff
         ({
-            baseAttackSpeed: game.helper.getRandomFloat(0.7, 0.9),
-            activeRange: game.helper.getRandomInt(200, 300),
-            power: 50,
+            baseAttackSpeed: game.helper.getRandomFloat(0.3, 0.5),
+            activeRange: game.helper.getRandomInt(20, 60),
+            power: 20,
             targetCount: 1,
         });
 
+        settings.agent = game.MobAgent.TauntBased;
+
         this._super(game.Mobs.base, 'init', [x, y, settings]);
+
+        //Animations
+        this.renderable.addAnimation("idle", [0]);
+        this.renderable.addAnimation("move", [0, 1, 2, 3, 4, 5, 6, 7]);
         
         if(Math.random() < 0)
         {
@@ -511,24 +518,6 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 
     updateMob: function(dt)
     {
-        // move the mob a little bit to left
-        this.body.vel.x = this.data.getMovingSpeed() * Math.sin(me.timer.getTime() * 0.001) * me.timer.tick;
-        this.body.update(dt);
-
-        if(this.doAttack(dt) === true)
-        {
-            if(typeof (targets = this.data.currentWeapon.grabTargets(this)) !== "undefined")
-            {
-                for(var target of targets.values())
-                {
-                    if(this.data.currentWeapon.isInRange(this, target))
-                    {
-                        this.data.currentWeapon.attack(this, target);
-                    }
-                }
-            }
-        }
-
         me.collision.check(this);
     },
 
@@ -603,19 +592,111 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
 ({
     init(mob, settings)
     {
+        this._super(game.MobAgent.base, 'init', [mob, settings]);
+
         this.tauntList = {};
+
         this.targetMob = undefined;
+
+        // idleCount will count down from idleFrame if player is in idle (-1 / frame) to smooth the animation.
+        // Only if idleCount = 0, the player will be "idle".
+        // idleFrame is seperated for targeting Mob (which may move = need more smooth)
+        // and targeting a static position (don't move and need high precision)
+        this.idleFrameMob = 10;
+        this.idleFramePos = 0;
+        this.idleCount = 0;
+        this.speedFriction = 0.9;
     },
 
     updateMob(mob, dt)
     {
-        this.updateTaunt();
-
         // borrowed from playerAgent
+        this.footPos = mob.getRenderPos(0.5, 0.5);
+
+        this.updateTaunt(mob);
         
+        // We have already checked if targetMob alive in updateTaunt()
+        // as that function checks every one in this.focusList.
+        if(this.targetMob)
+        {
+            // we need move to goin the range of our current weapon
+            if(mob.data.currentWeapon.isInRange(mob, this.targetMob) == false)
+            {
+                mob.body.vel = this.targetMob.getRenderPos(0.5, 0.5).clone().sub(this.footPos).normalize().scale(mob.data.getMovingSpeed() * me.timer.tick);
+
+                this.isMoving = true;
+
+                // Reset the anim counter
+                this.idleCount = this.idleFrameMob;
+            }
+            // and then we don't move anymore.
+            else
+            {
+                this.isMoving = false;
+            }
+        }
+        else
+        {
+            // We lose the target.
+            this.targetMob = undefined;
+            this.isMoving = false;
+        }
+
+        if(this.isMoving === true)
+        {
+            // Fix our face direction when moving
+            if(mob.body.vel.x < 0)
+            {
+                mob.renderable.flipX(true);
+            }
+            else
+            {
+                mob.renderable.flipX(false);
+            }
+
+            if(!mob.renderable.isCurrentAnimation("move"))
+            {
+                mob.renderable.setCurrentAnimation("move");
+            }
+        }
+        else
+        {
+            // Count the frames
+            if(this.idleCount > 0)
+            {
+                this.idleCount --;
+
+                // Also smooth the speed
+                mob.body.vel.scale(this.speedFriction);
+            }
+            else
+            {
+                mob.body.vel.set(0, 0);
+
+                if(!mob.renderable.isCurrentAnimation("idle"))
+                {
+                    mob.renderable.setCurrentAnimation("idle");
+                }
+            }
+        }
+
+        // Attack !
+        if(mob.doAttack(dt) === true)
+        {
+            if(typeof (targets = mob.data.currentWeapon.grabTargets(mob)) !== "undefined")
+            {
+                for(var target of targets.values())
+                {
+                    if(mob.data.currentWeapon.isInRange(mob, target))
+                    {
+                        mob.data.currentWeapon.attack(mob, target);
+                    }
+                }
+            }
+        }
     },
 
-    updateTaunt()
+    updateTaunt(mob)
     {
         // Find current target with highest taunt
         var maxValue = 0;
@@ -644,12 +725,21 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
 
         if(nextTarget && nextTarget != this.targetMob)
         {
-            // TODO: popUp a "!" and a red line for taunt focus
             this.targetMob = nextTarget;
+
+            // TODO: popUp a "!" and a red line for taunt focus
+            var pPos = mob.getRenderPos(0.5, 0.0);
+            game.UI.popupMgr.addText({
+                text: "!",
+                color: "#ff0000",
+                posX: pPos.x,
+                posY: pPos.y,
+                velX: 64,
+            });
         }
         else if (typeof nextTarget === "undefined")
         {
-            // TODO: popUp a "?"
+            // TODO: popUp a "?" as the mob losted its target
         }
     },
 

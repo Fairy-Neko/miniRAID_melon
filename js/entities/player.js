@@ -14,8 +14,6 @@ game.PlayerMobs.base = game.Mobs.base.extend
     updateMob: function(dt)
     {
         this.updatePlayer(dt);
-
-        this.body.update(dt);
     },
 
     updatePlayer: function(dt)
@@ -52,7 +50,7 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
 ({
     init(player, settings)
     {
-        this._super(game.PlayerAgent.base, 'init', []);
+        this._super(game.PlayerAgent.base, 'init', [player, settings]);
 
         this.targetPos = undefined;
         this.targetMob = undefined;
@@ -74,7 +72,7 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
 
     updateMob(player, dt)
     {
-        this.footPos = player.getRenderPos(0.5, 0.8);
+        this.footPos = player.getRenderPos(0.5, 0.5);
 
         if(typeof this.targetPos !== "undefined")
         {

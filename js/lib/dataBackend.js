@@ -136,7 +136,7 @@ game.dataBackend.Mob = me.Object.extend
         this.tauntMul = settings.tauntMul || 1.0;
 
         // A Specific identify name only for this mob
-        this.ID = game.dataBackend.getID();
+        this.ID = game.data.backend.getID();
     },
 
     getMovingSpeed: function()
