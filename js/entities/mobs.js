@@ -683,14 +683,11 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         // Attack !
         if(mob.doAttack(dt) === true)
         {
-            if(typeof (targets = mob.data.currentWeapon.grabTargets(mob)) !== "undefined")
+            if(typeof this.targetMob !== "undefined")
             {
-                for(var target of targets.values())
+                if(mob.data.currentWeapon.isInRange(mob, this.targetMob))
                 {
-                    if(mob.data.currentWeapon.isInRange(mob, target))
-                    {
-                        mob.data.currentWeapon.attack(mob, target);
-                    }
+                    mob.data.currentWeapon.attack(mob, this.targetMob);
                 }
             }
         }
