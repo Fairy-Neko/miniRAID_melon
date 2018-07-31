@@ -91,6 +91,21 @@ game.Utils.TestHPBar = me.Entity.extend
 game.Utils.TestHPBar.width = 32;
 game.Utils.TestHPBar.height = 2;
 
+game.Utils.logicalEntity = me.Renderable.extend
+({
+    init : function(settings)
+    {
+        this._super(me.Renderable, "init", [0, 0, 0, 0]);
+        this.alwaysUpdate = true;
+    },
+
+    update: function(dt)
+    {
+        game.units.update(dt);
+        return true;
+    }
+});
+
 game.testIcyZone = me.Entity.extend({
     init:function (x, y, settings) 
     {

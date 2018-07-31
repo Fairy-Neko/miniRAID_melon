@@ -17,6 +17,8 @@ game.PlayScreen = me.ScreenObject.extend({
 
         // load a level
         me.levelDirector.loadLevel("playground");
+
+        me.game.world.addChild(new game.Utils.logicalEntity({}));
     },
 
     /**
