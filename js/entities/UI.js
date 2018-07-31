@@ -36,9 +36,15 @@ game.UI.Container = me.Container.extend({
             title: "Heal Per Sec",
         });
 
+        game.UI.raidFrame = new game.UI.raidFrame(300, me.game.viewport.height - 100, {
+            grabFunction: game.data.backend.getPlayerList.bind(game.data.backend),
+            title: "raid frame"
+        })
+
         this.addChild(game.UI.popupMgr);
         this.addChild(game.UI.damageMonitor);
         this.addChild(game.UI.healMonitor);
+        this.addChild(game.UI.raidFrame);
     }
 });
 
@@ -199,6 +205,73 @@ game.UI.BattleMonitor = me.Renderable.extend
 
                 pxOffset += sliceLength;
             }
+        }
+        context.setColor(color);
+    }
+})
+
+game.UI.raidFrame = me.Renderable.extend
+({
+    init: function(x, y, settings)
+    {
+        // call the parent constructor
+        // (size does not matter here)
+        this._super(me.Renderable, 'init', [x, y, 320, 25]);
+        this.anchorPoint.set(0, 0);
+
+        this.alwaysUpdate = true;
+        this.floating = true;
+
+        this.grabFunction = settings.grabFunction || game.data.monitor.getDPSList.bind(game.data.monitor);
+        this.title = settings.title || "raid";
+
+        this.font = {};
+        
+        this.font = new me.BitmapFont(me.loader.getBinary('SmallFont'), me.loader.getImage('SmallFont'));
+        this.font.set("left");
+    },
+
+    update: function(dt)
+    {
+        
+    },
+
+    draw: function(context)
+    {
+        var color = context.getColor();
+
+        context.setColor('#222222');
+        context.fillRect(this.pos.x, this.pos.y, 401, 40);
+
+        var dataList = this.grabFunction();
+
+        var maxLength = 0;
+        for(var i = 0; i < dataList.length; i++)
+        {
+            maxLength = Math.max(maxLength, dataList[i].length);
+            context.setColor('#20604F');
+            context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 1, 49, 38);
+        }
+
+        for(var i = 0; i < dataList.length; i++)
+        {
+            var pxOffset = 0, sliceLength = 0;
+            
+            if(dataList[i].alive){
+                context.setColor('#1B813E');
+                sliceLength = Math.floor(48 * dataList[i].currentHealth / dataList[i].maxHealth);
+                context.fillRect(this.pos.x + pxOffset + 50 * i + 1, this.pos.y + 1, sliceLength + 1, 38);
+            }
+            else
+            {
+                context.setColor('#CB4042');
+                context.fillRect(this.pos.x + pxOffset + 50 * i + 1, this.pos.y + 1, 49, 38);
+            }
+
+            pxOffset += sliceLength;
+
+            this.font.draw(context, dataList[i].name.slice(0, 4) + dataList[i].name.slice(-1), this.pos.x + 50 * i + 2, this.pos.y + 15);
+
         }
         context.setColor(color);
     }
