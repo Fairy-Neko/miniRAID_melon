@@ -95,6 +95,11 @@ game.resources = [
         "src": "data/fnt/FixedSys.png"
     },
     {
+        "name": "PixelFont",
+        "type": "image",
+        "src": "data/fnt/PixelFont.png"
+    },
+    {
         "name": "SmallFont",
         "type": "image",
         "src": "data/fnt/SmallFont.png"
@@ -113,6 +118,11 @@ game.resources = [
         "name": "FixedSys",
         "type": "binary",
         "src": "data/fnt/FixedSys.fnt"
+    },
+    {
+        "name": "PixelFont",
+        "type": "binary",
+        "src": "data/fnt/PixelFont.fnt"
     },
     {
         "name": "SmallFont",

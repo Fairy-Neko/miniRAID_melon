@@ -73,8 +73,8 @@ game.UI.PopupTextManager = me.Renderable.extend ({
 
         this.font = {};
         
-        this.font['FixedSys'] = new me.BitmapFont(me.loader.getBinary('FixedSys'), me.loader.getImage('FixedSys'));
-        this.font['FixedSys'].set("center");
+        this.font['PixelFont'] = new me.BitmapFont(me.loader.getBinary('PixelFont'), me.loader.getImage('PixelFont'));
+        this.font['PixelFont'].set("center");
 
         // this.font['Arial'] = new me.Font("Arial", 12, "#ffffff", "center");
 
@@ -84,14 +84,14 @@ game.UI.PopupTextManager = me.Renderable.extend ({
     addText: function({
         text = "test",
         time = 1.0, // lifespan (sec)
-        velX = 0, // direction
+        velX = -64, // direction
         velY = -256, // jumping speed
         accX = 0.0,   // gravity
         accY = 512,// gravity
         posX = game.data.width / 2.0,
         posY = game.data.height / 2.0,
         color = new me.Color(1, 1, 1, 1),
-        fontFamily = "FixedSys",
+        fontFamily = "PixelFont",
         // fontFamily = "Arial",
     } = {})
     {
@@ -136,7 +136,7 @@ game.UI.PopupTextManager = me.Renderable.extend ({
             // delete me!(x
             // txt.posX += Math.sin(16 * Math.PI * txt.timeRemain) / (txt.timeRemain - 0.4) / 8;
 
-            txt.alpha = txt.timeRemain > 0.4 ? 1 : 0;
+            txt.alpha = txt.timeRemain;
         }
 
         return true;
@@ -159,6 +159,7 @@ game.UI.PopupTextManager = me.Renderable.extend ({
             // TODO: We need a outlined bitmap Font !
             context.setColor(txt.color);
             context.setGlobalAlpha(txt.alpha);
+
             this.font[txt.fontFamily].draw(context, txt.text, txt.posX, txt.posY);
 
             // this.font[txt.fontFamily].drawStroke(context, txt.text, txt.posX, txt.posY);

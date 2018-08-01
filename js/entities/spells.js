@@ -350,7 +350,7 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
 
     onDestroy: function(other)
     {
-        me.game.world.addChild(me.pool.pull("magicalHit", this.renderAnchorPos.x, this.renderAnchorPos.y, {}));
+        // me.game.world.addChild(me.pool.pull("magicalHit", this.renderAnchorPos.x, this.renderAnchorPos.y, {}));
     },
 
     updateProjectile: function(dt)
@@ -426,7 +426,7 @@ game.Spell.TestHealBeam = game.Spell.base.extend
                 spell: this,
             });
 
-            me.game.world.addChild(me.pool.pull("healFx", target.renderAnchorPos.x, target.renderAnchorPos.y, {}));
+            // me.game.world.addChild(me.pool.pull("healFx", target.renderAnchorPos.x, target.renderAnchorPos.y, {}));
         }
 
         this.timer = 500;

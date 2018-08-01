@@ -593,8 +593,9 @@ game.Mobs.base = game.Moveable.extend(
             if(finalHeal.over > 0)
             {
                 game.UI.popupMgr.addText({
-                    text: finalHeal.real.toString() + "(" + finalHeal.over.toString() + ")",// + "蛤蛤蛤",
+                    text: finalHeal.real.toString() + " <" + finalHeal.over.toString() + ">",
                     color: game.data.healColor,
+                    velX: 64,
                     posX: popUpPos.x,
                     posY: popUpPos.y,
                 });
@@ -604,6 +605,7 @@ game.Mobs.base = game.Moveable.extend(
                 game.UI.popupMgr.addText({
                     text: finalHeal.real.toString(),
                     color: game.data.healColor,
+                    velX: 64,
                     posX: popUpPos.x,
                     posY: popUpPos.y,
                 });
@@ -951,12 +953,24 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
                 color: "#ff0000",
                 posX: pPos.x,
                 posY: pPos.y,
-                velX: 64,
+                velX: 0,
             });
         }
         else if (typeof nextTarget === "undefined")
         {
             // TODO: popUp a "?" as the mob losted its target
+            if(typeof this.targetMob !== "undefined")
+            {
+                var pPos = mob.getRenderPos(0.5, 0.0);
+                game.UI.popupMgr.addText({
+                    text: "?",
+                    color: "#ffff00",
+                    posX: pPos.x,
+                    posY: pPos.y,
+                    velX: 0,
+                });
+            }
+
             this.targetMob = undefined;
         }
     },
