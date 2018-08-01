@@ -76,7 +76,7 @@ game.UI.PopupTextManager = me.Renderable.extend ({
         this.font['FixedSys'] = new me.BitmapFont(me.loader.getBinary('FixedSys'), me.loader.getImage('FixedSys'));
         this.font['FixedSys'].set("center");
 
-        this.font['Arial'] = new me.Font("Arial", 8, "#ffffff", "center");
+        // this.font['Arial'] = new me.Font("Arial", 12, "#ffffff", "center");
 
         this.textList = new Set();
     },
@@ -91,8 +91,8 @@ game.UI.PopupTextManager = me.Renderable.extend ({
         posX = game.data.width / 2.0,
         posY = game.data.height / 2.0,
         color = new me.Color(1, 1, 1, 1),
-        // fontFamily = "FixedSys",
-        fontFamily = "Arial",
+        fontFamily = "FixedSys",
+        // fontFamily = "Arial",
     } = {})
     {
         var textObj = {
@@ -144,18 +144,23 @@ game.UI.PopupTextManager = me.Renderable.extend ({
      */
     draw : function (context) 
     {
+        context.save();
+
         for (let txt of this.textList)
         {
-            // vv This cannot work vv
-            // this.font[txt.fontFamily].fillStyle = txt.color;
+            // Do not use standard Font in WebGL Renderer !!!
 
-            // This works !!!!!!!
-            this.font[txt.fontFamily].setFont("Arial", 18, txt.color);
+            // this.font[txt.fontFamily].setFont("Arial", 18, txt.color);
             // this.font[txt.fontFamily].lineWidth = 1;
 
+            // TODO: We need a outlined bitmap Font !
+            context.setColor(txt.color);
             this.font[txt.fontFamily].draw(context, txt.text, txt.posX, txt.posY);
+
             // this.font[txt.fontFamily].drawStroke(context, txt.text, txt.posX, txt.posY);
         }        
+
+        context.restore();
     }
 });
 
@@ -186,12 +191,14 @@ game.UI.BattleMonitor = me.Renderable.extend
 
     draw: function(context)
     {
-        var color = context.getColor();
+        context.save();
 
         context.setColor('#333333');
         context.fillRect(this.pos.x, this.pos.y, 100, 12 * 9 + 2);
 
         var dataList = this.grabFunction();
+
+        context.setColor('#ffffff');
         this.font.draw(context, this.title + ":", this.pos.x + 2, this.pos.y + 2);
 
         var maxLength = 0;
@@ -202,6 +209,7 @@ game.UI.BattleMonitor = me.Renderable.extend
 
         for(var i = 0; i < dataList.length; i++)
         {
+            context.setColor('#ffffff');
             this.font.draw(context, dataList[i].player.data.name + ": " + dataList[i].number.toLocaleString(), this.pos.x + 2, this.pos.y + 12 * i + 14);
 
             var pxOffset = 0, sliceLength = 0;
@@ -215,7 +223,8 @@ game.UI.BattleMonitor = me.Renderable.extend
                 pxOffset += sliceLength;
             }
         }
-        context.setColor(color);
+
+        context.restore();
     }
 })
 
@@ -246,7 +255,7 @@ game.UI.raidFrame = me.Renderable.extend
 
     draw: function(context)
     {
-        var color = context.getColor();
+        context.save();
 
         context.setColor('#222222');
         context.fillRect(this.pos.x, this.pos.y, 401, 40);
@@ -274,10 +283,11 @@ game.UI.raidFrame = me.Renderable.extend
                 context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 1, 49, 38);
             }
 
+            context.setColor('#ffffff');
             this.font.draw(context, dataList[i].name.slice(0, 4) + dataList[i].name.slice(-1), this.pos.x + 50 * i + 2, this.pos.y + 15);
-
         }
-        context.setColor(color);
+
+        context.restore();
     }
 });
 

@@ -24,8 +24,8 @@ var game = {
             slash: "white",
             knock: "white",
             pierce: "white",
-            fire: "#ff0000",
-            ice: "#0000ff",
+            fire: "#ffa342",
+            ice: "#72ffe2",
             water: "blue",
             nature: "green",
             wind: "lightgreen",
@@ -33,7 +33,7 @@ var game = {
             light: "lightyellow"
         },
 
-        healColor: "#00ff00",
+        healColor: "#66f95c",
     },
 
     collisionTypes:
@@ -48,7 +48,7 @@ var game = {
         me.timer.getDeltaSec = function(){ return me.timer.getDelta() * 0.001; }
 
         // Initialize the video.
-        if (!me.video.init(game.data.width, game.data.height, {wrapper : "screen", scale : window.devicePixelRatio, doubleBuffering: true})) {
+        if (!me.video.init(game.data.width, game.data.height, {wrapper : "screen", scale : window.devicePixelRatio, doubleBuffering: true, renderer: me.video.WEBGL })) {
             alert("Your browser does not support HTML5 canvas.");
             return;
         }

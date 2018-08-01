@@ -592,7 +592,7 @@ game.Mobs.base = game.Moveable.extend(
             if(finalHeal.over > 0)
             {
                 game.UI.popupMgr.addText({
-                    text: finalHeal.real.toString() + "(" + finalHeal.over.toString() + ")" + "蛤蛤蛤",
+                    text: finalHeal.real.toString() + "(" + finalHeal.over.toString() + ")",// + "蛤蛤蛤",
                     color: game.data.healColor,
                     posX: popUpPos.x,
                     posY: popUpPos.y,
