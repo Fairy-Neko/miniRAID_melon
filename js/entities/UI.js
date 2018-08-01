@@ -133,8 +133,8 @@ game.UI.PopupTextManager = me.Renderable.extend ({
             txt.velX += txt.accX * me.timer.getDeltaSec();
             txt.velY += txt.accY * me.timer.getDeltaSec();
 
-            //delete me!(x
-            txt.posX += Math.sin(16 * Math.PI * txt.timeRemain) / (txt.timeRemain - 0.4) / 8;
+            // delete me!(x
+            // txt.posX += Math.sin(16 * Math.PI * txt.timeRemain) / (txt.timeRemain - 0.4) / 8;
 
             txt.alpha = txt.timeRemain > 0.4 ? 1 : 0;
         }

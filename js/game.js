@@ -49,10 +49,13 @@ var game = {
 
         // Initialize the video.
         if (!me.video.init(game.data.width, game.data.height, 
-            {wrapper : "screen", scale : 1/*window.devicePixelRatio*/, doubleBuffering: true, renderer: me.video.WEBGL })) {
+            {wrapper : "screen", scale : 'auto'/*window.devicePixelRatio*/, 
+            scaleMethod: "fit", useParentDOMSize: false, doubleBuffering: true, renderer: me.video.WEBGL })) {
             alert("Your browser does not support HTML5 canvas.");
             return;
         }
+
+        me.video.setMaxSize(1024, 768);
 
         // add "#debug" to the URL to enable the debug Panel
         if (me.game.HASH.debug === true) 
