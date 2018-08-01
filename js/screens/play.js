@@ -13,7 +13,7 @@ game.PlayScreen = me.ScreenObject.extend({
         // Add our HUD to the game world, add it last so that this is on top of the rest.
         // Can also be forced by specifying a "Infinity" z value to the addChild function.
         this.UI = new game.UI.Container();
-        me.game.world.addChild(this.UI, Infinity);
+        me.game.world.addChild(this.UI, 100);
 
         // load a level
         me.levelDirector.loadLevel("playground");

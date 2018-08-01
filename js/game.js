@@ -48,7 +48,8 @@ var game = {
         me.timer.getDeltaSec = function(){ return me.timer.getDelta() * 0.001; }
 
         // Initialize the video.
-        if (!me.video.init(game.data.width, game.data.height, {wrapper : "screen", scale : window.devicePixelRatio, doubleBuffering: true, renderer: me.video.WEBGL })) {
+        if (!me.video.init(game.data.width, game.data.height, 
+            {wrapper : "screen", scale : 1/*window.devicePixelRatio*/, doubleBuffering: true, renderer: me.video.WEBGL })) {
             alert("Your browser does not support HTML5 canvas.");
             return;
         }

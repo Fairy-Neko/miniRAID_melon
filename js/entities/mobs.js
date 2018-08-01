@@ -531,7 +531,7 @@ game.Mobs.base = game.Moveable.extend(
         // Decrese HP and check if I am dead
         for(dmg in finalDmg)
         {
-            this.data.currentHealth -= finalDmg[dmg];
+            // this.data.currentHealth -= finalDmg[dmg];
             game.data.monitor.addDamage(finalDmg[dmg], dmg, source, this, isCrit, spell);
 
             if(this.data.currentHealth <= 0)
