@@ -202,7 +202,7 @@ game.weapon.TestHomingStaff = game.weapon.extend
         else
         {
             settings.isTargetEnemy = true;
-            settings.image = "crystalcoin";
+            settings.image = "crystalcoin2";
         }
 
         settings.power = this.power;
@@ -291,6 +291,10 @@ game.weapon.TestHealStaff = game.weapon.extend
             sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
             isPlayer: mob.data.isPlayer,
         });
+        if(result[0].data.currentHealth === result[0].data.maxHealth)
+        {
+            return undefined;
+        }
         return result.slice(0, Math.min(result.length, this.targetCount));
     },
 });

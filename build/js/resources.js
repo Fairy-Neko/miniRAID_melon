@@ -10,9 +10,19 @@ game.resources = [
         "src": "data/img/coppercoin.png"
     },
     {
+        "name": "coppercoin2",
+        "type": "image",
+        "src": "data/img/coppercoin2.png"
+    },
+    {
         "name": "crystalcoin",
         "type": "image",
         "src": "data/img/crystalcoin.png"
+    },
+    {
+        "name": "crystalcoin2",
+        "type": "image",
+        "src": "data/img/crystalcoin2.png"
     },
     {
         "name": "fatthing",
@@ -40,9 +50,19 @@ game.resources = [
         "src": "data/img/Heal_32x64px.png"
     },
     {
+        "name": "heal_fx",
+        "type": "image",
+        "src": "data/img/heal_fx.png"
+    },
+    {
         "name": "healer_girl",
         "type": "image",
         "src": "data/img/healer_girl.png"
+    },
+    {
+        "name": "healer_girl2",
+        "type": "image",
+        "src": "data/img/healer_girl2.png"
     },
     {
         "name": "heart",
@@ -70,6 +90,11 @@ game.resources = [
         "src": "data/img/magical_girl.png"
     },
     {
+        "name": "magical_girl2",
+        "type": "image",
+        "src": "data/img/magical_girl2.png"
+    },
+    {
         "name": "object- layer",
         "type": "image",
         "src": "data/img/object- layer.png"
@@ -78,6 +103,11 @@ game.resources = [
         "name": "tank_girl",
         "type": "image",
         "src": "data/img/tank_girl.png"
+    },
+    {
+        "name": "tank_girl2",
+        "type": "image",
+        "src": "data/img/tank_girl2.png"
     },
     {
         "name": "targetTriangle",

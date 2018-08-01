@@ -100,7 +100,8 @@ var game = {
                     activeRange: game.helper.getRandomInt(40, 60),
                     targetCount: 20,
                     power: 20,
-                }), isPlayer: true, health: 1200, tauntMul: 5.0, image: "tank_girl",}));
+                    manaCost: 1,
+                }), isPlayer: true, health: 1200, tauntMul: 5.0, image: "tank_girl2",}));
         }
 
         // Healer
@@ -112,7 +113,8 @@ var game = {
                     activeRange: game.helper.getRandomInt(100, 150),
                     targetCount: 1,
                     power: 150,
-                }), isPlayer: true, health: 800, image: "healer_girl"}));
+                    manaCost: 15,
+                }), isPlayer: true, health: 800, image: "healer_girl2"}));
         }
 
         // DPS
@@ -127,7 +129,8 @@ var game = {
                         activeRange: game.helper.getRandomInt(200, 300),
                         targetCount: 6,
                         power: 150,
-                    }), isPlayer: true, health: 500, image: "magical_girl"}));
+                        manaCost: 2,
+                    }), isPlayer: true, health: 500, image: "magical_girl2"}));
             }
             else
             {
@@ -137,7 +140,8 @@ var game = {
                         activeRange: game.helper.getRandomInt(50, 70),
                         targetCount: 2,
                         power: 120,
-                    }), isPlayer: true, health: 500, image: "magical_girl"}));
+                        manaCost: 1,
+                    }), isPlayer: true, health: 500, image: "magical_girl2"}));
             }
         }
 

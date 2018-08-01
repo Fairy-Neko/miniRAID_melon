@@ -126,9 +126,9 @@ game.Spell.HealFxSprite = me.Sprite.extend
 ({
     init: function(x, y, settings)
     {
-        settings.image = settings.image || "Heal_32x64px";
+        settings.image = settings.image || "heal_fx";
         settings.framewidth = settings.framewidth || 32;
-        settings.frameheight = settings.frameheight || 64;
+        settings.frameheight = settings.frameheight || 32;
 
         this._super(me.Sprite, 'init', [x, y, settings]);
 
@@ -273,9 +273,9 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
         settings.name = "testFireball";
         if(!settings.image)
         {
-        settings.image = "goldcoin";
+        settings.image = "coppercoin2";
         settings.width = 16;
-        settings.height = 16;
+        settings.height = 24;
         }
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
@@ -313,9 +313,9 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
     init: function (x, y, source, target, settings) 
     {
         // Do not ask why it is a gold coin (x
-        settings.image = settings.image || "crystalcoin";
+        settings.image = settings.image || "crystalcoin2";
         settings.width = 16;
-        settings.height = 16;
+        settings.height = 24;
         settings.anchorPoint = new me.Vector2d(0.5, 0.5);
         settings.name = "HomingIceBall";
 
@@ -426,7 +426,7 @@ game.Spell.TestHealBeam = game.Spell.base.extend
                 spell: this,
             });
 
-            // me.game.world.addChild(me.pool.pull("healFx", target.renderAnchorPos.x, target.renderAnchorPos.y, {}));
+            me.game.world.addChild(me.pool.pull("healFx", target.renderAnchorPos.x, target.renderAnchorPos.y, {}));
         }
 
         this.timer = 500;
