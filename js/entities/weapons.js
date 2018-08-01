@@ -64,6 +64,9 @@ game.weapon = me.Object.extend
 
         this.activeRange = settings.activeRange || 200;
         this.targetCount = settings.targetCount || 1;
+
+        this.manaCost = settings.manaCost || 1;
+        this.manaRegen = settings.manaRegen || 10;
     },
 
     onAttack: function(mob, target) {},
