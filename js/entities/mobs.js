@@ -536,6 +536,7 @@ game.Mobs.base = game.Moveable.extend(
 
             if(this.data.currentHealth <= 0)
             {
+                this.agent.targetMob.data.beingAttack -= 1;
                 this.die(source, damage);
             }
         }
@@ -936,7 +937,12 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
 
         if(nextTarget && nextTarget != this.targetMob)
         {
+            if(this.targetMob)
+            {
+                this.targetMob.data.beingAttack -= 1;
+            }
             this.targetMob = nextTarget;
+            nextTarget.data.beingAttack += 1;
 
             // TODO: popUp a "!" and a red line for taunt focus
             var pPos = mob.getRenderPos(0.5, 0.0);

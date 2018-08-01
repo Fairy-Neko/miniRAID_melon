@@ -63,6 +63,9 @@ game.dataBackend.Mob = me.Object.extend
         this.maxHealth = settings.health || 100;
         this.currentHealth = this.maxHealth - settings.damage || settings.health || 100;
         this.alive = true;
+
+        this.maxMana = settings.mana || 100;
+        this.currentMana = this.maxMana || settings.mana || 100;
     
         // speed related (1.0 means 100% (NOT a value but a ratio))
         this.modifiers = {
@@ -135,6 +138,7 @@ game.dataBackend.Mob = me.Object.extend
 
         // How much taunt will this mob generate?
         this.tauntMul = settings.tauntMul || 1.0;
+        this.beingAttack = 0;
 
         // A Specific identify name only for this mob
         this.ID = game.data.backend.getID();

@@ -192,6 +192,12 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
             }
         }
 
+        player.data.currentMana += dt * player.data.currentWeapon.manaRegen * 0.001;
+        if(player.data.currentMana > player.data.maxMana)
+        {
+            player.data.currentMana = player.data.maxMana
+        }
+
         // Attack !
         if(player.doAttack(dt) === true)
         {
@@ -201,7 +207,11 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
                 {
                     if(player.data.currentWeapon.isInRange(player, target))
                     {
-                        player.data.currentWeapon.attack(player, target);
+                        if(player.data.currentMana > player.data.currentWeapon.manaCost)
+                        {
+                            player.data.currentMana -= player.data.currentWeapon.manaCost;
+                            player.data.currentWeapon.attack(player, target);
+                        }
                     }
                 }
             }

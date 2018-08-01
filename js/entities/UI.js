@@ -133,7 +133,10 @@ game.UI.PopupTextManager = me.Renderable.extend ({
             txt.velX += txt.accX * me.timer.getDeltaSec();
             txt.velY += txt.accY * me.timer.getDeltaSec();
 
-            txt.alpha = (txt.timeRemain > 1 ? 1 : txt.timeRemain);
+            //delete me!(x
+            txt.posX += Math.sin(16 * Math.PI * txt.timeRemain) / (txt.timeRemain - 0.4) / 8;
+
+            txt.alpha = txt.timeRemain > 0.4 ? 1 : 0;
         }
 
         return true;
@@ -155,6 +158,7 @@ game.UI.PopupTextManager = me.Renderable.extend ({
 
             // TODO: We need a outlined bitmap Font !
             context.setColor(txt.color);
+            context.setGlobalAlpha(txt.alpha);
             this.font[txt.fontFamily].draw(context, txt.text, txt.posX, txt.posY);
 
             // this.font[txt.fontFamily].drawStroke(context, txt.text, txt.posX, txt.posY);
@@ -276,6 +280,10 @@ game.UI.raidFrame = me.Renderable.extend
                 context.setColor('#1B813E');
                 sliceLength = Math.floor(48 * dataList[i].currentHealth / dataList[i].maxHealth);
                 context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 1, sliceLength + 1, 38);
+
+                context.setColor('#33A6B8');
+                sliceLength = Math.floor(48 * dataList[i].currentMana / dataList[i].maxMana);
+                context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 36, sliceLength + 1, 3);
             }
             else
             {
@@ -283,8 +291,16 @@ game.UI.raidFrame = me.Renderable.extend
                 context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 1, 49, 38);
             }
 
+            if(dataList[i].beingAttack){
+                context.setColor('#FFFFFF');
+                context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 1, 10, 10);
+            }
+
             context.setColor('#ffffff');
             this.font.draw(context, dataList[i].name.slice(0, 4) + dataList[i].name.slice(-1), this.pos.x + 50 * i + 2, this.pos.y + 15);
+            this.font.draw(context, dataList[i].currentHealth + "/" + dataList[i].maxHealth, this.pos.x + 50 * i + 2, this.pos.y + 22);
+            this.font.draw(context, Math.round(dataList[i].currentMana) + "/" + dataList[i].maxMana, this.pos.x + 50 * i + 2, this.pos.y + 29);
+            
         }
 
         context.restore();
