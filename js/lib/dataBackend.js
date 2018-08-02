@@ -121,9 +121,6 @@ game.dataBackend.Mob = me.Object.extend
             attackRange: 0,
             extraRange: 0,
         };
-    
-        // buff related
-        // this.buffList = new Set();
 
         // Equipment related
         this.weaponLeft = settings.weaponLeft;// || new game.weapon(settings);
@@ -145,6 +142,11 @@ game.dataBackend.Mob = me.Object.extend
 
         // ref for MobListeners (buffs, agent, weapons, armor, ...)
         this.listeners = new Set();
+
+        // buff list, only for rendering UI
+        // buffs are actually plain mob listeners
+        // maybe they have something different (x)
+        this.buffList = new Set();
     },
 
     getMovingSpeed: function()
@@ -167,7 +169,7 @@ game.dataBackend.Mob = me.Object.extend
             {
                 //this buff is over. delete it from the list.
                 // this.buffList.delete(buff);
-                this.listeners.delete(listener);
+                this.removeListener(listener);
             }
         }
 
@@ -207,6 +209,22 @@ game.dataBackend.Mob = me.Object.extend
 
         // Set source and belongings
         listener.source = source;
+
+        if(listener.isBuff)
+        {
+            // Should we still keep buffList ?
+            this.buffList.add(listener);
+        }
+    },
+
+    removeListener: function(listener)
+    {
+        if(listener.isBuff)
+        {
+            this.buffList.remove(listener);
+        }
+
+        this.listeners.remove(listener);
     },
 
     calcStats: function()

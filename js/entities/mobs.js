@@ -220,6 +220,10 @@ game.Mobs.UnitManager = me.Object.extend
         return result;
     },
 
+    // Get a list of units, e.g. attack target list etc.
+    // You will get a list that:
+    // * The list was sorted using sortMethod,
+    // * The list will contain units only if they have passed availableTest. (availableTest(unit) returns true)
     getPlayerList: function(sortMethod, availableTest)
     {
         sortMethod = sortMethod || function(a, b) {return 0;};
@@ -260,6 +264,7 @@ game.Mobs.UnitManager = me.Object.extend
         return this._getUnitList(this.enemy, sortMethod, availableTest).concat(this._getUnitList(this.player, sortMethod, availableTest)).sort(sortMethod);
     },
 
+    // Shorthand to get k-nearest (as a parameter "count") player around a position using above API.
     getNearest: function(position, isPlayer = false, count = 1)
     {
         var result = this.getUnitList({
@@ -275,6 +280,18 @@ game.Mobs.UnitManager = me.Object.extend
         return result.slice(0, Math.min(count, result.length));
     },
 
+    // Boardcast the method targeted target with args to any listeners of any mobs that focused on the target.
+    boardcast: function(method, target, args)
+    {
+        var flag = false;
+
+        flag = flag | this._boardcast(this.player, method, target, args);
+        flag = flag | this._boardcast(this.enemy, method, target, args);
+
+        return flag;
+    },
+
+    // The actually boardcast process goes here.
     _boardcast: function(set, method, target, args)
     {
         var flag = false;
@@ -296,16 +313,6 @@ game.Mobs.UnitManager = me.Object.extend
 
         return flag;
     },
-
-    boardcast: function(method, target, args)
-    {
-        var flag = false;
-
-        flag = flag | this._boardcast(this.player, method, target, args);
-        flag = flag | this._boardcast(this.enemy, method, target, args);
-
-        return flag;
-    },
 });
 
 game.Mobs.UnitManager.sortByHealth = function(a, b)
@@ -318,14 +325,49 @@ game.Mobs.UnitManager.sortByHealthPercentage = function(a, b)
     return (a.data.currentHealth / a.data.maxHealth) - (b.data.currentHealth / b.data.maxHealth);
 };
 
+/**Base class for Mobs.
+ * 
+ * It is a combination of:
+ * 
+ * - A mob data backend object
+ *      Stores the backend data used by the mob, anything that does not shows on the screen.
+ *      Status of the mob (health, str, dex, int, ...), buffs, equipments, ...
+ *      It has a list holding all "MobListener"s. 
+ * 
+ *      a mobListener is anything that needs recieve events on something happened to the mob.
+ *      e.g. dealDamage, receiveDamage, dealHeal, Death, etc.
+ *      a mobListener could also change the results of those events, 
+ *      e.g. let all fire damage become 0 when the mob was damaged,
+ *      by change the event parameter itself directly.
+ *      
+ *      equipments, buffs, agents (handle taunt) and mob itself (different class / job specification) are all mobListeners.
+ *      Specially, although the mob itself "is" a mobListener, it doesn't extends mobListener class.
+ *      Instead, you can write functions in mobs, with the same name as mobListener, receiving same arguments,
+ *      so the function can be called, and that function will be called when it should be.
+ *      
+ * - A mob agent
+ *      Mob agent is a "AI" agent that controlles the mob's action, including movement, attack target, etc.
+ *      Player character were also controlled by some player agent, which could receive pointer events.
+ *      In fact, player agents receive pointer event from game.Mobs.UnitManager (game.units).
+ *
+ * - A MelonJS Entity
+ *      A mob is a MelonJS entity. So it can be rendered on the screen, check collisions with others, be updated every frame.
+ * 
+ * The mob class combines several concepts (data backend, agent, ...), builds up a mob, providing interfaces,
+ * and do the jobs with MelonJS engine, in order to show itself to screen and check collisions.
+ * 
+ * If there're anything that a data backend was enough, do it in the data backend instead of the mob itself.
+ */
 game.Mobs.base = game.Moveable.extend(
 {
     init: function(x, y, settings) 
     {
         this._super(game.Moveable, 'init', [x, y, settings]);
 
+        // Initialize the backend data.
         this.data = settings.backendData || new game.dataBackend.Mob(settings);
-
+        
+        // Check if this is a player and set proper body collision types.
         if(settings.isPlayer === true)
         {
             this.body.collisionType = me.collision.types.PLAYER_OBJECT;
@@ -340,6 +382,7 @@ game.Mobs.base = game.Moveable.extend(
         this.alwaysUpdate = true;
         this.body.gravity = 0;
 
+        // Initialize an agent
         if(settings.agent)
         {
             this.agent = new settings.agent(this, settings);
@@ -349,8 +392,10 @@ game.Mobs.base = game.Moveable.extend(
             this.agent = new game.MobAgent.base(this, settings);
         }
 
+        // and add it as a listener to backend.
         this.data.addListener(this.agent);
 
+        // Timer counter for attack (attackSpeed countdown)
         this.attackCounter = 0;
 
         // Add a test HP bar for it
@@ -362,6 +407,8 @@ game.Mobs.base = game.Moveable.extend(
 
     updateMoveable: function(dt)
     {
+        // Tell data backend to update our data.
+        // This does almost all the things with our backend data (status calculation, update listeners, etc.)
         this.data.updateMobBackend(this, dt);
 
         me.collision.check(this);
@@ -371,7 +418,8 @@ game.Mobs.base = game.Moveable.extend(
 
         // Update all buffes
         // Since we cannot access draw() so we call onRender() here (end of update).
-        // TODO: remove this
+        // TODO: uncomment this and move it to proper place, this.draw().
+        // and change buff to listeners.
         // for (let buff of this.data.buffList.values())
         // {
         //     buff.onRender(this);
@@ -410,6 +458,13 @@ game.Mobs.base = game.Moveable.extend(
     // receiveBuff() should be the final step of being buffed, and if the mob resists some buff this should not be called.
     // e.g. in some inherited classes use:
     //                                       if(...){ nothing happens; } else { super.receiveBuff() }.
+
+    // N.B. recieveBuff should also work like recieveDamage(), that triggers listener events and decide
+    // if we should keep the buff or ignore it.
+    // But I have not write it.
+
+    // TODO: add onReceiveBuff & onFocusReceiveBuff for game.MobListeners.
+    // ...Maybe we should let them auto trigger onFocusXXX for any events ?
     receiveBuff: function({
         source = undefined, 
         buff = undefined,
@@ -418,10 +473,11 @@ game.Mobs.base = game.Moveable.extend(
     {
         if(buff != undefined)
         {
-            // console.log("[" + this.name + "] : Received buff <" + buff.name + "> from <" + source.name, "> !");
+            // Call backend to add the buff.
+            // Actually, for the backend, a buff is same as a plain listener (this.data.addListener(listener)).
             this.data.addBuff(buff);
 
-            //Initial popUp
+            // Initial popUp
             if(popUp == true)
             {
                 buff.popUp();
@@ -431,12 +487,12 @@ game.Mobs.base = game.Moveable.extend(
 
     // Same as receiveBuff(),
     // this method will be used to receive damage from any object.
-    // this method will calculate damage reducement *only* based on mob's resist stats,
-    // So if you have any other damage calculation processes (e.g. fire resist necklace / -3 fire dmg), 
-    // do it first and then call super.receiveDamage().
+    // this method will also trigger events for listeners, and let them modify the damage.
+    // e.g. mob equiped fire resist necklace -> it's event will be triggered ...
+    // (actually for fire resist necklace, change parameters in onStatsChange() is convinent, though. lol.)
     
     // This method will also popup a text with the final amount of damage, 
-    // with corresponding color defined in tables.js (var damageColor).
+    // with corresponding color defined in gama.data.damageColor.
     // this action could be disabled by setting popUp = false.
     receiveDamage: function({
         source = undefined, 
@@ -446,6 +502,8 @@ game.Mobs.base = game.Moveable.extend(
         popUp = true
     } = {})
     {
+        // The actual damage calculate and event trigger moved into backend
+        // If mob dead finally, this.data.alive will become false
         var finalDmg = this.data.receiveDamage({
             source: source,
             target: this,
@@ -454,7 +512,7 @@ game.Mobs.base = game.Moveable.extend(
             spell: spell,
         });
 
-        // Show popUp texts
+        // Mob itself only do rendering popUp texts
         for(var dmgType in finalDmg)
         {
             if(popUp == true && finalDmg[dmgType] > 0)
@@ -469,6 +527,8 @@ game.Mobs.base = game.Moveable.extend(
             }
         }
 
+        // However, it should also check if self dead here
+        // since it should remove the renderable (actual object) from the scene and mob list
         // Check if I am alive
         if(this.data.alive == false)
         {
@@ -476,6 +536,7 @@ game.Mobs.base = game.Moveable.extend(
         }
     },
 
+    // Receive healing, same as recieve damage.
     receiveHeal: function({
         source = undefined,
         heal = 0,
@@ -484,6 +545,7 @@ game.Mobs.base = game.Moveable.extend(
         popUp = true,
     } = {})
     {
+        // Same as above
         var finalHeal = this.data.receiveHeal({
             source: source,
             target: this,

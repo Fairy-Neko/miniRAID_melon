@@ -11,6 +11,9 @@ game.Buff.base = game.MobListener.extend
 
         //Name of the buff
         this.name = settings.name || "buff";
+
+        //This listener is a buff
+        this.isBuff = true;
         
         //time in seconds, will automatically reduce by time
         this.timeRemain = settings.time || 1.0; 
