@@ -44,16 +44,22 @@ game.Mobs.UnitManager = me.Object.extend
             var maxY = Math.max(this.rectOrigin.y, this.rectTarget.y);
 
             this.selectingRect.setShape(0, 0, maxX - minX, maxY - minY);
+            var playerCount = 0;
             for(let player of this.player)
             {
                 var pt = player.getRenderPos(0.5, 0.5).clone();
+                var frame = game.UI.unitFrameSlots.slots[playerCount++];
+                console.log(frame.pos.x + " " + frame.pos.y);
                 if(this.selectingRect.containsPoint(pt.x - minX, pt.y - minY))
                 {
-                    player.inControl = true;
+                    player.data.inControl = true;
+                }
+                else if(this.selectingRect.containsPoint(frame.pos.x - minX, frame.pos.y - minY)){
+                    player.data.inControl = true;
                 }
                 else
                 {
-                    player.inControl = false;
+                    player.data.inControl = false;
                 }
             }
         }
@@ -109,7 +115,7 @@ game.Mobs.UnitManager = me.Object.extend
             this.selectedPlayerCount = 0;
             for(var player of this.player)
             {
-                if(player.inControl == true)
+                if(player.data.inControl == true)
                 {
                     this.selectedPlayerCount += 1;
                 }
@@ -141,7 +147,7 @@ game.Mobs.UnitManager = me.Object.extend
 
             for(var player of this.player)
             {
-                if(player.inControl == true)
+                if(player.data.inControl == true)
                 {
                     console.log(this.origin);
                     player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(playerSparse, 0).rotate((playerNum + this.playerRotation) / this.selectedPlayerCount * 2 * Math.PI)));
@@ -322,7 +328,8 @@ game.Mobs.UnitManager.sortByHealth = function(a, b)
 
 game.Mobs.UnitManager.sortByHealthPercentage = function(a, b)
 {
-    return (a.data.currentHealth / a.data.maxHealth) - (b.data.currentHealth / b.data.maxHealth);
+    return ((a.data.currentHealth / a.data.maxHealth) - 0.4 * a.data.healPriority) - ((b.data.currentHealth / b.data.maxHealth) - 0.4 * a.data.healPriority);
+
 };
 
 /**Base class for Mobs.
@@ -440,7 +447,7 @@ game.Mobs.base = game.Moveable.extend(
 
         this.attackCounter += dt * 0.001;
 
-        if(this.attackCounter > this.data.getAttackSpeed())
+        if(this.attackCounter > (this.data.getAttackSpeed()))
         {
             // This will cause mutiple attacks if attackspeed increases.
             // this.attackCounter -= this.data.getAttackSpeed();
@@ -482,6 +489,7 @@ game.Mobs.base = game.Moveable.extend(
             {
                 buff.popUp();
             }
+
         }
     },
 
@@ -512,6 +520,7 @@ game.Mobs.base = game.Moveable.extend(
             spell: spell,
         });
 
+
         // Mob itself only do rendering popUp texts
         for(var dmgType in finalDmg)
         {
@@ -532,6 +541,8 @@ game.Mobs.base = game.Moveable.extend(
         // Check if I am alive
         if(this.data.alive == false)
         {
+            this.agent.targetMob.data.beingAttack -= 1;
+            this.data.beingAttack = 0;
             this.die(source, damage);
         }
     },

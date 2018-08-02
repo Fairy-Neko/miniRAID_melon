@@ -19,13 +19,13 @@ game.PlayerMobs.base = game.Mobs.base.extend
 
         me.game.world.addChild(this.targetTriangle, 10);
 
-        this.inControl = false;
+        this.data.inControl = false;
     },
 
     updateMob: function(dt)
     {
         this.targetTriangle.pos.copy(this.getRenderPos(0.5, 0.0));
-        this.targetTriangle.alpha = this.inControl ? 1 : 0;
+        this.targetTriangle.alpha = this.data.inControl ? 1 : 0;
 
         this.updatePlayer(dt);
     },

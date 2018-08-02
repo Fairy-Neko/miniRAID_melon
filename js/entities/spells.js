@@ -346,6 +346,14 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
             });
             this.destroy(other);
         }
+        if(typeof other.receiveBuff !== "undefined")
+        {
+            other.receiveBuff({
+                source: this.source,
+                buff: new IceSlowed({time: 0.15}),
+                popUp: true,
+            })
+        }
     },
 
     onDestroy: function(other)
