@@ -320,7 +320,7 @@ game.UI.raidFrame = me.Renderable.extend
                 // Mana bar (Small & Short light blue one)
                 // It height was fixed at 3
                 context.setColor('#33A6B8');
-                sliceLength = Math.floor((this.gridWidth - 1) * dataList[i].currentMana / dataList[i].maxMana);
+                sliceLength = Math.floor((this.gridWidth - 1) * dataList[i].currentHealth / dataList[i].maxHealth);
                 context.fillRect(this.pos.x + this.outlinedGridWidth * i + 1, this.pos.y + this.gridHeight - 2, sliceLength + 1, 3);
 
                 // Left-upper corner white block = has been targeted
@@ -539,7 +539,7 @@ game.UI.slot = me.GUI_Object.extend(
         // When user adding skills to global raid skill slots, 
         // they add them from each character, so we know the actual source.
 
-        this.player.receiveBuff({source: this.player, buff: new game.Buff.bloodlustBuff({time: 15.0}), popUp: true});
+        this.player.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 15.0}), popUp: true});
         return false;
     }
 });
