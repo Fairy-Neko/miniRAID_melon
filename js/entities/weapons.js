@@ -1,62 +1,10 @@
-game.weapon = me.Object.extend
+game.Weapon = game.Weapon || {};
+
+game.Weapon.base = game.Equipable.extend
 ({
     init: function(settings)
     {
-        this.name = "undefined weapon";
-
-        this.baseAttackSpeed = settings.baseAttackSpeed || 1.0;
-        this.statRequirements = {
-            vit: 0,
-            str: 0,
-            dex: 0,
-            tec: 0,
-            int: 0,
-            mag: 0,
-        };
-
-        this.stats = {
-            vit: 0,
-            str: 0,
-            dex: 0,
-            tec: 0,
-            int: 9,
-            mag: 0,
-        };
-
-        this.healthIncreasement = 0;
-
-        this.battleStats = {
-            resist: {
-                slash: 0,
-                knock: 0,
-                pierce: 0,
-                fire: 0,
-                ice: 0,
-                water: 0,
-                nature: 0,
-                wind: 0,
-                thunder: 0,
-                light: 0
-            },
-
-            attackPower: {
-                slash: 0,
-                knock: 0,
-                pierce: 0,
-                fire: 0,
-                ice: 0,
-                water: 0,
-                nature: 0,
-                wind: 0,
-                thunder: 0,
-                light: 0
-            },
-
-            hitAcc: 100,
-            avoid: 0,
-            attackRange: 0,
-            extraRange: 0,
-        };
+        this._super(game.Equipable, 'init', [settings]);
 
         // Weapon gauge full = special attack !
         this.weaponGauge = 0;
@@ -100,14 +48,19 @@ game.weapon = me.Object.extend
     {
         return undefined;
     },
+
+    onStatCalculation: function(mob)
+    {
+
+    },
 });
 
 // TODO: refactory the weapons code, make the base class more useful.
-game.weapon.TestStaff = game.weapon.extend
+game.Weapon.TestStaff = game.Weapon.base.extend
 ({
     init: function(settings)
     {
-        this._super(game.weapon, 'init', [settings]);
+        this._super(game.Weapon.base, 'init', [settings]);
         this.name = "test staff";
 
         this.power = settings.power || 5;
@@ -141,11 +94,11 @@ game.weapon.TestStaff = game.weapon.extend
     },
 });
 
-game.weapon.TestBossStaff = game.weapon.extend
+game.Weapon.TestBossStaff = game.Weapon.base.extend
 ({
     init: function(settings)
     {
-        this._super(game.weapon, 'init', [settings]);
+        this._super(game.Weapon.base, 'init', [settings]);
         this.name = "test boss staff";
 
         this.power = settings.power || 5;
@@ -176,11 +129,11 @@ game.weapon.TestBossStaff = game.weapon.extend
     },
 });
 
-game.weapon.TestHomingStaff = game.weapon.extend
+game.Weapon.TestHomingStaff = game.Weapon.base.extend
 ({
     init: function(settings)
     {
-        this._super(game.weapon, 'init', [settings]);
+        this._super(game.Weapon.base, 'init', [settings]);
         this.name = "test staff";
 
         this.power = settings.power || 3;
@@ -216,11 +169,11 @@ game.weapon.TestHomingStaff = game.weapon.extend
     },
 });
 
-game.weapon.TestHealStaff = game.weapon.extend
+game.Weapon.TestHealStaff = game.Weapon.base.extend
 ({
     init: function(settings)
     {
-        this._super(game.weapon, 'init', [settings]);
+        this._super(game.Weapon.base, 'init', [settings]);
         this.name = "test staff";
 
         this.power = settings.power || 15;

@@ -94,7 +94,7 @@ var game = {
         // Tank
         for(var i = 0; i < playerType[0]; i++)
         {
-            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(T) girl " + i, weaponLeft: new game.weapon.TestStaff(
+            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(T) girl " + i, weaponLeft: new game.Weapon.TestStaff(
                 {
                     baseAttackSpeed: game.helper.getRandomFloat(0.05, 0.08),
                     activeRange: game.helper.getRandomInt(40, 60),
@@ -107,7 +107,7 @@ var game = {
         // Healer
         for(var i = 0; i < playerType[1]; i++)
         {
-            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(H) girl " + i, weaponLeft: new game.weapon.TestHealStaff(
+            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(H) girl " + i, weaponLeft: new game.Weapon.TestHealStaff(
                 {
                     baseAttackSpeed: game.helper.getRandomFloat(1.0, 1.3),
                     activeRange: game.helper.getRandomInt(100, 150),
@@ -123,7 +123,7 @@ var game = {
             var choice = Math.random();
             if(choice < 0.5)
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, weaponLeft: new game.weapon.TestHomingStaff(
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, weaponLeft: new game.Weapon.TestHomingStaff(
                     {
                         baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
                         activeRange: game.helper.getRandomInt(200, 300),
@@ -134,7 +134,7 @@ var game = {
             }
             else
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (M) " + i, weaponLeft: new game.weapon.TestStaff(
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (M) " + i, weaponLeft: new game.Weapon.TestStaff(
                     {
                         baseAttackSpeed: game.helper.getRandomFloat(0.1, 0.15),
                         activeRange: game.helper.getRandomInt(50, 70),
