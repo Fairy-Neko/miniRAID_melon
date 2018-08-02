@@ -320,7 +320,7 @@ game.UI.raidFrame = me.Renderable.extend
                 // Mana bar (Small & Short light blue one)
                 // It height was fixed at 3
                 context.setColor('#33A6B8');
-                sliceLength = Math.floor((this.gridWidth - 1) * dataList[i].currentHealth / dataList[i].maxHealth);
+                sliceLength = Math.floor((this.gridWidth - 1) * dataList[i].currentMana / dataList[i].maxMana);
                 context.fillRect(this.pos.x + this.outlinedGridWidth * i + 1, this.pos.y + this.gridHeight - 2, sliceLength + 1, 3);
 
                 // Left-upper corner white block = has been targeted
@@ -525,7 +525,10 @@ game.UI.slot = me.GUI_Object.extend(
             velX: 0,
         });
 
-        this.player = game.units.getPlayerList()[this.id];
+        this.player = game.units.getPlayerListWithDead()[this.id];
+
+        // TODO: add a parent in player data ...? (be careful for loop reference and GC)
+        // this.playerData = game.data.backend.getPlayerList()[this.id];
 
         this.player.data.currentHealth = this.player.data.maxHealth;
         this.player.data.currentMana = this.player.data.maxMana;

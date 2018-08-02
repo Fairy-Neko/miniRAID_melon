@@ -47,19 +47,22 @@ game.Mobs.UnitManager = me.Object.extend
             var playerCount = 0;
             for(let player of this.player)
             {
-                var pt = player.getRenderPos(0.5, 0.5).clone();
-                var frame = game.UI.unitFrameSlots.slots[playerCount++];
-                console.log(frame.pos.x + " " + frame.pos.y);
-                if(this.selectingRect.containsPoint(pt.x - minX, pt.y - minY))
+                if(game.Mobs.checkAlive(player))
                 {
-                    player.data.inControl = true;
-                }
-                else if(this.selectingRect.containsPoint(frame.pos.x - minX, frame.pos.y - minY)){
-                    player.data.inControl = true;
-                }
-                else
-                {
-                    player.data.inControl = false;
+                    var pt = player.getRenderPos(0.5, 0.5).clone();
+                    var frame = game.UI.unitFrameSlots.slots[playerCount++];
+                    console.log(frame.pos.x + " " + frame.pos.y);
+                    if(this.selectingRect.containsPoint(pt.x - minX, pt.y - minY))
+                    {
+                        player.data.inControl = true;
+                    }
+                    else if(this.selectingRect.containsPoint(frame.pos.x - minX, frame.pos.y - minY)){
+                        player.data.inControl = true;
+                    }
+                    else
+                    {
+                        player.data.inControl = false;
+                    }
                 }
             }
         }
@@ -210,13 +213,14 @@ game.Mobs.UnitManager = me.Object.extend
         this.enemy.delete(enemy);
     },
 
-    _getUnitList: function(targetSet, sortMethod, availableTest)
+    _getUnitList: function(targetSet, sortMethod, availableTest, containsDead = false)
     {
         var result = [];
 
         for(var unit of targetSet)
         {
-            if(availableTest(unit) === true)
+            // TODO: how to do with raise skills ?
+            if((containsDead || game.Mobs.checkAlive(unit)) && availableTest(unit) === true)
             {
                 result.push(unit);
             }
@@ -230,12 +234,20 @@ game.Mobs.UnitManager = me.Object.extend
     // You will get a list that:
     // * The list was sorted using sortMethod,
     // * The list will contain units only if they have passed availableTest. (availableTest(unit) returns true)
-    getPlayerList: function(sortMethod, availableTest)
+    getPlayerList: function(sortMethod, availableTest, containsDead = false)
     {
         sortMethod = sortMethod || function(a, b) {return 0;};
         availableTest = availableTest || function(a) {return true;};
 
-        return this._getUnitList(this.player, sortMethod, availableTest);
+        return this._getUnitList(this.player, sortMethod, availableTest, containsDead);
+    },
+
+    getPlayerListWithDead: function(sortMethod, availableTest)
+    {
+        sortMethod = sortMethod || function(a, b) {return 0;};
+        availableTest = availableTest || function(a) {return true;};
+
+        return this._getUnitList(this.player, sortMethod, availableTest, true);
     },
 
     getEnemyList: function(sortMethod, availableTest)
@@ -601,7 +613,8 @@ game.Mobs.base = game.Moveable.extend(
 
         if(this.data.isPlayer === true)
         {
-            game.units.removePlayer(this);
+            // Don't remove it, keep it dead
+            // game.units.removePlayer(this);
         }
         else
         {

@@ -32,6 +32,8 @@ game.PlayerMobs.base = game.Mobs.base.extend
 
     onDeath: function({ source, damage, isCrit, spell } = {})
     {
+        this.data.inControl = false;
+
         me.game.world.removeChild(this.targetTriangle);
         return true;
     },
