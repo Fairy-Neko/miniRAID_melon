@@ -489,6 +489,10 @@ game.Mobs.base = game.Moveable.extend(
             {
                 buff.popUp(this);
             }
+<<<<<<< HEAD
+=======
+
+>>>>>>> cbcb5a94b70d24e8fc628655d297ce9df009a6b3
         }
     },
 
@@ -518,6 +522,10 @@ game.Mobs.base = game.Moveable.extend(
             isCrit: isCrit,
             spell: spell,
         });
+<<<<<<< HEAD
+=======
+
+>>>>>>> cbcb5a94b70d24e8fc628655d297ce9df009a6b3
 
         // Mob itself only do rendering popUp texts
         for(var dmgType in finalDmg)
@@ -539,7 +547,13 @@ game.Mobs.base = game.Moveable.extend(
         // Check if I am alive
         if(this.data.alive == false)
         {
+<<<<<<< HEAD
             this.die(source, finalDmg);
+=======
+            this.agent.targetMob.data.beingAttack -= 1;
+            this.data.beingAttack = 0;
+            this.die(source, damage);
+>>>>>>> cbcb5a94b70d24e8fc628655d297ce9df009a6b3
         }
     },
 

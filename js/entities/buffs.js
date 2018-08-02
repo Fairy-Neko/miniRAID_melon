@@ -132,6 +132,7 @@ game.Buff.Fired = game.Buff.base.extend
         }
     },
 });
+<<<<<<< HEAD
 
 game.Buff.Bloodlust = game.Buff.base.extend
 ({
@@ -145,10 +146,28 @@ game.Buff.Bloodlust = game.Buff.base.extend
         settings.popupColor = "#d942f4";
 
         this._super(game.Buff.base, 'init', [settings]);
+=======
 
+game.Buff.bloodlustBuff = game.Buff.base.extend
+({
+    init: function(settings)
+    {
+        settings.name = settings.name || "bloodlust";
+        settings.time = settings.time || 15.0;
+        settings.stacks = settings.stacks || 1;
+>>>>>>> cbcb5a94b70d24e8fc628655d297ce9df009a6b3
+
+        this._super(game.Buff.base, 'init', [settings]);
+        
         this.timer = 0.0;
+<<<<<<< HEAD
     },
 
+=======
+
+    },
+
+>>>>>>> cbcb5a94b70d24e8fc628655d297ce9df009a6b3
     onUpdate: function(mob, deltaTime)
     {
         this._super(game.Buff.base, 'onUpdate', [mob, deltaTime]);

@@ -160,7 +160,12 @@ game.dataBackend.Mob = me.Object.extend
         return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed) * this.currentWeapon.baseAttackSpeed;
     },
 
+<<<<<<< HEAD
     updateMobBackend: function(mob, dt)
+=======
+
+    updateMobBackend: function(dt)
+>>>>>>> cbcb5a94b70d24e8fc628655d297ce9df009a6b3
     {
         // Update all listeners
         this.updateListeners('onUpdate', [mob, dt]);
