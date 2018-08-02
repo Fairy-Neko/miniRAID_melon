@@ -49,7 +49,7 @@ game.Mobs.UnitManager = me.Object.extend
             {
                 var pt = player.getRenderPos(0.5, 0.5).clone();
                 var frame = game.UI.unitFrameSlots.slots[playerCount++];
-                console.log(frame.pos.x + " " + frame.pos.y);
+
                 if(this.selectingRect.containsPoint(pt.x - minX, pt.y - minY))
                 {
                     player.data.inControl = true;
@@ -149,7 +149,6 @@ game.Mobs.UnitManager = me.Object.extend
             {
                 if(player.data.inControl == true)
                 {
-                    console.log(this.origin);
                     player.agent.setTargetPos(player, this.origin.clone().add(new me.Vector2d(playerSparse, 0).rotate((playerNum + this.playerRotation) / this.selectedPlayerCount * 2 * Math.PI)));
                     playerNum++;
                 }
