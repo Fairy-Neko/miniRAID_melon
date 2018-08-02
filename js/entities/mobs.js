@@ -329,7 +329,8 @@ game.Mobs.UnitManager.sortByHealth = function(a, b)
 
 game.Mobs.UnitManager.sortByHealthPercentage = function(a, b)
 {
-    return (a.data.currentHealth / a.data.maxHealth) - (b.data.currentHealth / b.data.maxHealth);
+    return ((a.data.currentHealth / a.data.maxHealth) - 0.4 * a.data.healPriority) - ((b.data.currentHealth / b.data.maxHealth) - 0.4 * a.data.healPriority);
+
 };
 
 game.Mobs.base = game.Moveable.extend(
@@ -362,7 +363,7 @@ game.Mobs.base = game.Moveable.extend(
         }
 
         this.attackCounter = 0;
-
+        
         this.data = settings.backendData || new game.dataBackend.Mob(settings);
 
         // Add a test HP bar for it
@@ -417,7 +418,7 @@ game.Mobs.base = game.Moveable.extend(
 
         this.attackCounter += dt * 0.001;
 
-        if(this.attackCounter > this.data.getAttackSpeed())
+        if(this.attackCounter > (this.data.getAttackSpeed() / this.data.modifiers.attackSpeed))
         {
             // This will cause mutiple attacks if attackspeed increases.
             // this.attackCounter -= this.data.getAttackSpeed();
@@ -451,19 +452,12 @@ game.Mobs.base = game.Moveable.extend(
     {
         if(buff != undefined)
         {
-            // console.log("[" + this.name + "] : Received buff <" + buff.name + "> from <" + source.name, "> !");
-
-            this.data.buffList.add(buff);
-
-            //Set source and belongings
-            buff.source = source;
             buff.parent = this;
+            if(source === undefined)
+                buff.source = this;
 
-            //Initial popUp
-            if(popUp == true)
-            {
-                buff.popUp();
-            }
+            this.data.receiveBuff({source: source, buff: buff,popUp: popUp});
+
         }
     },
 
@@ -497,7 +491,10 @@ game.Mobs.base = game.Moveable.extend(
         };
 
         this._callBuffAndAgents('onReceiveDamage', damageObj);
-        source._callBuffAndAgents('onDealDamage', damageObj);
+        if(source){
+            source._callBuffAndAgents('onDealDamage', damageObj);
+        }
+        
         game.units.boardcastDamage(damageObj, false);
 
         // Do the calculation
@@ -525,7 +522,9 @@ game.Mobs.base = game.Moveable.extend(
         damageObj.damage = finalDmg;
 
         this._callBuffAndAgents('onReceiveDamageFinal', damageObj);
-        source._callBuffAndAgents('onDealDamageFinal', damageObj);
+        if(source){
+            source._callBuffAndAgents('onDealDamageFinal', damageObj);
+        }
         game.units.boardcastDamage(damageObj, true);
 
         // Decrese HP and check if I am dead
@@ -537,6 +536,7 @@ game.Mobs.base = game.Moveable.extend(
             if(this.data.currentHealth <= 0)
             {
                 this.agent.targetMob.data.beingAttack -= 1;
+                this.data.beingAttack = 0;
                 this.die(source, damage);
             }
         }
