@@ -36,15 +36,18 @@ game.UI.Container = me.Container.extend({
             title: "Heal Per Sec",
         });
 
-        game.UI.raidFrame = new game.UI.raidFrame(300, me.game.viewport.height - 100, {
+        game.UI.raidFrame = new game.UI.raidFrame(250, me.game.viewport.height - 100, {
             grabFunction: game.data.backend.getPlayerList.bind(game.data.backend),
-            title: "raid frame"
-        })
+            title: "raid frame",
+        });
 
+        game.UI.unitFrameSlots = new game.UI.unitFrameSlots();
+        
         this.addChild(game.UI.popupMgr);
         this.addChild(game.UI.damageMonitor);
         this.addChild(game.UI.healMonitor);
         this.addChild(game.UI.raidFrame);
+        this.addChild(game.UI.unitFrameSlots);
 
         game.UI.selectingRect = new game.UI.ColoredRect({
             borderColor: new me.Color(0, 255, 0, 1),
@@ -263,14 +266,22 @@ game.UI.raidFrame = me.Renderable.extend
         context.save();
 
         context.setColor('#222222');
-        context.fillRect(this.pos.x, this.pos.y, 401, 40);
+        context.fillRect(this.pos.x, this.pos.y, 513, 40);
 
         var dataList = this.grabFunction();
 
         for(var i = 0; i < dataList.length; i++)
         {
+            if(dataList[i].inControl){
+                context.setColor('#FFFFFF');
+            }
+            else{
+                context.setColor('#222222');
+            }
+            
+            context.fillRect(this.pos.x + 64 * i, this.pos.y, 65, 40);
             context.setColor('#20604F');
-            context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 1, 49, 38);
+            context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, 63, 38);
         }
 
         for(var i = 0; i < dataList.length; i++)
@@ -279,28 +290,48 @@ game.UI.raidFrame = me.Renderable.extend
             
             if(dataList[i].alive){
                 context.setColor('#1B813E');
-                sliceLength = Math.floor(48 * dataList[i].currentHealth / dataList[i].maxHealth);
-                context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 1, sliceLength + 1, 38);
+                sliceLength = Math.floor(62 * dataList[i].currentHealth / dataList[i].maxHealth);
+                context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, sliceLength + 1, 38);
 
                 context.setColor('#33A6B8');
-                sliceLength = Math.floor(48 * dataList[i].currentMana / dataList[i].maxMana);
-                context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 36, sliceLength + 1, 3);
+                sliceLength = Math.floor(62 * dataList[i].currentMana / dataList[i].maxMana);
+                context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 36, sliceLength + 1, 3);
+
+                if(dataList[i].beingAttack){
+                    context.setColor('#FFFFFF');
+                    context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, 10, 10);
+                }
+
+                if(dataList[i].healPriority){
+                    context.setColor('#FFFFFF');
+                    context.fillRect(this.pos.x + 64 * i + 54, this.pos.y + 1, 10, 10);
+                }
+
+                var buffNum = 0;
+                for(let buff of dataList[i].buffList.values())
+                {
+                    context.setColor('#22AAEE');
+                    context.fillRect(this.pos.x + 64 * i + 18 * (buffNum % 4) + 1, this.pos.y - 18 * Math.floor(buffNum / 4) - 18, 18, 18);
+                    context.setColor('#AACDEF');
+                    context.fillRect(this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 17, 16, 16);
+                    context.setColor('#56CDEF');
+                    context.fillRect(this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 17, 16 * (buff.timeRemain / buff.timeMax), 16);
+                    context.setColor('#EFCDEF');
+                    this.font.draw(context, buff.name.slice(0, 4), this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 16);
+                    this.font.draw(context, buff.name.slice(4, 8), this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 9);
+                    buffNum++;
+                }
             }
             else
             {
                 context.setColor('#CB4042');
-                context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 1, 49, 38);
-            }
-
-            if(dataList[i].beingAttack){
-                context.setColor('#FFFFFF');
-                context.fillRect(this.pos.x + 50 * i + 1, this.pos.y + 1, 10, 10);
+                context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, 49, 38);
             }
 
             context.setColor('#ffffff');
-            this.font.draw(context, dataList[i].name.slice(0, 4) + dataList[i].name.slice(-1), this.pos.x + 50 * i + 2, this.pos.y + 15);
-            this.font.draw(context, dataList[i].currentHealth + "/" + dataList[i].maxHealth, this.pos.x + 50 * i + 2, this.pos.y + 22);
-            this.font.draw(context, Math.round(dataList[i].currentMana) + "/" + dataList[i].maxMana, this.pos.x + 50 * i + 2, this.pos.y + 29);
+            this.font.draw(context, dataList[i].name.slice(0, 4) + dataList[i].name.slice(-1), this.pos.x + 64 * i + 2, this.pos.y + 15);
+            this.font.draw(context, dataList[i].currentHealth + "/" + dataList[i].maxHealth, this.pos.x + 64 * i + 2, this.pos.y + 22);
+            this.font.draw(context, Math.round(dataList[i].currentMana) + "/" + dataList[i].maxMana, this.pos.x + 64 * i + 2, this.pos.y + 29);
             
         }
 
@@ -344,4 +375,73 @@ game.UI.ColoredRect = me.Renderable.extend
             context.setColor(color);
         }
     },
+});
+
+game.UI.unitFrameSlots = me.Container.extend
+({
+    init: function() {
+        // call the constructor
+        this._super(me.Container, 'init');
+
+        this.anchorPoint.set(0, 0);
+
+        // persistent across level change
+        this.isPersistent = true;
+
+        // make sure we use screen coordinates
+        this.floating = true;
+        this.z = Infinity;
+
+        // give a name
+        this.name = "spell slot";
+        this.slots = [];
+
+        
+
+        for(var i = -4; i < 4; i++){
+            var settings = {};
+            settings.id = i + 4;
+            this.slots[settings.id] = new game.UI.slot(514 + 64 * i, me.game.viewport.height - 52, settings);
+            this.addChild(this.slots[settings.id]);
+        }
+    }
+});
+
+game.UI.slot = me.GUI_Object.extend(
+{
+    init:function (x, y, settings)
+    {
+        settings.image = "healButton";
+        settings.framewidth = 16;
+        settings.frameheight = 16;
+        this.id = settings.id;
+        this._super(me.GUI_Object, "init", [x, y, settings]);
+
+        this.pos.z = 4;
+    },
+
+    onClick:function (event)
+    {
+        //test button
+        //delete me!
+        game.UI.popupMgr.addText({
+            text: "The head of the hospital is a swindler!",
+            color: "#ff0000",
+            posX: this.pos.x,
+            posY: this.pos.y - 30,
+            velX: 0,
+        });
+
+        this.player = game.units.getPlayerList()[this.id];
+
+        this.player.data.currentHealth = this.player.data.maxHealth;
+        this.player.data.currentMana = this.player.data.maxMana;
+
+
+        this.player.data.healPriority = !this.player.healPriority;
+        
+        //TODO: should the source of a raid skill be a global mob?
+        this.player.receiveBuff({source: this.player, buff: new bloodlustBuff({time: 15.0}), popUp: true});
+        return false;
+    }
 });

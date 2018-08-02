@@ -15,6 +15,9 @@ game.Buff.base = game.MobListener.extend
         //This listener is a buff
         this.isBuff = true;
         
+        //time in seconds, indicates the durtion of buff
+        this.timeMax = time;
+
         //time in seconds, will automatically reduce by time
         this.timeRemain = settings.time || 1.0; 
 
@@ -124,6 +127,36 @@ game.Buff.Fired = game.Buff.base.extend
                     fire: game.helper.getRandomInt(this.damageMin, this.damageMax + 1),
                 }
             });
+        }
+    },
+});
+
+game.Buff.bloodlust = game.Buff.base.extend
+({
+    init: function(settings)
+    {
+        settings.name = settings.name || "bloodlustBuff";
+        settings.time = settings.time || 10.0;
+        settings.stacks = settings.stacks || 1;
+        settings.iconId = 2;
+        settings.popupName = "TIME WARP!",
+        settings.popupColor = "#d942f4";
+
+        this._super(game.Buff.base, 'init', [settings]);
+
+        this.timer = 0.0;
+    },
+
+    onUpdate: function(mob, deltaTime)
+    {
+        this._super(game.Buff.base, 'onUpdate', [mob, deltaTime]);
+    },
+
+    onStatCalculation: function(mob)
+    {
+        if('modifiers' in mob.data)
+        {
+            mob.data.modifiers.attackSpeed = 1.4 * mob.data.modifiers.attackSpeed;
         }
     },
 });
