@@ -39,20 +39,21 @@ game.UI.Container = me.Container.extend({
         game.UI.raidFrame = new game.UI.raidFrame(250, me.game.viewport.height - 100, {
             grabFunction: game.data.backend.getPlayerList.bind(game.data.backend),
             title: "raid frame",
-        })
+        });
 
+        game.UI.unitFrameSlots = new game.UI.unitFrameSlots();
+        
         this.addChild(game.UI.popupMgr);
         this.addChild(game.UI.damageMonitor);
         this.addChild(game.UI.healMonitor);
         this.addChild(game.UI.raidFrame);
+        this.addChild(game.UI.unitFrameSlots);
 
         game.UI.selectingRect = new game.UI.ColoredRect({
             borderColor: new me.Color(0, 255, 0, 1),
             fillColor: new me.Color(0, 255, 0, 0.1),
         });
         this.addChild(game.UI.selectingRect);
-
-        this.addChild(new game.UI.unitFrameSlots());
     }
 });
 
@@ -271,6 +272,14 @@ game.UI.raidFrame = me.Renderable.extend
 
         for(var i = 0; i < dataList.length; i++)
         {
+            if(dataList[i].inControl){
+                context.setColor('#FFFFFF');
+            }
+            else{
+                context.setColor('#222222');
+            }
+            
+            context.fillRect(this.pos.x + 64 * i, this.pos.y, 65, 40);
             context.setColor('#20604F');
             context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, 63, 38);
         }
@@ -302,14 +311,15 @@ game.UI.raidFrame = me.Renderable.extend
                 for(let buff of dataList[i].buffList.values())
                 {
                     context.setColor('#22AAEE');
-                    context.fillRect(this.pos.x + 64 * i + 18 * buffNum + 1, this.pos.y - 18, 18, 18);
+                    context.fillRect(this.pos.x + 64 * i + 18 * (buffNum % 4) + 1, this.pos.y - 18 * Math.floor(buffNum / 4) - 18, 18, 18);
                     context.setColor('#AACDEF');
-                    context.fillRect(this.pos.x + 64 * i + 18 * buffNum + 2, this.pos.y - 17, 16, 16);
+                    context.fillRect(this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 17, 16, 16);
                     context.setColor('#56CDEF');
-                    context.fillRect(this.pos.x + 64 * i + 18 * buffNum + 2, this.pos.y - 17, 16 * (buff.timeRemain / buff.timeMax), 16);
+                    context.fillRect(this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 17, 16 * (buff.timeRemain / buff.timeMax), 16);
                     context.setColor('#EFCDEF');
-                    this.font.draw(context, buff.name.slice(0, 4), this.pos.x + 64 * i + 18 * buffNum + 2, this.pos.y - 16);
-                    this.font.draw(context, buff.name.slice(4, 8), this.pos.x + 64 * i + 18 * buffNum++ + 2, this.pos.y - 9);
+                    this.font.draw(context, buff.name.slice(0, 4), this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 16);
+                    this.font.draw(context, buff.name.slice(4, 8), this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 9);
+                    buffNum++;
                 }
             }
             else
@@ -384,11 +394,15 @@ game.UI.unitFrameSlots = me.Container.extend
 
         // give a name
         this.name = "spell slot";
+        this.slots = [];
+
+        
 
         for(var i = -4; i < 4; i++){
             var settings = {};
             settings.id = i + 4;
-            this.addChild(new game.UI.slot(514 + 64 * i, me.game.viewport.height - 52, settings));
+            this.slots[settings.id] = new game.UI.slot(514 + 64 * i, me.game.viewport.height - 52, settings);
+            this.addChild(this.slots[settings.id]);
         }
     }
 });
@@ -401,7 +415,6 @@ game.UI.slot = me.GUI_Object.extend(
         settings.framewidth = 16;
         settings.frameheight = 16;
         this.id = settings.id;
-        this.player = game.data.backend.getPlayerList()[this.id];
         this._super(me.GUI_Object, "init", [x, y, settings]);
 
         this.pos.z = 4;
@@ -418,14 +431,17 @@ game.UI.slot = me.GUI_Object.extend(
             posY: this.pos.y - 30,
             velX: 0,
         });
-        this.player.currentHealth = this.player.maxHealth;
-        this.player.currentMana = this.player.maxMana;
+
+        this.player = game.units.getPlayerList()[this.id];
+
+        this.player.data.currentHealth = this.player.data.maxHealth;
+        this.player.data.currentMana = this.player.data.maxMana;
 
 
-        this.player.healPriority = !this.player.healPriority;
+        this.player.data.healPriority = !this.player.healPriority;
         
         //TODO: should the source of a raid skill be a global mob?
-        this.player.receiveBuff({source: undefined, buff: new bloodlustBuff({time: 15.0}), popUp: false});
+        this.player.receiveBuff({source: this.player, buff: new bloodlustBuff({time: 15.0}), popUp: true});
         return false;
     }
 });
