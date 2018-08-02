@@ -123,13 +123,13 @@ game.dataBackend.Mob = me.Object.extend
         };
     
         // buff related
-        this.buffList = new Set();
+        // this.buffList = new Set();
 
         // Equipment related
         this.weaponLeft = settings.weaponLeft;// || new game.weapon(settings);
         this.weaponRight = settings.weaponRight;// || new game.weapon(settings);
-        // this.armor = settings.armor || new game.armor(settings);
-        // this.accessories = settings.accessories || new game.accessory(settings);
+        this.armor = settings.armor;// || new game.Armor(settings);
+        this.accessories = settings.accessories;// || new game.Accessory(settings);
 
         this.currentWeapon = this.weaponLeft;
 
@@ -142,6 +142,9 @@ game.dataBackend.Mob = me.Object.extend
 
         // A Specific identify name only for this mob
         this.ID = game.data.backend.getID();
+
+        // ref for MobListeners (buffs, agent, weapons, armor, ...)
+        this.listeners = new Set();
     },
 
     getMovingSpeed: function()
@@ -153,9 +156,346 @@ game.dataBackend.Mob = me.Object.extend
     {
         return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed) * this.currentWeapon.baseAttackSpeed;
     },
+
+    updateMobBackend: function(dt)
+    {
+        // Update all listeners
+        this.updateListeners('onUpdate', [this, dt]);
+        for (let listener of this.listeners.values())
+        {
+            if(listener.isOver && listener.isOver == true)
+            {
+                //this buff is over. delete it from the list.
+                // this.buffList.delete(buff);
+                this.listeners.delete(listener);
+            }
+        }
+
+        //calculate Stats
+        this.calcStats();
+        this.updateListeners('onStatCalculation', [this]);
+    },
+
+    // Function used to tell buffs and agents what was going on
+    // when damage and heal happens. They can modify them.
+    updateListeners: function(method, args)
+    {
+        var flag = false;
+
+        // call every listener
+        for(let listener of this.listeners.values())
+        {
+            if(
+                (listener.enabled == undefined || listener.enabled && listener.enabled == true)
+              && listener[method])
+            {
+                flag = flag | listener[method](args);
+            }
+        }
+
+        return flag;
+    },
+
+    addBuff: function(buff)
+    {
+        this.addListener(buff);
+    },
+
+    addListener: function(listener, source = undefined)
+    {
+        this.listeners.add(listener);
+
+        // Set source and belongings
+        listener.source = source;
+    },
+
+    calcStats: function()
+    {
+        //Go back to base speed
+        this.modifiers.speed = 1.0;
+        this.modifiers.movingSpeed = 1.0;
+        this.modifiers.attackSpeed = 1.0;
+    },
+
+    receiveDamage: function({
+        source = undefined, 
+        target = undefined,
+        damage = {},
+        isCrit = false,
+        spell = undefined,
+    } = {})
+    {
+        // Let everyone know what is happening
+        var damageObj = {
+            source: source,
+            target: target,
+            damage: damage,
+            isCrit: isCrit,
+            spell: spell,
+        };
+
+        var finalDmg = {};
+
+        this.updateListeners('onReceiveDamage', damageObj);
+        source.data.updateListeners('onDealDamage', damageObj);
+        game.units.boardcast('onFocusReceiveDamage', damageObj.target, damageObj);
+        game.units.boardcast('onFocusDealDamage', damageObj.source, damageObj);
+
+        // Do the calculation
+        for(var dmgType in damage)
+        {
+            // damage% = 0.9659 ^ resist
+            // This is, every 1 point of resist reduces corresponding damage by 3.41%, 
+            // which will reach 50% damage reducement at 20 points.
+            finalDmg[dmgType] = Math.ceil(damage[dmgType] * (Math.pow(0.9659, this.battleStats.resist[dmgType])));
+        }
+
+        // Let everyone know what is happening
+        damageObj.damage = finalDmg;
+
+        this.updateListeners('onReceiveDamageFinal', damageObj);
+        source.data.updateListeners('onDealDamageFinal', damageObj);
+        game.units.boardcast('onFocusReceiveDamageFinal', damageObj.target, damageObj);
+        game.units.boardcast('onFocusDealDamageFinal', damageObj.source, damageObj);
+
+        // Decrese HP
+        // Check if I am dead
+        for(dmg in finalDmg)
+        {
+            this.currentHealth -= finalDmg[dmg];
+            game.data.monitor.addDamage(finalDmg[dmg], dmg, source, target, isCrit, spell);
+            
+            if(this.currentHealth <= 0)
+            {
+                // Let everyone know what is happening
+                this.updateListeners('onDeath', damageObj);
+                source.data.updateListeners('onKill', damageObj);
+                game.units.boardcast('onFocusDeath', damageObj.target, damageObj);
+                game.units.boardcast('onFocusKill', damageObj.source, damageObj);
+
+                // If still I am dead
+                if(this.currentHealth <= 0)
+                {
+                    // I die cuz I am killed
+                    this.alive = false;
+                }
+            }
+        }
+
+        return finalDmg;
+    },
+
+    receiveHeal: function({
+        source = undefined,
+        target = undefined,
+        heal = 0,
+        isCrit = false,
+        spell = undefined,
+    } = {})
+    {
+        // Package the healing in to an object so that buffs and agents can
+        // modify them.
+        var healObject = {real: heal, over: 0};
+
+        // Let everyone know what is happening
+        var healObj = {
+            source: source,
+            target: target,
+            heal: healObject,
+            isCrit: isCrit,
+            spell: spell,
+        };
+
+        this.updateListeners('onReceiveHeal', healObj);
+        source.data.updateListeners('onDealHeal', healObj);
+        game.units.boardcast('onFocusReceiveHeal', healObj.target, healObj);
+        game.units.boardcast('onFocusDealHeal', healObj.source, healObj);
+
+        // Do the calculation
+        // _finalHeal: total amount of healing (real + over)
+        var _finalHeal = heal * 1.0; // Maybe something like heal resist etc.
+        var finalHeal = {total: _finalHeal, real: _finalHeal, over: 0};
+
+        // calculate overHealing using current HP and max HP.
+        finalHeal.real = Math.min(this.maxHealth - this.currentHealth, _finalHeal);
+        finalHeal.over = _finalHeal - finalHeal.real;
+
+        // Let buffs and agents know what is happening
+        healObj.heal = finalHeal;
+
+        this.updateListeners('onReceiveHealFinal', healObj);
+        source.data.updateListeners('onDealHealFinal', healObj);
+        game.units.boardcast('onFocusReceiveHealFinal', healObj.target, healObj);
+        game.units.boardcast('onFocusDealHealFinal', healObj.source, healObj);
+
+        // Increase the HP.
+        this.currentHealth += finalHeal.real;
+        game.data.monitor.addHeal(finalHeal.real, finalHeal.over, source, target, isCrit, spell);
+
+        return finalHeal;
+    },
+
+    die: function({
+        source = undefined, 
+        damage = {},
+    } = {})
+    {
+
+    },
 });
 
-game.armor = me.Object.extend
+game.MobListener = me.Object.extend
+({
+    init: function(settings)
+    {
+        this.focusList = new Set();
+        this.priority = 0;
+        this.enabled = true;
+    },
+
+    // N.B.
+    // In javascript, parameters were passed via "call-by-sharing".
+    // In this case, if you change the parameter itself in a function, it will not make sense;
+    // However, if you change a member of the parameter in a function, it will make sense.
+    // e.g. func(x) { x = {sth}; } => DOES NOT change x
+    //      func(x) { x.y = sth; } => DOES change x.y
+
+    // Be triggered when the mob is calculating its stats.
+    // Typically, this will trigged on start of each frame.
+    // On every frame, the stats of the mob will be recalculated from its base value.
+    onStatCalculation: function(mob) {},
+
+    // Be triggered when the mob is attacking.
+    // This is triggered before the mob's attack.
+    onAttack: function(mob) {},
+
+    // Be triggered when the mob has finished an attack.
+    onAfterAttack: function(mob) {},
+
+    // Be triggered when the mob is making a special attack.
+    // This is triggered before the attack.
+    onSpecialAttack: function(mob) {},
+
+    // Be triggered when the mob has finished a special attack.
+    onAfterSpecialAttack: function(mob) {},
+
+    // Be triggered when the mob is going to be rendered.
+    // e.g. change sprite color here etc.
+    onRender: function(mob, renderer) {},
+
+    // Be triggered when the mob is updating.
+    // This will be triggered before onStatCalculation.
+    // e.g. reduce remain time, etc.
+    onUpdate: function(mob, dt) {},
+
+    // Following functions return a boolean.
+    // True:    the damage / heal was modified.
+    // False:   the damage / heal was not modified.
+    
+    // XXFinal will happen after resist calculation, and vice versa.
+    // You can modify the values in damage / heal in order to change the final result.
+
+    onDealDamage: function({ target, damage, isCrit, spell } = {}) { return false; },
+    onDealDamageFinal: function({ target, damage, isCrit, spell } = {}) { return false; },
+
+    onDealHeal: function({ target, heal, isCrit, spell } = {}) { return false; },
+    onDealHealFinal: function({ target, heal, isCrit, spell } = {}) { return false; },
+    
+    onReceiveDamage: function({ source, damage, isCrit, spell } = {}) { return false; },
+    onReceiveDamageFinal: function({ source, damage, isCrit, spell } = {}) { return false; },
+
+    onReceiveHeal: function({ source, heal, isCrit, spell } = {}) { return false; },
+    onReceiveHealFinal: function({ source, heal, isCrit, spell } = {}) { return false; },
+
+    onKill: function({ source, damage, isCrit, spell } = {}) { return false; },
+    onDeath: function({ source, damage, isCrit, spell } = {}) { return false; },
+
+    onFocusDealDamage: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+    onFocusDealDamageFinal: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+
+    onFocusDealHeal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
+    onFocusDealHealFinal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
+
+    onFocusReceiveDamage: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+    onFocusReceiveDamageFinal: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+
+    onFocusReceiveHeal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
+    onFocusReceiveHealFinal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
+
+    onFocusKill: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+    onFocusDeath: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+})
+
+game.Equipable = game.MobListener.extend
+({
+    init: function(settings)
+    {
+        this._super(game.MobListener, 'init', [settings])
+
+        this.name = "undefined weapon";
+
+        this.baseAttackSpeed = settings.baseAttackSpeed || 1.0;
+        this.statRequirements = {
+            vit: 0,
+            str: 0,
+            dex: 0,
+            tec: 0,
+            int: 0,
+            mag: 0,
+        };
+
+        this.stats = {
+            vit: 0,
+            str: 0,
+            dex: 0,
+            tec: 0,
+            int: 9,
+            mag: 0,
+        };
+
+        this.healthIncreasement = 0;
+
+        this.battleStats = {
+            resist: {
+                slash: 0,
+                knock: 0,
+                pierce: 0,
+                fire: 0,
+                ice: 0,
+                water: 0,
+                nature: 0,
+                wind: 0,
+                thunder: 0,
+                light: 0
+            },
+
+            attackPower: {
+                slash: 0,
+                knock: 0,
+                pierce: 0,
+                fire: 0,
+                ice: 0,
+                water: 0,
+                nature: 0,
+                wind: 0,
+                thunder: 0,
+                light: 0
+            },
+
+            hitAcc: 100,
+            avoid: 0,
+            attackRange: 0,
+            extraRange: 0,
+        };
+    },
+
+    onStatCalculation: function(mob)
+    {
+
+    },
+});
+
+game.Armor = game.Equipable.extend
 ({
     init: function(settings)
     {
@@ -168,7 +508,7 @@ game.armor = me.Object.extend
     },
 });
 
-game.accessory = me.Object.extend
+game.Accessory = game.Equipable.extend
 ({
     init: function(settings)
     {

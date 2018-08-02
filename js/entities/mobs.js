@@ -275,50 +275,36 @@ game.Mobs.UnitManager = me.Object.extend
         return result.slice(0, Math.min(count, result.length));
     },
 
-    _boardcastAgent: function(set, boardcastObj, isFinal = true)
+    _boardcast: function(set, method, target, args)
     {
-        for(var obj of set)
+        var flag = false;
+
+        if(target)
         {
-            if(obj.agent.focusList.has(boardcastObj.target))
+            for(var _mob of set)
             {
-                if(boardcastObj.isDamage === true)
+                for(let obj of _mob.data.listeners)
                 {
-                    if(isFinal === true)
+                    if((obj.enabled == undefined || obj.enabled && obj.enabled == true)
+                     && obj.focusList && obj.focusList.has(target))   
                     {
-                        obj.agent.onFocusReceiveDamageFinal(boardcastObj);
-                    }
-                    else
-                    {
-                        obj.agent.onFocusReceiveDamage(boardcastObj);
-                    }
-                }
-                else
-                {
-                    if(isFinal === true)
-                    {
-                        obj.agent.onFocusReceiveHealFinal(boardcastObj);
-                    }
-                    else
-                    {
-                        obj.agent.onFocusReceiveHeal(boardcastObj);
+                        flag = flag | obj[method](args);
                     }
                 }
             }
         }
+
+        return flag;
     },
 
-    boardcastDamage: function(damage, isFinal = true)
+    boardcast: function(method, target, args)
     {
-        damage.isDamage = true;
-        this._boardcastAgent(this.player, damage, isFinal);   
-        this._boardcastAgent(this.enemy, damage, isFinal);   
-    },
+        var flag = false;
 
-    boardcastHeal: function(heal, isFinal = true)
-    {
-        heal.isDamage = false;
-        this._boardcastAgent(this.player, heal, isFinal);   
-        this._boardcastAgent(this.enemy, heal, isFinal);  
+        flag = flag | this._boardcast(this.player, method, target, args);
+        flag = flag | this._boardcast(this.enemy, method, target, args);
+
+        return flag;
     },
 });
 
@@ -337,6 +323,8 @@ game.Mobs.base = game.Moveable.extend(
     init: function(x, y, settings) 
     {
         this._super(game.Moveable, 'init', [x, y, settings]);
+
+        this.data = settings.backendData || new game.dataBackend.Mob(settings);
 
         if(settings.isPlayer === true)
         {
@@ -361,34 +349,20 @@ game.Mobs.base = game.Moveable.extend(
             this.agent = new game.MobAgent.base(this, settings);
         }
 
-        this.attackCounter = 0;
+        this.data.addListener(this.agent);
 
-        this.data = settings.backendData || new game.dataBackend.Mob(settings);
+        this.attackCounter = 0;
 
         // Add a test HP bar for it
         this.HPBar = me.game.world.addChild(new game.Utils.TestHPBar(0, -10, this));
+
+        // Mob itself is also a listener.
+        this.data.addListener(this);
     },
 
     updateMoveable: function(dt)
     {
-        //Update all the buffes
-        for (let buff of this.data.buffList.values())
-        {
-            buff.onUpdate(this, dt / 1000);
-            
-            if(buff.isOver == true)
-            {
-                //this buff is over. delete it from the list.
-                this.data.buffList.delete(buff);
-            }
-        }
-
-        //calculate Stats
-        this.calcStats();
-        for (let buff of this.data.buffList.values())
-        {
-            buff.onStatCalculation(this);
-        }
+        this.data.updateMobBackend(this, dt);
 
         me.collision.check(this);
         this.agent.updateMob(this, dt);
@@ -397,10 +371,11 @@ game.Mobs.base = game.Moveable.extend(
 
         // Update all buffes
         // Since we cannot access draw() so we call onRender() here (end of update).
-        for (let buff of this.data.buffList.values())
-        {
-            buff.onRender(this);
-        }
+        // TODO: remove this
+        // for (let buff of this.data.buffList.values())
+        // {
+        //     buff.onRender(this);
+        // }
     },
 
     updateMob: function(dt)
@@ -429,14 +404,6 @@ game.Mobs.base = game.Moveable.extend(
         return false;
     },
 
-    calcStats: function()
-    {
-        //Go back to base speed
-        this.data.modifiers.speed = 1.0;
-        this.data.modifiers.movingSpeed = 1.0;
-        this.data.modifiers.attackSpeed = 1.0;
-    },
-
     // Will be called when a buff is going to affect the mob.
     // If anything some object with buff ability (e.g. fireball can fire sth up) hits has method receiveBuff(),
     // receiveBuff() will be called and the mob will be buffed.
@@ -452,12 +419,7 @@ game.Mobs.base = game.Moveable.extend(
         if(buff != undefined)
         {
             // console.log("[" + this.name + "] : Received buff <" + buff.name + "> from <" + source.name, "> !");
-
-            this.data.buffList.add(buff);
-
-            //Set source and belongings
-            buff.source = source;
-            buff.parent = this;
+            this.data.addBuff(buff);
 
             //Initial popUp
             if(popUp == true)
@@ -484,31 +446,17 @@ game.Mobs.base = game.Moveable.extend(
         popUp = true
     } = {})
     {
-        var finalDmg = {};
-        var dmgTotal = 0;
-
-        // Let buffs and agents know what is happening
-        var damageObj = {
+        var finalDmg = this.data.receiveDamage({
             source: source,
             target: this,
             damage: damage,
             isCrit: isCrit,
             spell: spell,
-        };
+        });
 
-        this._callBuffAndAgents('onReceiveDamage', damageObj);
-        source._callBuffAndAgents('onDealDamage', damageObj);
-        game.units.boardcastDamage(damageObj, false);
-
-        // Do the calculation
-        for(var dmgType in damage)
+        // Show popUp texts
+        for(var dmgType in finalDmg)
         {
-            // damage% = 0.9659 ^ resist
-            // This is, every 1 point of resist reduces corresponding damage by 3.41%, 
-            // which will reach 50% damage reducement at 20 points.
-            finalDmg[dmgType] = Math.ceil(damage[dmgType] * (Math.pow(0.9659, this.data.battleStats.resist[dmgType])));
-
-            // Show popUp texts
             if(popUp == true && finalDmg[dmgType] > 0)
             {
                 var popUpPos = this.getRenderPos(0.5, 0.0);
@@ -521,24 +469,10 @@ game.Mobs.base = game.Moveable.extend(
             }
         }
 
-        // Let buffs and agents know what is happening
-        damageObj.damage = finalDmg;
-
-        this._callBuffAndAgents('onReceiveDamageFinal', damageObj);
-        source._callBuffAndAgents('onDealDamageFinal', damageObj);
-        game.units.boardcastDamage(damageObj, true);
-
-        // Decrese HP and check if I am dead
-        for(dmg in finalDmg)
+        // Check if I am alive
+        if(this.data.alive == false)
         {
-            this.data.currentHealth -= finalDmg[dmg];
-            game.data.monitor.addDamage(finalDmg[dmg], dmg, source, this, isCrit, spell);
-
-            if(this.data.currentHealth <= 0)
-            {
-                this.agent.targetMob.data.beingAttack -= 1;
-                this.die(source, damage);
-            }
+            this.die(source, damage);
         }
     },
 
@@ -550,44 +484,16 @@ game.Mobs.base = game.Moveable.extend(
         popUp = true,
     } = {})
     {
-        // Package the healing in to an object so that buffs and agents can
-        // modify them.
-        var healObject = {real: heal, over: 0};
-
-        // Let buffs and agents know what is happening
-        var healObj = {
+        var finalHeal = this.data.receiveHeal({
             source: source,
             target: this,
-            heal: healObject,
+            heal: heal,
             isCrit: isCrit,
             spell: spell,
-        };
-
-        this._callBuffAndAgents('onReceiveHeal', healObj);
-        source._callBuffAndAgents('onDealHeal', healObj);
-        game.units.boardcastHeal(healObj, false);
-
-        // Do the calculation
-        // _finalHeal: total amount of healing (real + over)
-        var _finalHeal = heal * 1.0; // Maybe something like heal resist etc.
-        var finalHeal = {real: _finalHeal, over: 0};
-
-        // calculate overHealing using current HP and max HP.
-        finalHeal.real = Math.min(this.data.maxHealth - this.data.currentHealth, _finalHeal);
-        finalHeal.over = _finalHeal - finalHeal.real;
-
-        // Let buffs and agents know what is happening
-        healObj.heal = finalHeal;
-
-        this._callBuffAndAgents('onReceiveHeal', healObj);
-        source._callBuffAndAgents('onDealHeal', healObj);
-        game.units.boardcastHeal(healObj, true);
-
-        // Increase the HP.
-        this.data.currentHealth += finalHeal.real;
+        })
 
         // Show popUp text with overhealing hint
-        if(popUp == true && _finalHeal > 0)
+        if(popUp == true && finalHeal.toal > 0)
         {
             var popUpPos = this.getRenderPos(0.5, 0.0);
             if(finalHeal.over > 0)
@@ -611,8 +517,6 @@ game.Mobs.base = game.Moveable.extend(
                 });
             }
         }
-
-        game.data.monitor.addHeal(finalHeal.real, finalHeal.over, source, this, isCrit, spell);
     },
 
     die: function({
@@ -620,43 +524,19 @@ game.Mobs.base = game.Moveable.extend(
         damage = {},
     } = {})
     {
-        if(this.onDeath(source, damage) === true)
+        me.game.world.removeChild(this.HPBar);
+
+        this.body.collisionType = me.collision.types.NO_OBJECT;
+
+        if(this.data.isPlayer === true)
         {
-            me.game.world.removeChild(this.HPBar);
-
-            this.data.alive = false;
-            this.body.collisionType = me.collision.types.NO_OBJECT;
-
-            if(this.data.isPlayer === true)
-            {
-                game.units.removePlayer(this);
-            }
-            else
-            {
-                game.units.removeEnemy(this);
-            }
-            me.game.world.removeChild(this);
+            game.units.removePlayer(this);
         }
-    },
-
-    // Function used to tell buffs and agents what was going on
-    // when damage and heal happens. They can modify them.
-    _callBuffAndAgents: function(method, args)
-    {
-        var flag = false;
-
-        for(let buff of this.data.buffList.values())
+        else
         {
-            flag = flag | buff[method](args);
+            game.units.removeEnemy(this);
         }
-        flag = flag | this.agent[method](args);
-
-        return flag;
-    },
-
-    onDeath: function({ source, damage, isCrit, spell } = {})
-    {
-        return true;
+        me.game.world.removeChild(this);
     },
 });
 
@@ -672,7 +552,7 @@ game.Mobs.TestMob = game.Mobs.base.extend(
     {
         settings.health = 12000;
 
-        settings.weaponLeft = new game.weapon.TestHomingStaff
+        settings.weaponLeft = new game.Weapon.TestHomingStaff
         ({
             baseAttackSpeed: game.helper.getRandomFloat(0.3, 0.5),
             activeRange: game.helper.getRandomInt(30, 60),
@@ -716,7 +596,7 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
     {
         settings.health = 160000;
 
-        settings.weaponLeft = new game.weapon.TestBossStaff
+        settings.weaponLeft = new game.Weapon.TestBossStaff
         ({
             baseAttackSpeed: game.helper.getRandomFloat(2, 3),
             activeRange: game.helper.getRandomInt(100, 500),
@@ -769,40 +649,13 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
 // TODO - combine mob agent and player agent
 game.MobAgent = game.MobAgent || {};
 
-game.MobAgent.base = me.Object.extend
+game.MobAgent.base = game.MobListener.extend
 ({
     init(mob, settings) 
     {
-        this.focusList = new Set();
+        this._super(game.MobListener, 'init', [settings])
     },
     updateMob(mob, dt) {},
-
-    // Following functions return a boolean.
-    // True:    the damage / heal was modified.
-    // False:   the damage / heal was not modified.
-    
-    // XXFinal will happen after resist calculation, and vice versa.
-    // You can modify the values in damage / heal in order to change the final result.
-
-    onDealDamage: function({ target, damage, isCrit, spell } = {}) { return false; },
-    onDealDamageFinal: function({ target, damage, isCrit, spell } = {}) { return false; },
-
-    onDealHeal: function({ target, heal, isCrit, spell } = {}) { return false; },
-    onDealHealFinal: function({ target, heal, isCrit, spell } = {}) { return false; },
-    
-    onReceiveDamage: function({ source, damage, isCrit, spell } = {}) { return false; },
-    onReceiveDamageFinal: function({ source, damage, isCrit, spell } = {}) { return false; },
-
-    onReceiveHeal: function({ source, heal, isCrit, spell } = {}) { return false; },
-    onReceiveHealFinal: function({ source, heal, isCrit, spell } = {}) { return false; },
-
-    onFocusReceiveDamage: function({ source, target, damage, isCrit, spell } = {}) { return false; },
-    onFocusReceiveDamageFinal: function({ source, target, damage, isCrit, spell } = {}) { return false; },
-
-    onFocusReceiveHeal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
-    onFocusReceiveHealFinal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
-
-    onDeath: function({ source, damage, isCrit, spell } = {}) { return false; },
 });
 
 game.MobAgent.TauntBased = game.MobAgent.base.extend
@@ -1035,5 +888,13 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
 
         // and create the taunt of that target based on healing
         this.tauntList[source.data.ID].taunt += (heal.real + heal.over) * source.data.tauntMul * game.data.healTaunt;
+    },
+
+    onDeath()
+    {
+        if(this.targetMob)
+        {
+            this.targetMob.data.beingAttack -= 1;
+        }
     },
 })
