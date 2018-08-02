@@ -160,10 +160,10 @@ game.dataBackend.Mob = me.Object.extend
         return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed) * this.currentWeapon.baseAttackSpeed;
     },
 
-    updateMobBackend: function(dt)
+    updateMobBackend: function(mob, dt)
     {
         // Update all listeners
-        this.updateListeners('onUpdate', [this, dt]);
+        this.updateListeners('onUpdate', [mob, dt]);
         for (let listener of this.listeners.values())
         {
             if(listener.isOver && listener.isOver == true)
@@ -176,7 +176,7 @@ game.dataBackend.Mob = me.Object.extend
 
         //calculate Stats
         this.calcStats();
-        this.updateListeners('onStatCalculation', [this]);
+        this.updateListeners('onStatCalculation', [mob]);
     },
 
     // Function used to tell buffs and agents what was going on
@@ -184,6 +184,10 @@ game.dataBackend.Mob = me.Object.extend
     updateListeners: function(method, args)
     {
         var flag = false;
+        if(!Array.isArray(args))
+        {
+            args = [args];
+        }
 
         // call every listener
         for(let listener of this.listeners.values())
@@ -192,7 +196,7 @@ game.dataBackend.Mob = me.Object.extend
                 (listener.enabled == undefined || listener.enabled && listener.enabled == true)
               && listener[method])
             {
-                flag = flag | listener[method](args);
+                flag = flag | listener[method].apply(listener, args);
             }
         }
 
@@ -222,10 +226,10 @@ game.dataBackend.Mob = me.Object.extend
     {
         if(listener.isBuff)
         {
-            this.buffList.remove(listener);
+            this.buffList.delete(listener);
         }
 
-        this.listeners.remove(listener);
+        this.listeners.delete(listener);
     },
 
     calcStats: function()
@@ -256,7 +260,10 @@ game.dataBackend.Mob = me.Object.extend
         var finalDmg = {};
 
         this.updateListeners('onReceiveDamage', damageObj);
-        source.data.updateListeners('onDealDamage', damageObj);
+        if(source)
+        {
+            source.data.updateListeners('onDealDamage', damageObj);
+        }
         game.units.boardcast('onFocusReceiveDamage', damageObj.target, damageObj);
         game.units.boardcast('onFocusDealDamage', damageObj.source, damageObj);
 
@@ -273,7 +280,10 @@ game.dataBackend.Mob = me.Object.extend
         damageObj.damage = finalDmg;
 
         this.updateListeners('onReceiveDamageFinal', damageObj);
-        source.data.updateListeners('onDealDamageFinal', damageObj);
+        if(source)
+        {
+            source.data.updateListeners('onDealDamageFinal', damageObj);
+        }
         game.units.boardcast('onFocusReceiveDamageFinal', damageObj.target, damageObj);
         game.units.boardcast('onFocusDealDamageFinal', damageObj.source, damageObj);
 
@@ -288,7 +298,10 @@ game.dataBackend.Mob = me.Object.extend
             {
                 // Let everyone know what is happening
                 this.updateListeners('onDeath', damageObj);
-                source.data.updateListeners('onKill', damageObj);
+                if(source)
+                {
+                    source.data.updateListeners('onKill', damageObj);
+                }
                 game.units.boardcast('onFocusDeath', damageObj.target, damageObj);
                 game.units.boardcast('onFocusKill', damageObj.source, damageObj);
 
@@ -326,7 +339,10 @@ game.dataBackend.Mob = me.Object.extend
         };
 
         this.updateListeners('onReceiveHeal', healObj);
-        source.data.updateListeners('onDealHeal', healObj);
+        if(source)
+        {
+            source.data.updateListeners('onDealHeal', healObj);
+        }
         game.units.boardcast('onFocusReceiveHeal', healObj.target, healObj);
         game.units.boardcast('onFocusDealHeal', healObj.source, healObj);
 
@@ -343,7 +359,10 @@ game.dataBackend.Mob = me.Object.extend
         healObj.heal = finalHeal;
 
         this.updateListeners('onReceiveHealFinal', healObj);
-        source.data.updateListeners('onDealHealFinal', healObj);
+        if(source)
+        {
+            source.data.updateListeners('onDealHealFinal', healObj);
+        }
         game.units.boardcast('onFocusReceiveHealFinal', healObj.target, healObj);
         game.units.boardcast('onFocusDealHealFinal', healObj.source, healObj);
 
@@ -359,7 +378,7 @@ game.dataBackend.Mob = me.Object.extend
         damage = {},
     } = {})
     {
-
+        this.beingAttack = 0;
     },
 });
 

@@ -250,6 +250,21 @@ game.UI.raidFrame = me.Renderable.extend
         this.grabFunction = settings.grabFunction || game.data.backend.getPlayerList.bind(game.data.backend);
         this.title = settings.title || "raid";
 
+        // size of each grid (inner size, without outline)
+        this.gridWidth = settings.gridWidth || 63;
+        this.gridHeight = settings.gridHeight || 38;
+
+        // calculated outlined size (single-sided outline)
+        this.outlinedGridWidth = this.gridWidth + 1;
+        this.outlinedGridHeight = this.gridHeight + 1;
+
+        // max count of buffs that can show in a row
+        this.buffsPerRow = settings.buffsPerRow || 3;
+
+        // size of the buff (without outline)
+        this.buffIconSize = settings.buffIconSize || 16;
+        this.outlinedIconSize = this.buffIconSize + 1;
+
         this.font = {};
         
         this.font = new me.BitmapFont(me.loader.getBinary('SmallFont'), me.loader.getImage('SmallFont'));
@@ -265,72 +280,148 @@ game.UI.raidFrame = me.Renderable.extend
     {
         context.save();
 
-        context.setColor('#222222');
-        context.fillRect(this.pos.x, this.pos.y, 513, 40);
-
         var dataList = this.grabFunction();
+
+        // Black background
+        context.setColor('#222222');
+        context.fillRect(this.pos.x, this.pos.y, this.outlinedGridWidth * dataList.length + 1, this.outlinedGridHeight + 1);
 
         for(var i = 0; i < dataList.length; i++)
         {
-            if(dataList[i].inControl){
+            // Draw a white border if the player is in control
+            if(dataList[i].inControl)
+            {
                 context.setColor('#FFFFFF');
+                context.fillRect(this.pos.x + this.outlinedGridWidth * i, this.pos.y, this.outlinedGridWidth + 1, this.outlinedGridHeight + 1);
             }
-            else{
-                context.setColor('#222222');
-            }
+
+            // Dont draw anything so the white border will not be overlaped
+            // else
+            // {
+            //     context.setColor('#222222');
+            // }
             
-            context.fillRect(this.pos.x + 64 * i, this.pos.y, 65, 40);
+            // The background (deep green) rect
             context.setColor('#20604F');
-            context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, 63, 38);
+            context.fillRect(this.pos.x + this.outlinedGridWidth * i + 1, this.pos.y + 1, this.gridWidth, this.gridHeight);
         }
 
         for(var i = 0; i < dataList.length; i++)
         {
-            var sliceLength = 0;
-            
-            if(dataList[i].alive){
+            if(dataList[i].alive)
+            {
+                var sliceLength = 0;
+
+                // Health bar (Big & High green one)
                 context.setColor('#1B813E');
-                sliceLength = Math.floor(62 * dataList[i].currentHealth / dataList[i].maxHealth);
-                context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, sliceLength + 1, 38);
+                sliceLength = Math.floor((this.gridWidth - 1) * dataList[i].currentHealth / dataList[i].maxHealth);
+                context.fillRect(this.pos.x + this.outlinedGridWidth * i + 1, this.pos.y + 1, sliceLength + 1, this.gridHeight);
 
+                // Mana bar (Small & Short light blue one)
+                // It height was fixed at 3
                 context.setColor('#33A6B8');
-                sliceLength = Math.floor(62 * dataList[i].currentMana / dataList[i].maxMana);
-                context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 36, sliceLength + 1, 3);
+                sliceLength = Math.floor((this.gridWidth - 1) * dataList[i].currentHealth / dataList[i].maxHealth);
+                context.fillRect(this.pos.x + this.outlinedGridWidth * i + 1, this.pos.y + this.gridHeight - 2, sliceLength + 1, 3);
 
-                if(dataList[i].beingAttack){
+                // Left-upper corner white block = has been targeted
+                if(dataList[i].beingAttack)
+                {
                     context.setColor('#FFFFFF');
-                    context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, 10, 10);
+                    context.fillRect(this.pos.x + this.outlinedGridWidth * i + 1, this.pos.y + 1, 10, 10);
                 }
 
-                if(dataList[i].healPriority){
+                // Right-upper corner white block = has priority on heal
+                if(dataList[i].healPriority)
+                {
                     context.setColor('#FFFFFF');
-                    context.fillRect(this.pos.x + 64 * i + 54, this.pos.y + 1, 10, 10);
+                    context.fillRect(this.pos.x + this.outlinedGridWidth * (i + 1) - 10, this.pos.y + 1, 10, 10);
                 }
 
+                // Draw the buffs
                 var buffNum = 0;
+                
+                // TODO: should we delete buffList and use listenerList instead ? ... (maybe not though)
+                // for(let buff of dataList[i].buffList.values())
                 for(let buff of dataList[i].buffList.values())
                 {
+                    // All the grids moved up by 1 px cause we have the bottom outline (y -= 1)
+
+                    // Draw the very bottom outline of buffs (by draw 1px more than other grids)
+                    // And the very right outline of buffs (every row ends and the list ends)
+                    var xAdd = 0;
+                    var yAdd = 0;
+
+                    if(Math.floor(buffNum / this.buffsPerRow) == 0)
+                    {
+                        yAdd = 1;
+                    }
+                    
+                    if((buffNum % this.buffsPerRow == (this.buffsPerRow - 1)) || buffNum == (dataList[i].buffList.size - 1))
+                    {
+                        xAdd = 1;
+                    }
+
+                    // Outline rect
                     context.setColor('#22AAEE');
-                    context.fillRect(this.pos.x + 64 * i + 18 * (buffNum % 4) + 1, this.pos.y - 18 * Math.floor(buffNum / 4) - 18, 18, 18);
+                    context.fillRect(
+                        this.pos.x + this.outlinedGridWidth * i + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 1, 
+                        this.pos.y - this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) - this.outlinedIconSize - 1, 
+                        this.outlinedIconSize + xAdd, 
+                        this.outlinedIconSize + yAdd);
+
+                    // Background filling rect
                     context.setColor('#AACDEF');
-                    context.fillRect(this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 17, 16, 16);
+                    context.fillRect(
+                        this.pos.x + this.outlinedGridWidth * i + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
+                        this.pos.y - this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow) + 1), 
+                        this.buffIconSize, 
+                        this.buffIconSize);
+
+                    // Timer rect
                     context.setColor('#56CDEF');
-                    context.fillRect(this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 17, 16 * (buff.timeRemain / buff.timeMax), 16);
+                    context.fillRect(
+                        this.pos.x + this.outlinedGridWidth * i + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
+                        this.pos.y - this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow) + 1), 
+                        this.buffIconSize * (buff.timeRemain / buff.timeMax), 
+                        this.buffIconSize);
+
+                    // Draw the buff name with seperate textline
+                    // TODO: maybe '\n' works here ?
                     context.setColor('#EFCDEF');
-                    this.font.draw(context, buff.name.slice(0, 4), this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 16);
-                    this.font.draw(context, buff.name.slice(4, 8), this.pos.x + 64 * i + 18 * (buffNum % 4) + 2, this.pos.y - 18 * Math.floor(buffNum / 4) - 9);
+                    this.font.draw(
+                        context, 
+                        buff.name.slice(0, 4), 
+                        this.pos.x + this.outlinedGridWidth * i + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
+                        this.pos.y - this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) - this.buffIconSize - 1);
+
+                    this.font.draw(
+                        context, 
+                        buff.name.slice(4, 8), 
+                        this.pos.x + this.outlinedGridWidth * i + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
+                        this.pos.y - this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) - this.buffIconSize + 8);
+
                     buffNum++;
                 }
             }
             else
             {
+                // Draw a red rect for dead players
                 context.setColor('#CB4042');
-                context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, 49, 38);
+
+                // Should this fulfill the target area ?
+                // context.fillRect(this.pos.x + 64 * i + 1, this.pos.y + 1, 49, 38);
+                context.fillRect(this.pos.x + this.outlinedGridWidth * i + 1, this.pos.y + 1, this.gridWidth, this.gridHeight);
             }
 
             context.setColor('#ffffff');
+            
+            // Show a part of player name (should be full name after testing)
             this.font.draw(context, dataList[i].name.slice(0, 4) + dataList[i].name.slice(-1), this.pos.x + 64 * i + 2, this.pos.y + 15);
+
+            // Player HP
             this.font.draw(context, dataList[i].currentHealth + "/" + dataList[i].maxHealth, this.pos.x + 64 * i + 2, this.pos.y + 22);
+
+            // Player Mana
             this.font.draw(context, Math.round(dataList[i].currentMana) + "/" + dataList[i].maxMana, this.pos.x + 64 * i + 2, this.pos.y + 29);
             
         }
@@ -379,7 +470,8 @@ game.UI.ColoredRect = me.Renderable.extend
 
 game.UI.unitFrameSlots = me.Container.extend
 ({
-    init: function() {
+    init: function() 
+    {
         // call the constructor
         this._super(me.Container, 'init');
 
@@ -396,12 +488,12 @@ game.UI.unitFrameSlots = me.Container.extend
         this.name = "spell slot";
         this.slots = [];
 
-        
-
-        for(var i = -4; i < 4; i++){
+        // No more IOCCC lol
+        for(var i = 0; i < 8; i++)
+        {
             var settings = {};
-            settings.id = i + 4;
-            this.slots[settings.id] = new game.UI.slot(514 + 64 * i, me.game.viewport.height - 52, settings);
+            settings.id = i;
+            this.slots[settings.id] = new game.UI.slot(514 + 64 * (i - 4), me.game.viewport.height - 52, settings);
             this.addChild(this.slots[settings.id]);
         }
     }
@@ -425,7 +517,8 @@ game.UI.slot = me.GUI_Object.extend(
         //test button
         //delete me!
         game.UI.popupMgr.addText({
-            text: "The head of the hospital is a swindler!",
+            // text: "The head of the hospital is a swindler!",
+            text: "Delete me!", // lol.
             color: "#ff0000",
             posX: this.pos.x,
             posY: this.pos.y - 30,
@@ -437,11 +530,16 @@ game.UI.slot = me.GUI_Object.extend(
         this.player.data.currentHealth = this.player.data.maxHealth;
         this.player.data.currentMana = this.player.data.maxMana;
 
-
-        this.player.data.healPriority = !this.player.healPriority;
+        this.player.data.healPriority = !this.player.data.healPriority;
         
-        //TODO: should the source of a raid skill be a global mob?
-        this.player.receiveBuff({source: this.player, buff: new bloodlustBuff({time: 15.0}), popUp: true});
+        // TODO: should the source of a raid skill be a global mob?
+
+        // a raid skill source should be one of the player characters.
+        // e.g. bloodlust's target is shamans etc. (no shaman though)
+        // When user adding skills to global raid skill slots, 
+        // they add them from each character, so we know the actual source.
+
+        this.player.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 15.0}), popUp: true});
         return false;
     }
 });

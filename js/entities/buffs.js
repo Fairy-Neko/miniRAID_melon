@@ -16,7 +16,7 @@ game.Buff.base = game.MobListener.extend
         this.isBuff = true;
         
         //time in seconds, indicates the durtion of buff
-        this.timeMax = time;
+        this.timeMax = settings.time || 1.0;
 
         //time in seconds, will automatically reduce by time
         this.timeRemain = settings.time || 1.0; 
@@ -43,9 +43,9 @@ game.Buff.base = game.MobListener.extend
     },
 
     // make a popUp
-    popUp: function()
+    popUp: function(mob)
     {
-        var popUpPos = this.parent.getRenderPos(0.5, 0.0);
+        var popUpPos = mob.getRenderPos(0.5, 0.0);
         
         game.UI.popupMgr.addText({
             text: this.popupName,
@@ -57,9 +57,11 @@ game.Buff.base = game.MobListener.extend
 
     onUpdate: function(mob, deltaTime)
     {
+        // unit of deltaTime now becomes ms. (instead of s)
+
         this._super(game.MobListener, 'init', [mob, deltaTime]);
 
-        this.timeRemain -= deltaTime;
+        this.timeRemain -= deltaTime * 0.001;
         if(this.timeRemain < 0)
         {
             this.isOver = true;
@@ -131,7 +133,7 @@ game.Buff.Fired = game.Buff.base.extend
     },
 });
 
-game.Buff.bloodlust = game.Buff.base.extend
+game.Buff.Bloodlust = game.Buff.base.extend
 ({
     init: function(settings)
     {

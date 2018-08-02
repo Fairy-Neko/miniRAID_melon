@@ -350,7 +350,7 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
         {
             other.receiveBuff({
                 source: this.source,
-                buff: new IceSlowed({time: 0.15}),
+                buff: new game.Buff.IceSlowed({time: 0.15}),
                 popUp: true,
             })
         }
