@@ -55,6 +55,11 @@ game.resources = [
         "src": "data/img/heal_fx.png"
     },
     {
+        "name": "healButton",
+        "type": "image",
+        "src": "data/img/healButton.png"
+    },
+    {
         "name": "healer_girl",
         "type": "image",
         "src": "data/img/healer_girl.png"

@@ -139,6 +139,7 @@ game.dataBackend.Mob = me.Object.extend
         // How much taunt will this mob generate?
         this.tauntMul = settings.tauntMul || 1.0;
         this.beingAttack = 0;
+        this.healPriority = false;
 
         // A Specific identify name only for this mob
         this.ID = game.data.backend.getID();
@@ -153,6 +154,26 @@ game.dataBackend.Mob = me.Object.extend
     {
         return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed) * this.currentWeapon.baseAttackSpeed;
     },
+
+    receiveBuff: function({
+        source = undefined, 
+        buff = undefined,
+        popUp = true,
+    } = {})
+    {
+        // console.log("[" + this.name + "] : Received buff <" + buff.name + "> from <" +  "> !");
+
+        this.buffList.add(buff);
+
+        //Set source and belongings
+        buff.source = source;
+
+        //Initial popUp
+        if(popUp === true)
+        {
+            buff.popUp();
+        }
+    }
 });
 
 game.armor = me.Object.extend
@@ -208,36 +229,38 @@ game.dataBackend.BattleMonitor = me.Object.extend
 
     addDamage: function(damage, dmgType, source, target, isCrit, spell)
     {
-        if(source.data.isPlayer === true)
-        {
-            // Create a dict if it does not exist
-            this.damageDict[source.data.name] = this.damageDict[source.data.name] || 
+        if(source){
+            if(source.data.isPlayer === true)
             {
-                totalDamage: 0,
-                normalDamage: 0,
-                critDamage: 0,
-                targetDict: {},
-                typeDict: {},
-                spellDict: {},
-                player: source,
-            };
+                // Create a dict if it does not exist
+                this.damageDict[source.data.name] = this.damageDict[source.data.name] || 
+                {
+                    totalDamage: 0,
+                    normalDamage: 0,
+                    critDamage: 0,
+                    targetDict: {},
+                    typeDict: {},
+                    spellDict: {},
+                    player: source,
+                };
 
-            this.damageDict[source.data.name].totalDamage += damage;
+                this.damageDict[source.data.name].totalDamage += damage;
 
-            if(isCrit === true)
-            {
-                this.damageDict[source.data.name].critDamage += damage;
-            }
-            else
-            {
-                this.damageDict[source.data.name].normalDamage += damage;
-            }
+                if(isCrit === true)
+                {
+                    this.damageDict[source.data.name].critDamage += damage;
+                }
+                else
+                {
+                    this.damageDict[source.data.name].normalDamage += damage;
+                }
 
-            //Category: spell
-            if(typeof spell !== "undefined")
-            {
-                this.damageDict[source.data.name].spellDict[spell.name] = this.damageDict[source.data.name].spellDict[spell.name] || 0;
-                this.damageDict[source.data.name].spellDict[spell.name] += damage;
+                //Category: spell
+                if(typeof spell !== "undefined")
+                {
+                    this.damageDict[source.data.name].spellDict[spell.name] = this.damageDict[source.data.name].spellDict[spell.name] || 0;
+                    this.damageDict[source.data.name].spellDict[spell.name] += damage;
+                }
             }
         }
     },

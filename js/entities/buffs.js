@@ -15,6 +15,9 @@ class Buff
         //Name of the buff
         this.name = name;
         
+        //time in seconds, indicates the durtion of buff
+        this.timeMax = time;
+
         //time in seconds, will automatically reduce by time
         this.timeRemain = time; 
 
@@ -192,5 +195,35 @@ class Fired extends Buff
 
     onRender(mob)
     {
+    }
+}
+
+class bloodlustBuff extends Buff
+{
+    constructor({name = "bloodlustBuff", time = 10.0, stacks = 1} = {})
+    {
+        super({
+            name: name,
+            time: time,
+            stacks: stacks,
+            iconId: 2,
+            popupName: "TIME WARP!",
+            popupColor: new me.Color(1, 1, 0, 1)
+        });
+
+        this.timer = 0.0;
+    }
+
+    onUpdate(mob, deltaTime)
+    {
+        super.onUpdate(mob, deltaTime);
+    }
+
+    onStatCalculation(mob)
+    {
+        if('modifiers' in mob.data)
+        {
+            mob.data.modifiers.attackSpeed = 1.4 * mob.data.modifiers.attackSpeed;
+        }
     }
 }
