@@ -205,7 +205,25 @@ game.dataBackend.Mob = me.Object.extend
 
     addBuff: function(buff)
     {
+        for(let localBuff of this.buffList)
+        {
+            // no more unlimited bloodlust!
+            if(localBuff.name === buff.name && localBuff.source === buff.source){
+                localBuff.timeRemain = buff.timeMax;
+                return;
+            }
+        }
         this.addListener(buff);
+    },
+    
+    findBuff: function(buffname)
+    {
+        for(let localBuff of this.buffList)
+        {
+            if(localBuff.name === buffname){
+                return localBuff;
+            }
+        }
     },
 
     addListener: function(listener, source = undefined)
@@ -217,7 +235,7 @@ game.dataBackend.Mob = me.Object.extend
 
         if(listener.isBuff)
         {
-            // Should we still keep buffList ?
+            // Should we still keep buffList ? Maybe(x
             this.buffList.add(listener);
         }
     },

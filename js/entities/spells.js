@@ -140,6 +140,24 @@ game.Spell.HealFxSprite = me.Sprite.extend
     },
 });
 
+game.Spell.IcedFxSprite = me.Sprite.extend
+({
+    init: function(x, y, settings)
+    {
+        settings.image = settings.image || "iced_fx";
+        settings.framewidth = settings.framewidth || 32;
+        settings.frameheight = settings.frameheight || 32;
+
+        this._super(me.Sprite, 'init', [x, y, settings]);
+
+        this.addAnimation("play", game.helper.genAnimFrames(0, 29), 32);
+        this.setCurrentAnimation("play", (function(){
+            me.game.world.removeChild(this);
+            return false;
+        }).bind(this));
+    },
+});
+
 game.Spell.base = game.Moveable.extend
 ({
     init:function (x, y, source, target, settings, useCollider = true) 
@@ -314,8 +332,8 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
     {
         // Do not ask why it is a gold coin (x
         settings.image = settings.image || "crystalcoin2";
-        settings.width = 16;
-        settings.height = 24;
+        settings.width = settings.width || 16;
+        settings.height = settings.height || 24;
         settings.anchorPoint = new me.Vector2d(0.5, 0.5);
         settings.name = "HomingIceBall";
 
@@ -348,11 +366,20 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
         }
         if(typeof other.receiveBuff !== "undefined")
         {
-            other.receiveBuff({
-                source: this.source,
-                buff: new game.Buff.IceSlowed({time: 0.15}),
-                popUp: true,
-            })
+            if(this.power > 300){
+                other.receiveBuff({
+                    source: this.source,
+                    buff: new game.Buff.IceSpikeDebuff({time: 0.75}),
+                    popUp: true,
+                })
+            }
+            else{
+                other.receiveBuff({
+                    source: this.source,
+                    buff: new game.Buff.IceSlowed({time: 0.15}),
+                    popUp: true,
+                })
+            }
         }
     },
 

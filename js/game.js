@@ -123,7 +123,7 @@ var game = {
             var choice = Math.random();
             if(choice < 0.5)
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, weaponLeft: new game.Weapon.TestHomingStaff(
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, weaponLeft: new game.Weapon.DPSHomingStaff(
                     {
                         baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
                         activeRange: game.helper.getRandomInt(200, 300),

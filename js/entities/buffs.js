@@ -31,6 +31,9 @@ game.Buff.base = game.MobListener.extend
         //cellIndex of this buff in the buffIcons image, might be shown under boss lifebar / player lifebar
         this.iconId = settings.iconId || 0;
 
+        //the color used for UI rendering
+        this.color = settings.color || '#56CDEF';
+
         //when the buff was attached or triggered, a small text will pop up like damages e.g. "SLOWED!"
         this.popupName = settings.popupName || "buff";
 
@@ -146,6 +149,33 @@ game.Buff.Bloodlust = game.Buff.base.extend
 
         this._super(game.Buff.base, 'init', [settings]);
 
+        this.timer = 0.0;
+    },
+
+    onUpdate: function(mob, deltaTime)
+    {
+        this._super(game.Buff.base, 'onUpdate', [mob, deltaTime]);
+    },
+
+    onStatCalculation: function(mob)
+    {
+        if('modifiers' in mob.data)
+        {
+            mob.data.modifiers.attackSpeed = 1.4 * mob.data.modifiers.attackSpeed;
+        }
+    },
+});
+
+// Triggered buff for Icespick
+game.Buff.IceSpikeTriggered = game.Buff.base.extend
+({
+    init: function(settings)
+    {
+        settings.name = settings.name || "IceSpick!";
+        settings.time = settings.time || 10.0;
+        settings.stacks = settings.stacks || 1;
+        settings.iconId = 4;
+
         this._super(game.Buff.base, 'init', [settings]);
         
         this.timer = 0.0;
@@ -160,7 +190,43 @@ game.Buff.Bloodlust = game.Buff.base.extend
     {
         if('modifiers' in mob.data)
         {
-            mob.data.modifiers.attackSpeed = 1.4 * mob.data.modifiers.attackSpeed;
+            mob.data.modifiers.attackSpeed = 0.3 * mob.data.modifiers.attackSpeed;
+        }
+    },
+});
+
+game.Buff.IceSpikeDebuff = game.Buff.base.extend
+({
+    init: function(settings)
+    {
+        if(me.pool.exists("icedFx") === false)
+        {
+            me.pool.register("icedFx", game.Spell.IcedFxSprite, true);
+        }
+
+        settings.name = settings.name || "IceSpickDebuff";
+        settings.time = settings.time || 0.75;
+        settings.stacks = settings.stacks || 1;
+        settings.iconId = 4;
+        settings.color = settings.color || '#AA55FF';
+
+        this._super(game.Buff.base, 'init', [settings]);
+        
+        this.timer = 0.0;
+    },
+
+    onUpdate: function(mob, deltaTime)
+    {
+        this._super(game.Buff.base, 'onUpdate', [mob, deltaTime]);
+    },
+
+    onStatCalculation: function(mob)
+    {
+        me.game.world.addChild(me.pool.pull("icedFx", mob.centerX, mob.centerY, {}));
+        
+        if('modifiers' in mob.data)
+        {
+            mob.data.modifiers.speed = 0.01 * mob.data.modifiers.speed;
         }
     },
 });
