@@ -244,10 +244,15 @@ game.Weapon.TestHealStaff = game.Weapon.base.extend
             sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
             isPlayer: mob.data.isPlayer,
         });
-        if(result[0].data.currentHealth === result[0].data.maxHealth)
+
+        if(result.length > 0)
         {
-            return undefined;
+            if(result[0].data.currentHealth === result[0].data.maxHealth)
+            {
+                return undefined;
+            }
+            return result.slice(0, Math.min(result.length, this.targetCount));
         }
-        return result.slice(0, Math.min(result.length, this.targetCount));
+        return [];
     },
 });
