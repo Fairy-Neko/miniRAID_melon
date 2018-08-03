@@ -37,8 +37,8 @@ game.Buff.base = game.MobListener.extend
         //when the buff was attached or triggered, a small text will pop up like damages e.g. "SLOWED!"
         this.popupName = settings.popupName || "buff";
 
-        //Color for the popup text. default is white.
-        this.popupColor = settings.popupColor || "#ffffff";
+        //Color for the popup text. default is this.color.
+        this.popupColor = settings.popupColor || this.color;
 
         //Where does this buff come from?
         //This should be changed in receiveBuff() of mobs
@@ -80,7 +80,7 @@ game.Buff.IceSlowed = game.Buff.base.extend
     {
         settings.name = settings.name || "Ice slowed";
         settings.popupName = settings.popupName || "SLOWED!";
-        settings.popupColor = settings.popupColor || "#0000ff";
+        settings.color = settings.color || "#0066FF";
         settings.iconId = settings.iconId || 1;
 
         this._super(game.Buff.base, 'init', [settings]);
@@ -145,7 +145,7 @@ game.Buff.Bloodlust = game.Buff.base.extend
         settings.stacks = settings.stacks || 1;
         settings.iconId = 2;
         settings.popupName = "TIME WARP!",
-        settings.popupColor = "#d942f4";
+        settings.color = settings.color || "#FF5566";
 
         this._super(game.Buff.base, 'init', [settings]);
 
@@ -172,8 +172,11 @@ game.Buff.IceSpikeTriggered = game.Buff.base.extend
     init: function(settings)
     {
         settings.name = settings.name || "IceSpick!";
+        // time to kick some ass
+        settings.popupName = settings.popupName || "TKSS!";
         settings.time = settings.time || 10.0;
         settings.stacks = settings.stacks || 1;
+        settings.color = settings.color || '#AA77FF';
         settings.iconId = 4;
 
         this._super(game.Buff.base, 'init', [settings]);
@@ -209,6 +212,7 @@ game.Buff.IceSpikeDebuff = game.Buff.base.extend
         settings.stacks = settings.stacks || 1;
         settings.iconId = 4;
         settings.color = settings.color || '#AA55FF';
+        settings.popUp = settings.popUp || false;
 
         this._super(game.Buff.base, 'init', [settings]);
         
@@ -223,7 +227,7 @@ game.Buff.IceSpikeDebuff = game.Buff.base.extend
     onStatCalculation: function(mob)
     {
         me.game.world.addChild(me.pool.pull("icedFx", mob.centerX, mob.centerY, {}));
-        
+
         if('modifiers' in mob.data)
         {
             mob.data.modifiers.speed = 0.01 * mob.data.modifiers.speed;
