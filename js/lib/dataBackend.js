@@ -72,6 +72,7 @@ game.dataBackend.Mob = me.Object.extend
             speed: settings.speed || 1.0,
             movingSpeed: settings.movingSpeed || 1.0,
             attackSpeed: settings.attackSpeed || 1.0,
+            spellSpeed: settings.spellSpeed || 1.0,
         };
 
         this.baseSpeed = settings.baseSpeed || 2.0;
@@ -91,6 +92,10 @@ game.dataBackend.Mob = me.Object.extend
         // Stats (cannot increase directly)
         this.battleStats = {
             resist: {
+                physical: 0,
+                elemental: 0,
+                pure: 0, // It should be 0
+
                 slash: 0,
                 knock: 0,
                 pierce: 0,
@@ -104,6 +109,10 @@ game.dataBackend.Mob = me.Object.extend
             },
 
             attackPower: {
+                physical: 0,
+                elemental: 0,
+                pure: 0, // It should be 0
+
                 slash: 0,
                 knock: 0,
                 pierce: 0,
@@ -116,8 +125,20 @@ game.dataBackend.Mob = me.Object.extend
                 light: 0
             },
 
-            hitAcc: 100,
+            // Write a helper to get hit / avoid / crit percentage from current level and parameters ?
+            // Percentage
+            // Those are basic about overall hit accuracy & avoid probabilities, critical hits.
+            // Advanced actions (avoid specific spell) should be calculated inside onReceiveDamage() etc.
+            // Same for shields, healing absorbs (Heal Pause ====...===...==...=>! SS: [ABSORB]!!! ...*&@^#), etc.
+            hitAcc: 95,
             avoid: 0,
+
+            // Percentage
+            crit: 5, // Should crit have types? e.g. physical elemental etc.
+            antiCrit: 0,
+
+            // Parry for shield should calculate inside the shield itself when onReceiveDamage().
+
             attackRange: 0,
             extraRange: 0,
         };
@@ -126,7 +147,7 @@ game.dataBackend.Mob = me.Object.extend
         this.weaponLeft = settings.weaponLeft;// || new game.weapon(settings);
         this.weaponRight = settings.weaponRight;// || new game.weapon(settings);
         this.armor = settings.armor;// || new game.Armor(settings);
-        this.accessories = settings.accessories;// || new game.Accessory(settings);
+        this.accessory = settings.accessory;// || new game.Accessory(settings);
 
         this.currentWeapon = this.weaponLeft;
 
@@ -148,6 +169,12 @@ game.dataBackend.Mob = me.Object.extend
         // buffs are actually plain mob listeners
         // maybe they have something different (x)
         this.buffList = new Set();
+    },
+
+    getPercentage: function(parameter)
+    {
+        // TODO: convert parameter to percentage from level
+        return parameter;
     },
 
     getMovingSpeed: function()
@@ -240,70 +267,97 @@ game.dataBackend.Mob = me.Object.extend
         this.modifiers.attackSpeed = 1.0;
     },
 
-    receiveDamage: function({
-        source = undefined, 
-        target = undefined,
-        damage = {},
-        isCrit = false,
-        spell = undefined,
-    } = {})
+    receiveDamage: function(damageInfo)
     {
-        // Let everyone know what is happening
-        var damageObj = {
-            source: source,
-            target: target,
-            damage: damage,
-            isCrit: isCrit,
-            spell: spell,
-        };
-
-        var finalDmg = {};
-
-        this.updateListeners('onReceiveDamage', damageObj);
-        if(source)
+        // Calculate crit based on parameters
+        if(!damageInfo.isCrit)
         {
-            source.data.updateListeners('onDealDamage', damageObj);
+            damageInfo.isCrit = (100 * Math.random()) < (
+                damageInfo.source.data.getPercentage(damageInfo.source.data.battleStats.crit) - 
+                damageInfo.target.data.getPercentage(damageInfo.target.data.battleStats.antiCrit));
+
+            damageInfo.isAvoid = (100 * Math.random()) > (
+                damageInfo.source.data.getPercentage(damageInfo.source.data.battleStats.hitAcc) - 
+                damageInfo.target.data.getPercentage(damageInfo.target.data.battleStats.avoid));
         }
-        game.units.boardcast('onFocusReceiveDamage', damageObj.target, damageObj);
-        game.units.boardcast('onFocusDealDamage', damageObj.source, damageObj);
+
+        this.updateListeners('onReceiveDamage', damageInfo);
+        if (damageInfo.source)
+        {
+            damageInfo.source.data.updateListeners('onDealDamage', damageInfo);
+        }
+        game.units.boardcast('onFocusReceiveDamage', damageInfo.target, damageInfo);
+        game.units.boardcast('onFocusDealDamage', damageInfo.source, damageInfo);
+
+        // Check if it was avoided (we check it before final calculation, so when onReceiveDamageFinal(), damage are guaranteed not avoided)
+        if (damageInfo.isAvoid === true)
+        {
+            // Tell mob this attack was avoided
+            return {isAvoid: true};
+        }
+        // N.B. if you want do something if target avoid, e.g. deal extra on avoid,
+        // you should let it change the damage at onDealDamage() when isAvoid == true. (e.g. set other to 0 and add extra damage)
+        // then set isAvoid to false. You can also pop some text when you add the extra damage.
 
         // Do the calculation
-        for(var dmgType in damage)
+        for(var dmgType in damageInfo.damage)
         {
+            // damage% = 1.0353 ^ power
+            // 20pts of power = 100% more damage
+            if(damageInfo.source)
+            {
+                damageInfo.damage[dmgType] = Math.ceil(
+                    damageInfo.damage[dmgType] * 
+                    (Math.pow(
+                        1.0353,
+                        damageInfo.source.data.battleStats.attackPower[game.data.damageType[dmgType]] +
+                        damageInfo.source.data.battleStats.attackPower[dmgType])));
+            }
+
             // damage% = 0.9659 ^ resist
             // This is, every 1 point of resist reduces corresponding damage by 3.41%, 
             // which will reach 50% damage reducement at 20 points.
-            finalDmg[dmgType] = Math.ceil(damage[dmgType] * (Math.pow(0.9659, this.battleStats.resist[dmgType])));
+            damageInfo.damage[dmgType] = Math.ceil(
+                damageInfo.damage[dmgType] * 
+                (Math.pow(
+                    0.9659, 
+                    this.battleStats.resist[game.data.damageType[dmgType]] + 
+                    this.battleStats.resist[dmgType])));
+
+            // Apply criticals
+            damageInfo.damage[dmgType] = Math.ceil( 
+                damageInfo.damage[dmgType] * 
+                (damageInfo.isCrit ? game.data.critMultiplier[dmgType] : 1.0));
         }
 
         // Let everyone know what is happening
-        damageObj.damage = finalDmg;
+        // damageObj.damage = finalDmg;
 
-        this.updateListeners('onReceiveDamageFinal', damageObj);
-        if(source)
+        this.updateListeners('onReceiveDamageFinal', damageInfo);
+        if(damageInfo.source)
         {
-            source.data.updateListeners('onDealDamageFinal', damageObj);
+            damageInfo.source.data.updateListeners('onDealDamageFinal', damageInfo);
         }
-        game.units.boardcast('onFocusReceiveDamageFinal', damageObj.target, damageObj);
-        game.units.boardcast('onFocusDealDamageFinal', damageObj.source, damageObj);
+        game.units.boardcast('onFocusReceiveDamageFinal', damageInfo.target, damageInfo);
+        game.units.boardcast('onFocusDealDamageFinal', damageInfo.source, damageInfo);
 
         // Decrese HP
         // Check if I am dead
-        for(dmg in finalDmg)
+        for(dmg in damageInfo.damage)
         {
-            this.currentHealth -= finalDmg[dmg];
-            game.data.monitor.addDamage(finalDmg[dmg], dmg, source, target, isCrit, spell);
+            this.currentHealth -= damageInfo.damage[dmg];
+            game.data.monitor.addDamage(damageInfo.damage[dmg], dmg, damageInfo.source, damageInfo.target, damageInfo.isCrit, damageInfo.spell);
             
             if(this.currentHealth <= 0)
             {
                 // Let everyone know what is happening
-                this.updateListeners('onDeath', damageObj);
-                if(source)
+                this.updateListeners('onDeath', damageInfo);
+                if(damageInfo.source)
                 {
-                    source.data.updateListeners('onKill', damageObj);
+                    damageInfo.source.data.updateListeners('onKill', damageInfo);
                 }
-                game.units.boardcast('onFocusDeath', damageObj.target, damageObj);
-                game.units.boardcast('onFocusKill', damageObj.source, damageObj);
+                game.units.boardcast('onFocusDeath', damageInfo.target, damageInfo);
+                game.units.boardcast('onFocusKill', damageInfo.source, damageInfo);
 
                 // If still I am dead
                 if(this.currentHealth <= 0)
@@ -314,63 +368,51 @@ game.dataBackend.Mob = me.Object.extend
             }
         }
 
-        return finalDmg;
+        // It hits!
+        return damageInfo.damage;
     },
 
-    receiveHeal: function({
-        source = undefined,
-        target = undefined,
-        heal = 0,
-        isCrit = false,
-        spell = undefined,
-    } = {})
+    receiveHeal: function(healInfo)
     {
-        // Package the healing in to an object so that buffs and agents can
-        // modify them.
-        var healObject = {real: heal, over: 0};
+        // Calculate crit based on parameters
+        if(!healInfo.isCrit)
+        {
+            healInfo.isCrit = (100 * Math.random()) < (
+                healInfo.source.data.getPercentage(healInfo.source.data.battleStats.crit) - 
+                healInfo.target.data.getPercentage(healInfo.target.data.battleStats.antiCrit));
+        }
 
         // Let everyone know what is happening
-        var healObj = {
-            source: source,
-            target: target,
-            heal: healObject,
-            isCrit: isCrit,
-            spell: spell,
-        };
-
-        this.updateListeners('onReceiveHeal', healObj);
-        if(source)
+        this.updateListeners('onReceiveHeal', healInfo);
+        if(healInfo.source)
         {
-            source.data.updateListeners('onDealHeal', healObj);
+            healInfo.source.data.updateListeners('onDealHeal', healInfo);
         }
-        game.units.boardcast('onFocusReceiveHeal', healObj.target, healObj);
-        game.units.boardcast('onFocusDealHeal', healObj.source, healObj);
+        game.units.boardcast('onFocusReceiveHeal', healInfo.target, healInfo);
+        game.units.boardcast('onFocusDealHeal', healInfo.source, healInfo);
 
         // Do the calculation
         // _finalHeal: total amount of healing (real + over)
-        var _finalHeal = heal * 1.0; // Maybe something like heal resist etc.
-        var finalHeal = {total: _finalHeal, real: _finalHeal, over: 0};
+        healInfo.heal.total = Math.ceil(healInfo.heal.real * 1.0 * game.data.critMultiplier.heal); // Maybe something like heal resist etc.
 
         // calculate overHealing using current HP and max HP.
-        finalHeal.real = Math.min(this.maxHealth - this.currentHealth, _finalHeal);
-        finalHeal.over = _finalHeal - finalHeal.real;
+        healInfo.heal.real = Math.min(healInfo.target.data.maxHealth - healInfo.target.data.currentHealth, healInfo.heal.total);
+        healInfo.heal.over = healInfo.heal.total - healInfo.heal.real;
 
         // Let buffs and agents know what is happening
-        healObj.heal = finalHeal;
-
-        this.updateListeners('onReceiveHealFinal', healObj);
-        if(source)
+        this.updateListeners('onReceiveHealFinal', healInfo);
+        if(healInfo.source)
         {
-            source.data.updateListeners('onDealHealFinal', healObj);
+            healInfo.source.data.updateListeners('onDealHealFinal', healInfo);
         }
-        game.units.boardcast('onFocusReceiveHealFinal', healObj.target, healObj);
-        game.units.boardcast('onFocusDealHealFinal', healObj.source, healObj);
+        game.units.boardcast('onFocusReceiveHealFinal', healInfo.target, healInfo);
+        game.units.boardcast('onFocusDealHealFinal', healInfo.source, healInfo);
 
         // Increase the HP.
-        this.currentHealth += finalHeal.real;
-        game.data.monitor.addHeal(finalHeal.real, finalHeal.over, source, target, isCrit, spell);
+        this.currentHealth += healInfo.heal.real;
+        game.data.monitor.addHeal(healInfo.heal.real, healInfo.heal.over, healInfo.source, healInfo.target, healInfo.isCrit, healInfo.spell);
 
-        return finalHeal;
+        return healInfo.heal;
     },
 
     die: function({
@@ -433,35 +475,38 @@ game.MobListener = me.Object.extend
     // XXFinal will happen after resist calculation, and vice versa.
     // You can modify the values in damage / heal in order to change the final result.
 
-    onDealDamage: function({ target, damage, isCrit, spell } = {}) { return false; },
-    onDealDamageFinal: function({ target, damage, isCrit, spell } = {}) { return false; },
+    // DamageInfo: { source, target, damage, isCrit, isAvoid, spell } = {}
+    // HealInfo  : { source, target, heal, isCrit, spell } = {}
 
-    onDealHeal: function({ target, heal, isCrit, spell } = {}) { return false; },
-    onDealHealFinal: function({ target, heal, isCrit, spell } = {}) { return false; },
+    onDealDamage: function(damageInfo) { return false; },
+    onDealDamageFinal: function(damageInfo) { return false; },
+
+    onDealHeal: function(healInfo) { return false; },
+    onDealHealFinal: function(healInfo) { return false; },
     
-    onReceiveDamage: function({ source, damage, isCrit, spell } = {}) { return false; },
-    onReceiveDamageFinal: function({ source, damage, isCrit, spell } = {}) { return false; },
+    onReceiveDamage: function(damageInfo) { return false; },
+    onReceiveDamageFinal: function(damageInfo) { return false; },
 
-    onReceiveHeal: function({ source, heal, isCrit, spell } = {}) { return false; },
-    onReceiveHealFinal: function({ source, heal, isCrit, spell } = {}) { return false; },
+    onReceiveHeal: function(healInfo) { return false; },
+    onReceiveHealFinal: function(healInfo) { return false; },
 
-    onKill: function({ source, damage, isCrit, spell } = {}) { return false; },
-    onDeath: function({ source, damage, isCrit, spell } = {}) { return false; },
+    onKill: function(damageInfo) { return false; },
+    onDeath: function(damageInfo) { return false; },
 
-    onFocusDealDamage: function({ source, target, damage, isCrit, spell } = {}) { return false; },
-    onFocusDealDamageFinal: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+    onFocusDealDamage: function(damageInfo) { return false; },
+    onFocusDealDamageFinal: function(damageInfo) { return false; },
 
-    onFocusDealHeal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
-    onFocusDealHealFinal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
+    onFocusDealHeal: function(healInfo) { return false; },
+    onFocusDealHealFinal: function(healInfo) { return false; },
 
-    onFocusReceiveDamage: function({ source, target, damage, isCrit, spell } = {}) { return false; },
-    onFocusReceiveDamageFinal: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+    onFocusReceiveDamage: function(damageInfo) { return false; },
+    onFocusReceiveDamageFinal: function(damageInfo) { return false; },
 
-    onFocusReceiveHeal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
-    onFocusReceiveHealFinal: function({ source, target, heal, isCrit, spell } = {}) { return false; },
+    onFocusReceiveHeal: function(healInfo) { return false; },
+    onFocusReceiveHealFinal: function(healInfo) { return false; },
 
-    onFocusKill: function({ source, target, damage, isCrit, spell } = {}) { return false; },
-    onFocusDeath: function({ source, target, damage, isCrit, spell } = {}) { return false; },
+    onFocusKill: function(damageInfo) { return false; },
+    onFocusDeath: function(damageInfo) { return false; },
 })
 
 game.Equipable = game.MobListener.extend
@@ -666,7 +711,7 @@ game.dataBackend.BattleMonitor = me.Object.extend
                     this.damageDict[player].critDamage],
                 colors: [
                     "#ffc477", 
-                    "#ff0000"],
+                    "#ff7777"],
                 player: this.damageDict[player].player
             });
         }

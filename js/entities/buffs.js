@@ -50,6 +50,10 @@ game.Buff.base = game.MobListener.extend
         game.UI.popupMgr.addText({
             text: this.popupName,
             color: this.popupColor,
+            velY: -64,
+            velX: 0,
+            accY: 64,
+            accX: 0,
             posX: popUpPos.x,
             posY: popUpPos.y
         });

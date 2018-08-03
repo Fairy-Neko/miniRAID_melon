@@ -489,6 +489,11 @@ game.Mobs.base = game.Moveable.extend(
         popUp = true
     } = {})
     {
+        if(game.Mobs.checkAlive(this) == false)
+        {
+            return false;
+        }
+
         if(buff != undefined)
         {
             // Call backend to add the buff.
@@ -512,32 +517,58 @@ game.Mobs.base = game.Moveable.extend(
     // This method will also popup a text with the final amount of damage, 
     // with corresponding color defined in gama.data.damageColor.
     // this action could be disabled by setting popUp = false.
-    receiveDamage: function({
-        source = undefined, 
-        damage = {},
-        isCrit = false,
-        spell = undefined,
-        popUp = true
-    } = {})
+
+    /**
+     * Params of damageInfo (default value)
+     * source:          damage source
+     * damage ({}):     actual damage. e.g. {fire: 165, ice: 100, thunder: 600}
+     * isCrit (false):  is this damage crits ? It will be calculated automatically if it is false.
+     * isAvoid (false): Same as above.
+     * spell:           the spell used at this attack
+     * popUp (true):    Should this damage popup a text ?
+     */
+    receiveDamage: function(damageInfo)
     {
+        if(game.Mobs.checkAlive(this) == false)
+        {
+            return false;
+        }
+
+        damageInfo.target = this;
+        damageInfo.damage = damageInfo.damage || {};
+        damageInfo.popUp = damageInfo.popUp || true;
+        damageInfo.isCrit = damageInfo.isCrit || false;
+        damageInfo.isAvoid = damageInfo.isAvoid || false;
+
         // The actual damage calculate and event trigger moved into backend
         // If mob dead finally, this.data.alive will become false
-        var finalDmg = this.data.receiveDamage({
-            source: source,
-            target: this,
-            damage: damage,
-            isCrit: isCrit,
-            spell: spell,
-        });
+        this.data.receiveDamage(damageInfo);
 
-        // Mob itself only do rendering popUp texts
-        for(var dmgType in finalDmg)
+        // It does not hit !
+        if(damageInfo.isAvoid)
         {
-            if(popUp == true && finalDmg[dmgType] > 0)
+            if(damageInfo.popUp == true)
             {
                 var popUpPos = this.getRenderPos(0.5, 0.0);
                 game.UI.popupMgr.addText({
-                    text: finalDmg[dmgType].toString(),
+                    text: "MISS",
+                    color: game.data.damageColor.miss,
+                    posX: popUpPos.x,
+                    posY: popUpPos.y,
+                });
+            }
+
+            return false;
+        }
+
+        // Mob itself only do rendering popUp texts
+        for(var dmgType in damageInfo.damage)
+        {
+            if(damageInfo.popUp == true && damageInfo.damage[dmgType] > 0)
+            {
+                var popUpPos = this.getRenderPos(0.5, 0.0);
+                game.UI.popupMgr.addText({
+                    text: damageInfo.damage[dmgType].toString() + (damageInfo.isCrit ? " !" : ""),
                     color: game.data.damageColor[dmgType],
                     posX: popUpPos.x,
                     posY: popUpPos.y,
@@ -550,37 +581,47 @@ game.Mobs.base = game.Moveable.extend(
         // Check if I am alive
         if(this.data.alive == false)
         {
-            this.die(source, finalDmg);
+            this.die(damageInfo.source, damageInfo.damage);
         }
+
+        return true;
     },
 
     // Receive healing, same as recieve damage.
-    receiveHeal: function({
-        source = undefined,
-        heal = 0,
-        isCrit = false,
-        spell = undefined,
-        popUp = true,
-    } = {})
+
+    /**
+     * Params of healInfo (default value)
+     * source:          heal source
+     * heal (0):        actual heal, a number.
+     * isCrit (false):  is this heal crits ? It will be calculated automatically if it is false.
+     * spell:           the spell used at this attack
+     * popUp (true):    Should this heal popup a text ?
+     */
+    receiveHeal: function(healInfo)
     {
+        if(game.Mobs.checkAlive(this) == false)
+        {
+            return false;
+        }
+
         // Same as above
-        var finalHeal = this.data.receiveHeal({
-            source: source,
-            target: this,
-            heal: heal,
-            isCrit: isCrit,
-            spell: spell,
-        })
+        healInfo.heal = {total: healInfo.heal, real: healInfo.heal, over: 0};
+        healInfo.target = this;
+        healInfo.heal = healInfo.heal || 0;
+        healInfo.popUp = healInfo.popUp || true;
+        healInfo.isCrit = healInfo.isCrit || false;
+
+        this.data.receiveHeal(healInfo);
 
         // Show popUp text with overhealing hint
-        if(popUp == true && finalHeal.toal > 0)
+        if(healInfo.popUp == true && healInfo.heal.total > 0)
         {
             var popUpPos = this.getRenderPos(0.5, 0.0);
-            if(finalHeal.over > 0)
+            if(healInfo.heal.over > 0)
             {
                 game.UI.popupMgr.addText({
-                    text: finalHeal.real.toString() + " <" + finalHeal.over.toString() + ">",
-                    color: game.data.healColor,
+                    text: healInfo.heal.real.toString() + (healInfo.isCrit ? " !" : "") + " <" + healInfo.heal.over.toString() + ">",
+                    color: game.data.damageColor.heal,
                     velX: 64,
                     posX: popUpPos.x,
                     posY: popUpPos.y,
@@ -589,8 +630,8 @@ game.Mobs.base = game.Moveable.extend(
             else
             {
                 game.UI.popupMgr.addText({
-                    text: finalHeal.real.toString(),
-                    color: game.data.healColor,
+                    text: healInfo.heal.real.toString() + (healInfo.isCrit ? " !" : ""),
+                    color: game.data.damageColor.heal,
                     velX: 64,
                     posX: popUpPos.x,
                     posY: popUpPos.y,

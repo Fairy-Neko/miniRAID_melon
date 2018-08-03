@@ -30,10 +30,37 @@ var game = {
             nature: "green",
             wind: "lightgreen",
             thunder: "yellow",
-            light: "lightyellow"
+            light: "lightyellow",
+            miss: "#ffff00",
+            heal: "#66f95c",
         },
 
-        healColor: "#66f95c",
+        damageType: {
+            slash: "physical",  
+            knock: "physical",  
+            pierce: "physical",  
+            fire: "elemental",
+            ice: "elemental",
+            water: "elemental",
+            nature: "elemental",
+            wind: "elemental",
+            thunder: "elemental",
+            light: "pure",
+        },
+
+        critMultiplier: {
+            slash: 2.0,  
+            knock: 1.6,  
+            pierce: 2.5,  
+            fire: 2.0,
+            ice: 2.5,
+            water: 1.6,
+            nature: 2.0,
+            wind: 2.5,
+            thunder: 2.5,
+            light: 1.6,
+            heal: 2.0,
+        },
     },
 
     collisionTypes:
