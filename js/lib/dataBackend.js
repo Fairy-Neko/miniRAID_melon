@@ -272,8 +272,13 @@ game.dataBackend.Mob = me.Object.extend
         // Calculate crit based on parameters
         if(!damageInfo.isCrit)
         {
-            damageInfo.isCrit = (100 * Math.random()) < (damageInfo.source.data.battleStats.crit - damageInfo.target.data.battleStats.antiCrit);
-            damageInfo.isAvoid = (100 * Math.random()) > (damageInfo.source.data.battleStats.hitAcc - damageInfo.target.data.battleStats.avoid);
+            damageInfo.isCrit = (100 * Math.random()) < (
+                damageInfo.source.data.getPercentage(damageInfo.source.data.battleStats.crit) - 
+                damageInfo.target.data.getPercentage(damageInfo.target.data.battleStats.antiCrit));
+
+            damageInfo.isAvoid = (100 * Math.random()) > (
+                damageInfo.source.data.getPercentage(damageInfo.source.data.battleStats.hitAcc) - 
+                damageInfo.target.data.getPercentage(damageInfo.target.data.battleStats.avoid));
         }
 
         this.updateListeners('onReceiveDamage', damageInfo);
@@ -372,7 +377,9 @@ game.dataBackend.Mob = me.Object.extend
         // Calculate crit based on parameters
         if(!healInfo.isCrit)
         {
-            healInfo.isCrit = (100 * Math.random()) < (healInfo.source.data.battleStats.crit - healInfo.target.data.battleStats.antiCrit);
+            healInfo.isCrit = (100 * Math.random()) < (
+                healInfo.source.data.getPercentage(healInfo.source.data.battleStats.crit) - 
+                healInfo.target.data.getPercentage(healInfo.target.data.battleStats.antiCrit));
         }
 
         // Let everyone know what is happening
