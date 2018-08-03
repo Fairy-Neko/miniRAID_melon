@@ -256,3 +256,68 @@ game.Weapon.TestHealStaff = game.Weapon.base.extend
         return [];
     },
 });
+
+game.Weapon.DPSHomingStaff = game.Weapon.base.extend
+({
+    init: function(settings)
+    {
+        this._super(game.Weapon.base, 'init', [settings]);
+        this.name = "dps test staff";
+
+        this.power = settings.power || 3;
+
+        if(me.pool.exists("testHomingIceball") === false)
+        {
+            me.pool.register("testHomingIceball", game.Spell.TestHomingIceball, true);
+        }
+    },
+
+    attack: function(mob, target)
+    {
+        var settings = {};
+        if(target.data.isPlayer === true)
+        {
+            settings.isTargetPlayer = true;
+            settings.image = "coppercoin";
+        }
+        else
+        {
+            settings.isTargetEnemy = true;
+            settings.image = "crystalcoin2";
+        }
+
+        settings.power = this.power;
+
+        // A buff triggered heavy attack
+        var buff = mob.data.findBuff("IceSpick!");
+        if(buff){
+            settings.power = 10 * this.power;
+            settings.image = "crystalcoin3";
+            settings.width = 32;
+            settings.height = 48;
+            mob.data.removeListener(buff);
+        }
+        else
+        {
+            // randomly get buffed with a nicely gurantee mechanism(x
+            if(game.helper.getRandomFloat(0, 1) > 0.8 || this.weaponGauge > 4){
+                this.weaponGauge = 0;
+                mob.receiveBuff({
+                    source: mob,
+                    buff: new game.Buff.IceSpikeTriggered({time: 10.0}),
+                    popUp: true,
+                });
+            }
+            else{
+                this.weaponGauge++;
+            }
+        }
+
+        me.game.world.addChild(me.pool.pull("testHomingIceball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+    },
+
+    grabTargets: function(mob)
+    {
+        return result = game.units.getNearest(mob.getRenderPos(0.5, 0.5), isPlayer = !mob.data.isPlayer, count = this.targetCount);
+    },
+});
