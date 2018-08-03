@@ -169,6 +169,8 @@ game.dataBackend.Mob = me.Object.extend
         // buffs are actually plain mob listeners
         // maybe they have something different (x)
         this.buffList = new Set();
+
+        this.mobPrototype = settings.mobPrototype || game.Mobs.TestMob;
     },
 
     getPercentage: function(parameter)

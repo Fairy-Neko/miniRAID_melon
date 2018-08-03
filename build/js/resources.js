@@ -30,6 +30,16 @@ game.resources = [
         "src": "data/img/fatthing.png"
     },
     {
+        "name": "flareOrb",
+        "type": "image",
+        "src": "data/img/flareOrb.png"
+    },
+    {
+        "name": "FloraFairy",
+        "type": "image",
+        "src": "data/img/FloraFairy.png"
+    },
+    {
         "name": "goldcoin",
         "type": "image",
         "src": "data/img/goldcoin.png"
@@ -68,6 +78,11 @@ game.resources = [
         "name": "healer_girl2",
         "type": "image",
         "src": "data/img/healer_girl2.png"
+    },
+    {
+        "name": "HealRing",
+        "type": "image",
+        "src": "data/img/HealRing.png"
     },
     {
         "name": "heart",
@@ -123,6 +138,11 @@ game.resources = [
         "name": "tst_HealBeam",
         "type": "image",
         "src": "data/img/tst_HealBeam.png"
+    },
+    {
+        "name": "vioBullet",
+        "type": "image",
+        "src": "data/img/vioBullet.png"
     },
     {
         "name": "FixedSys",

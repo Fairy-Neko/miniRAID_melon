@@ -140,6 +140,15 @@ game.Spell.HealFxSprite = me.Sprite.extend
     },
 });
 
+game.Spell.dummy = me.Object.extend
+({
+    init: function(settings)
+    {
+        this.name = settings.name;
+        this.source = settings.source;
+    }
+});
+
 game.Spell.base = game.Moveable.extend
 ({
     init:function (x, y, source, target, settings, useCollider = true) 
@@ -237,6 +246,7 @@ game.Spell.Projectile = game.Spell.base.extend
     updateSpell: function (dt) 
     {
         this.updateProjectile(dt);
+        me.collision.check(this);
         this.body.update(dt);
     },
 
@@ -271,11 +281,12 @@ game.Spell.TestFireball = game.Spell.Projectile.extend
         // Do not ask why it is a gold coin (x
         settings.anchorPoint = new me.Vector2d(0.5, 0.5);
         settings.name = "testFireball";
+
         if(!settings.image)
         {
-        settings.image = "coppercoin2";
-        settings.width = 16;
-        settings.height = 24;
+            settings.image = "coppercoin2";
+            settings.width = 16;
+            settings.height = 24;
         }
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
@@ -474,3 +485,122 @@ game.Spell.TestHealBeam = game.Spell.base.extend
         return false;
     },
 });
+
+game.Spell.ChibiFairyLamp = game.Spell.Projectile.extend
+({
+    init: function (x, y, source, target, settings) 
+    {
+        settings.image = settings.image || "vioBullet";
+        settings.width = 16;
+        settings.height = 16;
+        settings.anchorPoint = new me.Vector2d(0.5, 0.5);
+        settings.name = "Chibi fairy lamp: Attack";
+
+        this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
+
+        this.power = settings.power || 3;
+
+        this.speed = settings.projectileSpeed || 400;
+        this.speedVector = new me.Vector2d(1, 0).rotate(settings.initAngle);
+        this.targetVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
+    },
+
+    onMobCollision: function(other)
+    {
+        if(typeof other.receiveDamage !== "undefined")
+        {
+            other.receiveDamage({
+                source: this.source,
+                damage: {
+                    nature: this.power,
+                },
+                isCrit: false,
+                spell: this,
+            });
+            this.destroy(other);
+        }
+    },
+
+    onDestroy: function(other)
+    {
+        // me.game.world.addChild(me.pool.pull("magicalHit", this.renderAnchorPos.x, this.renderAnchorPos.y, {}));
+    },
+
+    updateProjectile: function(dt)
+    {
+        // Homing
+        if(this.target)
+        {
+            this.targetVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
+            this.speedVector.add(this.targetVector.clone().scale(0.2)).normalize();
+        }
+
+        this.body.vel.copy(this.speedVector.clone().scale(this.speed * dt * 0.001));
+    }
+});
+
+game.Spell.ChibiFairyLampSpecial = game.Spell.Projectile.extend
+({
+    init:function (x, y, source, settings) 
+    {
+        settings.image = "HealRing";
+        settings.width = 64;
+        settings.height = 64;
+        settings.anchorPoint = new me.Vector2d(0.5, 0.5);
+        settings.name = "Chibi fairy lamp: special";
+
+        settings.shapes = [new me.Ellipse(0, 0, 64, 64)];
+        settings.useRotation = true;
+        settings.scale = new me.Vector2d(2, 2);
+
+        this._super(game.Spell.Projectile, 'init', [x, y, source, undefined, settings, false]);
+
+        // this.setScale(2, 2);
+
+        this.power = settings.power || 10;
+
+        this.timer = 600;
+        this.count = 2;
+    },
+
+    updateSpell: function(dt) 
+    {
+        this.timer -= dt;
+        if(this.timer <= 0)
+        {
+            this.count --;
+            this.timer = 600;
+        }
+
+        if(this.count == 0)
+        {
+            this.destroy();
+        }
+
+        this.renderable.setOpacity(Math.min(600, (this.count - 1) * 600 + this.timer) / 600);
+    },
+
+    onCollision: function(response, other)
+    {
+        if(other.body.collisionType === me.collision.types.WORLD_SHAPE)
+        {
+            // ignore it
+            return false;
+        }
+        // It is my target! (player or enemy)
+        else
+        {
+            // heal it if we are in timer
+            if(this.timer > 590)
+            {
+                other.receiveHeal({
+                    source: this.source, 
+                    heal: this.power,
+                    isCrit: false,
+                    spell: this,
+                });
+            }
+            return false;
+        }
+    },
+})

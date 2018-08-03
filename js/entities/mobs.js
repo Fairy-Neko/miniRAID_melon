@@ -674,13 +674,13 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 {
     init: function(x, y, settings)
     {
-        settings.health = 12000;
+        settings.health = 200;
 
         settings.weaponLeft = new game.Weapon.TestHomingStaff
         ({
             baseAttackSpeed: game.helper.getRandomFloat(0.3, 0.5),
             activeRange: game.helper.getRandomInt(30, 60),
-            power: 30,
+            power: 5,
             targetCount: 1,
         });
 
@@ -718,13 +718,13 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
 {
     init: function(x, y, settings)
     {
-        settings.health = 160000;
+        settings.health = 1600;
 
         settings.weaponLeft = new game.Weapon.TestBossStaff
         ({
             baseAttackSpeed: game.helper.getRandomFloat(2, 3),
             activeRange: game.helper.getRandomInt(100, 500),
-            power: 600,
+            power: 60,
             targetCount: 1,
         });
 
