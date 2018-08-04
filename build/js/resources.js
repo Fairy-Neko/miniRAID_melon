@@ -25,6 +25,11 @@ game.resources = [
         "src": "data/img/crystalcoin2.png"
     },
     {
+        "name": "crystalcoin3",
+        "type": "image",
+        "src": "data/img/crystalcoin3.png"
+    },
+    {
         "name": "fatthing",
         "type": "image",
         "src": "data/img/fatthing.png"
@@ -63,6 +68,11 @@ game.resources = [
         "name": "heal_fx",
         "type": "image",
         "src": "data/img/heal_fx.png"
+    },
+    {
+        "name": "iced_fx",
+        "type": "image",
+        "src": "data/img/iced_fx.png"
     },
     {
         "name": "healButton",

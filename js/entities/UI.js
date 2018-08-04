@@ -361,6 +361,10 @@ game.UI.raidFrame = me.Renderable.extend
                     var xAdd = 0;
                     var yAdd = 0;
 
+                    //Buff color
+                    var localcolor = new me.Color();
+                    localcolor.parseHex(buff.color);
+                    
                     if(Math.floor(buffNum / this.buffsPerRow) == 0)
                     {
                         yAdd = 1;
@@ -372,7 +376,7 @@ game.UI.raidFrame = me.Renderable.extend
                     }
 
                     // Outline rect
-                    context.setColor('#22AAEE');
+                    context.setColor(localcolor.darken(0.7));
                     context.fillRect(
                         this.pos.x + this.outlinedGridWidth * i + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 1, 
                         this.pos.y - this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) - this.outlinedIconSize - 1, 
@@ -380,7 +384,7 @@ game.UI.raidFrame = me.Renderable.extend
                         this.outlinedIconSize + yAdd);
 
                     // Background filling rect
-                    context.setColor('#AACDEF');
+                    context.setColor(localcolor.lighten(0.2));
                     context.fillRect(
                         this.pos.x + this.outlinedGridWidth * i + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
                         this.pos.y - this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow) + 1), 
@@ -388,7 +392,7 @@ game.UI.raidFrame = me.Renderable.extend
                         this.buffIconSize);
 
                     // Timer rect
-                    context.setColor('#56CDEF');
+                    context.setColor(localcolor.lighten(0.2));
                     context.fillRect(
                         this.pos.x + this.outlinedGridWidth * i + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
                         this.pos.y - this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow) + 1), 
@@ -540,19 +544,25 @@ game.UI.slot = me.GUI_Object.extend(
         // TODO: add a parent in player data ...? (be careful for loop reference and GC)
         // this.playerData = game.data.backend.getPlayerList()[this.id];
 
-        this.player.data.currentHealth = this.player.data.maxHealth;
-        this.player.data.currentMana = this.player.data.maxMana;
+        if(this.player.data.alive){
+            this.player.data.currentHealth = this.player.data.maxHealth;
+            this.player.data.currentMana = this.player.data.maxMana;
 
-        this.player.data.healPriority = !this.player.data.healPriority;
-        
-        // TODO: should the source of a raid skill be a global mob?
+            this.player.data.healPriority = !this.player.data.healPriority;
+            
+            // TODO: should the source of a raid skill be a global mob!
 
-        // a raid skill source should be one of the player characters.
-        // e.g. bloodlust's target is shamans etc. (no shaman though)
-        // When user adding skills to global raid skill slots, 
-        // they add them from each character, so we know the actual source.
+            // a raid skill source should be one of the player characters.
+            // e.g. bloodlust's target is shamans etc. (no shaman though)
+            // When user adding skills to global raid skill slots, 
+            // they add them from each character, so we know the actual source.
 
-        this.player.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 15.0}), popUp: true});
+            this.player.receiveBuff({
+                source: this.player, 
+                buff: new game.Buff.Bloodlust({time: 15.0}), 
+                popUp: true
+            });
+        }
         return false;
     }
 });
