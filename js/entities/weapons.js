@@ -9,17 +9,31 @@ game.Weapon.base = game.Equipable.extend
         // Weapon gauge full = special attack !
         this.weaponGauge = 0;
         this.weaponGaugeMax = 100;
+        this.weaponGaugeIncreasement = function(mob, target){ return 1; };
 
         this.activeRange = settings.activeRange || 200;
         this.targetCount = settings.targetCount || 1;
 
         this.manaCost = settings.manaCost || 1;
         this.manaRegen = settings.manaRegen || 10;
+
+        this.weaponType = game.data.weaponType.staff;
+        this.weaponSubType = game.data.weaponType.common;
+        this.level = 1;
     },
 
-    onAttack: function(mob, target) {},
+    attack: function(mob, target) 
+    {
+        this.weaponGauge += this.weaponGaugeIncreasement(mob, target);
+        
+        if(this.weaponGauge > this.weaponGaugeMax)
+        {
+            this.weaponGauge -= this.weaponGaugeMax;
+            this.specialAttack(mob, target);
+        }
+    },
 
-    onSpecialAttack: function(mob, target) {},
+    specialAttack: function(mob, target) {},
 
     // Can mob equip this weapon ?
     isEquipable: function(mob)
@@ -155,6 +169,7 @@ game.Weapon.TestHomingStaff = game.Weapon.base.extend
         else
         {
             settings.isTargetEnemy = true;
+            // settings.image = "vioBullet";
             settings.image = "crystalcoin2";
         }
 
@@ -244,11 +259,78 @@ game.Weapon.TestHealStaff = game.Weapon.base.extend
             sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
             isPlayer: mob.data.isPlayer,
         });
-        if(result[0].data.currentHealth === result[0].data.maxHealth)
+
+        if(result.length > 0)
         {
-            return undefined;
+            if(result[0].data.currentHealth === result[0].data.maxHealth)
+            {
+                return undefined;
+            }
+            return result.slice(0, Math.min(result.length, this.targetCount));
         }
-        return result.slice(0, Math.min(result.length, this.targetCount));
+        return [];
+    },
+});
+
+game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
+({
+    init: function(settings)
+    {
+        this._super(game.Weapon.base, 'init', [settings]);
+        this.name = "Chibi fairy lamp";
+
+        this.minPower = settings.minPower || 3;
+        this.maxPower = settings.maxPower || 5;
+        this.targetCount = settings.targetCount || 3;
+
+        // Stat requirements
+        this.statRequirements = { mag: 5 };
+
+        // Weapon stats
+        this.weaponGaugeMax = 20;
+        this.weaponGaugeIncreasement = function(mob) { return mob.data.baseStats.mag; }
+
+        if(me.pool.exists("chibiFairyLampBullet") === false)
+        {
+            me.pool.register("chibiFairyLampBullet", game.Spell.ChibiFairyLamp, true);
+        }
+        if(me.pool.exists("chibiFairyLampSpecial") === false)
+        {
+            me.pool.register("chibiFairyLampSpecial", game.Spell.ChibiFairyLampSpecial, true);
+        }
+    },
+
+    attack: function(mob, target)
+    {
+        this._super(game.Weapon.base, 'attack', [mob, target]);
+
+        var settings = {};
+        settings.isTargetPlayer = target.data.isPlayer;
+        settings.isTargetEnemy = !target.data.isPlayer;
+
+        settings.initAngle = game.helper.getRandomFloat(0, 6.28319);
+
+        settings.power = game.helper.getRandomInt(this.minPower, this.maxPower + 1);
+
+        me.game.world.addChild(me.pool.pull("chibiFairyLampBullet", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+    },
+
+    specialAttack: function(mob, target)
+    {
+        // AoE healing
+        // Use single healing for test
+        var settings = {};
+        settings.isTargetPlayer = mob.data.isPlayer;
+        settings.isTargetEnemy = !mob.data.isPlayer;
+
+        settings.power = game.helper.getRandomInt(this.minPower, this.maxPower + 1);
+        // healing
+        me.game.world.addChild(me.pool.pull("chibiFairyLampSpecial", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, settings));
+      },
+
+    grabTargets: function(mob)
+    {
+        return result = game.units.getNearest(mob.getRenderPos(0.5, 0.5), isPlayer = !mob.data.isPlayer, count = this.targetCount);
     },
 });
 
@@ -257,6 +339,7 @@ game.Weapon.DPSHomingStaff = game.Weapon.base.extend
     init: function(settings)
     {
         this._super(game.Weapon.base, 'init', [settings]);
+
         this.name = "dps test staff";
 
         this.power = settings.power || 3;
