@@ -169,6 +169,12 @@ game.dataBackend.Mob = me.Object.extend
         // buffs are actually plain mob listeners
         // maybe they have something different (x)
         this.buffList = new Set();
+
+        // spell list, only for spells with cooldowns.
+        this.spells = {};
+
+        // Which class should be used when realize this mob ?
+        this.mobPrototype = settings.mobPrototype || game.Mobs.TestMob;
     },
 
     getPercentage: function(parameter)
@@ -201,9 +207,19 @@ game.dataBackend.Mob = me.Object.extend
             }
         }
 
-        //calculate Stats
+        // calculate Stats
+        // TODO: seperate calculation to 2 phase, base and battle stats.
         this.calcStats();
         this.updateListeners('onStatCalculation', [mob]);
+
+        // update spells
+        for (let spell in this.spells)
+        {
+            if(this.spells.hasOwnProperty(spell))
+            {
+                this.spells[spell].update(mob, dt);
+            }
+        }
     },
 
     // Function used to tell buffs and agents what was going on
@@ -433,12 +449,83 @@ game.dataBackend.Mob = me.Object.extend
         return healInfo.heal;
     },
 
+    canCastSpell: function()
+    {
+        return true;
+    },
+
+    useMana: function(mana)
+    {
+        if(this.currentMana >= mana)
+        {
+            this.currentMana -= mana;
+            return true;
+        }
+        return false;
+    },
+
     die: function({
         source = undefined, 
         damage = {},
     } = {})
     {
         this.beingAttack = 0;
+    },
+});
+
+/**
+ * Data backend for spells.
+ * This is different from game.Spell, this is only for spells could cast by mob (& player).
+ * And this is the data "backend" for spells, they don't have any renderable and physics body.
+ * When used, they create a game.Spell in the game world, and reset cooldown time etc.
+ */
+game.dataBackend.Spell = game.dataBackend.Spell || {};
+
+game.dataBackend.Spell.base = me.Object.extend
+({
+    init: function(settings)
+    {
+        // CD (sec)
+        this.coolDown = settings.coolDown || 10.0;
+        this.manaCost = settings.manaCost || 0;
+
+        // Available when init
+        this.coolDownRemain = 0;
+
+        // priority should be calculated on the fly
+        this.priority = 0;
+        this.available = true;
+
+        // TODO: casting time?
+    },
+
+    update: function(mob, dt)
+    {
+        if(this.coolDownRemain >= 0)
+        {
+            this.coolDownRemain -= dt * 0.001;
+        }
+
+        this.available = this.isAvailable(mob);
+    },
+
+    cast: function(mob, target)
+    {
+        if(this.available && mob.data.canCastSpell() && mob.data.useMana(this.getManaCost(mob)))
+        {
+            this.coolDownRemain = this.coolDown;
+            this.onCast(mob, target);
+        }
+    },
+
+    isAvailable: function(mob)
+    {
+        return (this.coolDownRemain <= 0);
+    },
+
+    getManaCost: function(mob)
+    {
+        return this.manaCost;
     },
 });
 

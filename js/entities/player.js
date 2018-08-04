@@ -275,31 +275,31 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
         return true;
     },
 
-    onDealDamage: function(damageInfo)
-    {
-        if(damageInfo.isCrit && damageInfo.isCrit === true)
-        {
-            // for fun
-            damageInfo.source.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 1.0}), popUp: true});
-            damageInfo.source.data.maxMana += 20;
-            damageInfo.source.data.currentMana += 20;
-            damageInfo.source.data.maxHealth += 50;
-            damageInfo.source.data.currentHealth += 50;
-        }
-    },
+    // onDealDamage: function(damageInfo)
+    // {
+    //     if(damageInfo.isCrit && damageInfo.isCrit === true)
+    //     {
+    //         // for fun
+    //         damageInfo.source.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 1.0}), popUp: true});
+    //         // damageInfo.source.data.maxMana += 20;
+    //         // damageInfo.source.data.currentMana += 20;
+    //         // damageInfo.source.data.maxHealth += 50;
+    //         // damageInfo.source.data.currentHealth += 50;
+    //     }
+    // },
 
-    onDealHeal: function(healInfo)
-    {
-        if(healInfo.isCrit && healInfo.isCrit === true)
-        {
-            // for fun
-            healInfo.source.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 2.0}), popUp: true});
-            healInfo.source.data.maxMana += 30;
-            healInfo.source.data.currentMana += 30;
-            healInfo.source.data.maxHealth += 50;
-            healInfo.source.data.currentHealth += 50;
-        }
-    },
+    // onDealHeal: function(healInfo)
+    // {
+    //     if(healInfo.isCrit && healInfo.isCrit === true)
+    //     {
+    //         // for fun
+    //         healInfo.source.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 2.0}), popUp: true});
+    //         // healInfo.source.data.maxMana += 30;
+    //         // healInfo.source.data.currentMana += 30;
+    //         // healInfo.source.data.maxHealth += 50;
+    //         // healInfo.source.data.currentHealth += 50;
+    //     }
+    // },
 });
 
 game.PlayerMobs.Witch = game.PlayerMobs.base.extend

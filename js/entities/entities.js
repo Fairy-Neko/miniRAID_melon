@@ -15,8 +15,8 @@ game.playerSpawnPoint = me.Entity.extend
             var spawnPos = this.origin.clone().add(new me.Vector2d(game.data.playerSparse, 0).rotate(i / this.spawnCount * 2 * Math.PI));
             settings.backendData = game.data.backend.getPlayerList()[i];
             settings.isPlayer = true;
-            settings.image = game.data.backend.getPlayerList()[i].image;
-            me.game.world.addChild(new game.PlayerMobs.test(spawnPos.x, spawnPos.y, settings), settings.z);
+            settings.image = settings.backendData.image;
+            me.game.world.addChild(new settings.backendData.mobPrototype(spawnPos.x, spawnPos.y, settings), settings.z);
         }
     },
 
