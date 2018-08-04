@@ -390,7 +390,7 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
         }
         if(typeof other.receiveBuff !== "undefined")
         {
-            if(this.power > 300){
+            if(this.power > 30){
                 other.receiveBuff({
                     source: this.source,
                     buff: new game.Buff.IceSpikeDebuff({time: 0.75}),

@@ -673,7 +673,7 @@ game.Mobs.base = game.Moveable.extend(
                         game.UI.popupMgr.addText({
                             text: "+" + healInfo.heal.real.toString(),
                             time: 0.75,
-                            color: game.data.healColor,
+                            color: game.data.damageColor.heal,
                             posX: popUpPos.x + 30,
                             posY: popUpPos.y + 10,
                             velX: 256,
