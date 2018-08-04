@@ -277,7 +277,6 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
     init: function(settings)
     {
         this._super(game.Weapon.base, 'init', [settings]);
-      <<<<<<< betairya-dev
         this.name = "Chibi fairy lamp";
 
         this.minPower = settings.minPower || 3;

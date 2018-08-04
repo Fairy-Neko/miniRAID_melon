@@ -84,7 +84,7 @@ game.Buff.IceSlowed = game.Buff.base.extend
     {
         settings.name = settings.name || "Ice slowed";
         settings.popupName = settings.popupName || "SLOWED!";
-        settings.color = settings.color || "#91bbff";
+        settings.color = settings.color || "#0066FF";
         settings.iconId = settings.iconId || 1;
 
         this._super(game.Buff.base, 'init', [settings]);

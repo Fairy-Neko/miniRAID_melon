@@ -70,11 +70,6 @@ game.resources = [
         "src": "data/img/heal_fx.png"
     },
     {
-        "name": "iced_fx",
-        "type": "image",
-        "src": "data/img/iced_fx.png"
-    },
-    {
         "name": "healButton",
         "type": "image",
         "src": "data/img/healButton.png"
@@ -108,6 +103,11 @@ game.resources = [
         "name": "Hit_64x64px",
         "type": "image",
         "src": "data/img/Hit_64x64px.png"
+    },
+    {
+        "name": "iced_fx",
+        "type": "image",
+        "src": "data/img/iced_fx.png"
     },
     {
         "name": "Magic_Hit_32x32px",
