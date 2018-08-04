@@ -146,8 +146,20 @@ game.Spell.dummy = me.Object.extend
     {
         this.name = settings.name;
         this.source = settings.source;
+        this.flags = settings.flags;
     }
 });
+
+/**
+ * Spell flags:
+ * 
+ * isDamage
+ * isHeal
+ * hasTarget
+ * areaEffect
+ * overTime (DOT / HOT)
+ * 
+ */
 
 game.Spell.base = game.Moveable.extend
 ({
@@ -160,6 +172,8 @@ game.Spell.base = game.Moveable.extend
 
         this.source = source;
         this.target = target;
+
+        this.flags = {};
 
         this.useCollider = useCollider;
 
@@ -498,6 +512,9 @@ game.Spell.ChibiFairyLamp = game.Spell.Projectile.extend
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
 
+        this.flags.isDamage = true;
+        this.flags.hasTarget = true;
+
         this.power = settings.power || 3;
 
         this.speed = settings.projectileSpeed || 400;
@@ -554,6 +571,10 @@ game.Spell.ChibiFairyLampSpecial = game.Spell.Projectile.extend
         settings.scale = new me.Vector2d(2, 2);
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, undefined, settings, false]);
+
+        this.flags.isHeal = true;
+        this.flags.areaEffect = true;
+        this.flags.overTime = true;
 
         // this.setScale(2, 2);
 

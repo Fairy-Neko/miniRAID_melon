@@ -275,112 +275,34 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
         return true;
     },
 
-    onDealDamage: function(damageInfo)
-    {
-        if(damageInfo.isCrit && damageInfo.isCrit === true)
-        {
-            // for fun
-            damageInfo.source.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 1.0}), popUp: true});
-            // damageInfo.source.data.maxMana += 20;
-            // damageInfo.source.data.currentMana += 20;
-            // damageInfo.source.data.maxHealth += 50;
-            // damageInfo.source.data.currentHealth += 50;
-        }
-    },
+    // onDealDamage: function(damageInfo)
+    // {
+    //     if(damageInfo.isCrit && damageInfo.isCrit === true)
+    //     {
+    //         // for fun
+    //         damageInfo.source.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 1.0}), popUp: true});
+    //         // damageInfo.source.data.maxMana += 20;
+    //         // damageInfo.source.data.currentMana += 20;
+    //         // damageInfo.source.data.maxHealth += 50;
+    //         // damageInfo.source.data.currentHealth += 50;
+    //     }
+    // },
 
-    onDealHeal: function(healInfo)
-    {
-        if(healInfo.isCrit && healInfo.isCrit === true)
-        {
-            // for fun
-            healInfo.source.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 2.0}), popUp: true});
-            // healInfo.source.data.maxMana += 30;
-            // healInfo.source.data.currentMana += 30;
-            // healInfo.source.data.maxHealth += 50;
-            // healInfo.source.data.currentHealth += 50;
-        }
-    },
+    // onDealHeal: function(healInfo)
+    // {
+    //     if(healInfo.isCrit && healInfo.isCrit === true)
+    //     {
+    //         // for fun
+    //         healInfo.source.receiveBuff({source: this.player, buff: new game.Buff.Bloodlust({time: 2.0}), popUp: true});
+    //         // healInfo.source.data.maxMana += 30;
+    //         // healInfo.source.data.currentMana += 30;
+    //         // healInfo.source.data.maxHealth += 50;
+    //         // healInfo.source.data.currentHealth += 50;
+    //     }
+    // },
 });
 
 game.PlayerMobs.Witch = game.PlayerMobs.base.extend
 ({
 
-});
-
-game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
-({
-    init: function(x, y, settings)
-    {
-        settings.image = "FloraFairy";
-        settings.width = 256;
-        settings.height = 256;
-        settings.framewidth = 32;
-        settings.frameheight = 32;
-
-        settings.name = "Flora_Fairy";
-
-        settings.shapes = [new me.Rect(0, 0, 20, 20)];
-
-        this._super(game.PlayerMobs.base, 'init', [x, y, settings]);
-
-        this.setColliderRelativePos(0, 6);
-        this.autoTransform = true;
-
-        this.renderable.anchorPoint.set(0.5, 0.5);
-        
-        //Animations
-        this.renderable.addAnimation("idle", [0, 1, 2, 3, 4]);
-        this.renderable.addAnimation("move", [0, 1, 2, 3, 4]);
-
-        this.renderable.setCurrentAnimation("idle");
-
-        this.targetPos = this.getRenderPos(0.5, 0.8).clone();
-
-        this.isMoving = false;
-    },
-
-    updatePlayer: function(dt)
-    {
-        return true;
-    },
-
-    onCollision: function(response, other)
-    {
-        if(other.body.collisionType !== me.collision.types.WORLD_SHAPE)
-        {
-            return false;
-        }
-        return true;
-    },
-
-    onDealDamageFinal(damageInfo)
-    {
-        var healAmount = 0;
-
-        for(dmgType in damageInfo.damage)
-        {
-            healAmount += Math.floor(damageInfo.damage[dmgType] * 0.4);
-            damageInfo.damage[dmgType] -= healAmount;
-        }
-
-        // grab targets
-        var healList = game.units.getUnitList({
-            availableTest: function(a)
-            {
-                return (a.getRenderPos(0.5, 0.5).distance(damageInfo.target.getRenderPos(0.5, 0.5)) < 128);
-            },
-            isPlayer: !damageInfo.target.data.isPlayer,
-        });
-
-        for(i = 0; i < healList.length; i++)
-        {
-            healList[i].receiveHeal({
-                source: damageInfo.source,
-                heal: Math.ceil(healAmount / healList.length),
-                spell: new game.Spell.dummy({source: damageInfo.source, name: "Flora fairy: energy pass"}),
-            });
-        }
-
-        return true;
-    },
 });
