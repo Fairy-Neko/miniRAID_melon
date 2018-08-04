@@ -50,7 +50,7 @@ game.Mobs.UnitManager = me.Object.extend
                 if(game.Mobs.checkAlive(player))
                 {
                     var pt = player.getRenderPos(0.5, 0.5).clone();
-                    var frame = game.UI.unitFrameSlots.slots[playerCount++];
+                    var frame = game.UI.unitFrameSlots.slots[playerCount];
 
                     if(this.selectingRect.containsPoint(pt.x - minX, pt.y - minY))
                     {
@@ -64,6 +64,7 @@ game.Mobs.UnitManager = me.Object.extend
                         player.data.inControl = false;
                     }
                 }
+                playerCount++;
             }
         }
         else
@@ -542,6 +543,29 @@ game.Mobs.base = game.Moveable.extend(
                     posX: popUpPos.x,
                     posY: popUpPos.y,
                 });
+                
+                // popUp texts on unit frames
+                // fade from the edge of currentHealth to the left
+                if(this.data.isPlayer){
+                    for(var i = 0; i < game.units.getPlayerListWithDead().length; i++)
+                    {
+                        if(this === game.units.getPlayerListWithDead()[i])
+                        {
+                            popUpPos = game.UI.unitFrameSlots.slots[i].pos;
+                            game.UI.popupMgr.addText({
+                                text: "-" + finalDmg[dmgType].toString(),
+                                time: 0.75,
+                                color: game.data.damageColor[dmgType],
+                                posX: popUpPos.x + 126 * (this.data.currentHealth / this.data.maxHealth),
+                                posY: popUpPos.y - 10,
+                                velX: -256,
+                                velY: 0.0,
+                                accX: 384,
+                                accY: 0.0,
+                            });
+                        }
+                    }
+                }
             }
         }
 
@@ -573,7 +597,7 @@ game.Mobs.base = game.Moveable.extend(
         })
 
         // Show popUp text with overhealing hint
-        if(popUp == true && finalHeal.toal > 0)
+        if(popUp == true && finalHeal.total > 0)
         {
             var popUpPos = this.getRenderPos(0.5, 0.0);
             if(finalHeal.over > 0)
@@ -595,6 +619,28 @@ game.Mobs.base = game.Moveable.extend(
                     posX: popUpPos.x,
                     posY: popUpPos.y,
                 });
+            }
+            // popUp texts on unit frames
+            // fade from left to the the edge of currentHealth
+            if(this.data.isPlayer && finalHeal.real > 0){
+                for(var i = 0; i < game.units.getPlayerListWithDead().length; i++)
+                {
+                    if(this === game.units.getPlayerListWithDead()[i])
+                    {
+                        popUpPos = game.UI.unitFrameSlots.slots[i].pos;
+                        game.UI.popupMgr.addText({
+                            text: "+" + finalHeal.real.toString(),
+                            time: 0.75,
+                            color: game.data.healColor,
+                            posX: popUpPos.x + 30,
+                            posY: popUpPos.y + 10,
+                            velX: 256,
+                            velY: 0.0,
+                            accX: -384,
+                            accY: 0.0,
+                        });
+                    }
+                }
             }
         }
     },
