@@ -577,7 +577,8 @@ game.Mobs.base = game.Moveable.extend(
                 
                 // popUp texts on unit frames
                 // fade from the edge of currentHealth to the left
-                if(this.data.isPlayer){
+                if(this.data.isPlayer)
+                {
                     for(var i = 0; i < game.units.getPlayerListWithDead().length; i++)
                     {
                         if(this === game.units.getPlayerListWithDead()[i])
@@ -587,7 +588,7 @@ game.Mobs.base = game.Moveable.extend(
                                 text: "-" + damageInfo.damage[dmgType].toString(),
                                 time: 0.75,
                                 color: game.data.damageColor[dmgType],
-                                posX: popUpPos.x + 126 * (this.data.currentHealth / this.data.maxHealth),
+                                posX: popUpPos.x + 126,// * (this.data.currentHealth / this.data.maxHealth), // Maybe this is better ? (or cannot see if sudden death)
                                 posY: popUpPos.y - 10,
                                 velX: -256,
                                 velY: 0.0,
@@ -639,7 +640,6 @@ game.Mobs.base = game.Moveable.extend(
 
         // Show popUp text with overhealing hint
         if(healInfo.popUp == true && healInfo.heal.total > 0)
-
         {
             var popUpPos = this.getRenderPos(0.5, 0.0);
             if(healInfo.heal.over > 0)

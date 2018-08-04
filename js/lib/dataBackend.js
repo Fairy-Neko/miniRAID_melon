@@ -427,7 +427,7 @@ game.dataBackend.Mob = me.Object.extend
 
         // Do the calculation
         // _finalHeal: total amount of healing (real + over)
-        healInfo.heal.total = Math.ceil(healInfo.heal.real * 1.0 * game.data.critMultiplier.heal); // Maybe something like heal resist etc.
+        healInfo.heal.total = Math.ceil(healInfo.heal.real * 1.0 * ( healInfo.isCrit ? game.data.critMultiplier.heal : 1.0 )); // Maybe something like heal resist etc.
 
         // calculate overHealing using current HP and max HP.
         healInfo.heal.real = Math.min(healInfo.target.data.maxHealth - healInfo.target.data.currentHealth, healInfo.heal.total);
