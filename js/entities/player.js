@@ -218,6 +218,18 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
                 }
             }
         }
+
+        // Use any spells available
+        for(let spell in player.data.spells)
+        {
+            if(player.data.spells.hasOwnProperty(spell))
+            {
+                if(player.data.spells[spell].available)
+                {
+                    player.data.spells[spell].cast(player);
+                }
+            }
+        }
     },
 
     setTargetPos(player, position, dt)

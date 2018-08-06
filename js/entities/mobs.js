@@ -497,6 +497,12 @@ game.Mobs.base = game.Moveable.extend(
 
         if(buff != undefined)
         {
+            // Set source if not
+            if(typeof buff.source === "undefined")
+            {
+                buff.source = source;
+            }
+
             // Call backend to add the buff.
             // Actually, for the backend, a buff is same as a plain listener (this.data.addListener(listener)).
             this.data.addBuff(buff);
@@ -725,6 +731,7 @@ game.Mobs.TestMob = game.Mobs.base.extend(
 
         settings.weaponLeft = new game.Weapon.TestHomingStaff
         ({
+            // baseAttackSpeed: game.helper.getRandomFloat(0.15, 0.2),
             baseAttackSpeed: game.helper.getRandomFloat(0.3, 0.5),
             activeRange: game.helper.getRandomInt(30, 60),
             power: 5,
@@ -945,8 +952,11 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         // But we need update the list though
         for(var tmpTargetMob of this.focusList)
         {
+            // Taunt reduces over time
+            this.tauntList[tmpTargetMob.data.ID].taunt *= 0.99;
+
             // Remove the mob if it is dead or it has no taunt
-            if(!game.Mobs.checkAlive(tmpTargetMob) || this.tauntList[tmpTargetMob.data.ID].taunt <= 0)
+            if(!game.Mobs.checkAlive(tmpTargetMob) || this.tauntList[tmpTargetMob.data.ID].taunt <= 1 /*a small enough value*/ )
             {
                 this.focusList.delete(tmpTargetMob);
                 delete this.tauntList[tmpTargetMob.data.ID];

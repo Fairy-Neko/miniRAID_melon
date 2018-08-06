@@ -287,7 +287,7 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
         this.statRequirements = { mag: 5 };
 
         // Weapon stats
-        this.weaponGaugeMax = 20;
+        this.weaponGaugeMax = 50;
         this.weaponGaugeIncreasement = function(mob) { return mob.data.baseStats.mag; }
 
         if(me.pool.exists("chibiFairyLampBullet") === false)

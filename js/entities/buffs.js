@@ -41,8 +41,7 @@ game.Buff.base = game.MobListener.extend
         this.popupColor = settings.popupColor || this.color;
 
         //Where does this buff come from?
-        //This should be changed in receiveBuff() of mobs
-        this.source = undefined;
+        this.source = settings.source || undefined;
     },
 
     // make a popUp
@@ -217,6 +216,7 @@ game.Buff.IceSpikeDebuff = game.Buff.base.extend
         settings.iconId = 4;
         settings.color = settings.color || '#AA55FF';
         settings.popUp = settings.popUp || false;
+        settings.popupName = "ICE !!";
 
         this._super(game.Buff.base, 'init', [settings]);
         
@@ -235,6 +235,53 @@ game.Buff.IceSpikeDebuff = game.Buff.base.extend
         if('modifiers' in mob.data)
         {
             mob.data.modifiers.speed = 0.01 * mob.data.modifiers.speed;
+        }
+    },
+});
+
+game.Buff.LifeRegen = game.Buff.base.extend
+({
+    init: function(settings)
+    {
+        settings.name = settings.name || "Rejuvenation"; // for fun
+        settings.time = settings.time || 12.0;
+        settings.stacks = settings.stacks || 1;
+        settings.color = settings.color || "#71ff42";
+        settings.popUp = settings.popUp || false;
+        settings.popupName = "SEED"
+
+        this._super(game.Buff.base, 'init', [settings]);
+
+        this.healPower = Math.ceil(settings.healTotal / (settings.time / settings.healGap)) || 3;
+        this.healGap = settings.healGap || 1.2;
+        
+        this.timer = 0.0;
+        this.healCount = 0;
+
+        this.spellDummy = new game.Spell.dummy({
+            source: this.source,
+            name: "Seed of life",
+            flags: {
+                isHeal: true,
+                hasTarget: true,
+                overTime: true,
+            }
+        });
+    },
+
+    onUpdate: function(mob, deltaTime)
+    {
+        this._super(game.Buff.base, 'onUpdate', [mob, deltaTime]);
+
+        this.timer += deltaTime * 0.001;
+
+        for(;this.healCount < Math.floor(this.timer / this.healGap); this.healCount++)
+        {
+            mob.receiveHeal({
+                source: this.source,
+                heal: this.healPower,
+                spell: this.spellDummy,
+            });
         }
     },
 });

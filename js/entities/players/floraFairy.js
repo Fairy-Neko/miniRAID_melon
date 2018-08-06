@@ -39,13 +39,13 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
         // TODO: cast ranges
 
         // use flora heal if ready
-        if(this.data.spells.floraHeal.available)
-        {
-            this.data.spells.floraHeal.cast(this, game.units.getUnitList({
-                sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
-                isPlayer: this.data.isPlayer,
-            })[0]);
-        }
+        // if(this.data.spells.floraHeal.available)
+        // {
+        //     this.data.spells.floraHeal.cast(this, game.units.getUnitList({
+        //         sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
+        //         isPlayer: this.data.isPlayer,
+        //     })[0]);
+        // }
 
         return true;
     },
@@ -74,6 +74,7 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
 
         // grab targets
         var healList = game.units.getUnitList({
+            sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
             availableTest: function(a)
             {
                 return (a.getRenderPos(0.5, 0.5).distance(damageInfo.target.getRenderPos(0.5, 0.5)) < 128);
@@ -92,9 +93,17 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
 
         for(i = 0; i < healList.length; i++)
         {
+            if(healAmount <= 0)
+            {
+                return true;
+            }
+
+            var targetHealAmount = Math.min(healList[i].data.maxHealth - healList[i].data.currentHealth, healAmount)
+            healAmount -= targetHealAmount;
+
             healList[i].receiveHeal({
                 source: damageInfo.source,
-                heal: Math.ceil(healAmount / healList.length),
+                heal: targetHealAmount,
                 spell: spellDummy,
             });
         }
@@ -111,9 +120,18 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
         // and is not a HOT effect.
         if(healInfo.spell.flags.hasTarget && !healInfo.spell.flags.overTime)
         {
-            var healAmount = healInfo.heal.total;
+            var healAmount = Math.ceil(healInfo.heal.total * 0.3);
 
             // TODO: add a HOT effect to target
+            healInfo.target.receiveBuff({
+                source: this,
+                buff: new game.Buff.LifeRegen({
+                    time: 6.0,
+                    healTotal: healAmount,
+                    healGap: 1.0,
+                }),
+                popUp: true,
+            })
         }
     }
 });
@@ -130,6 +148,15 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
 
     onCast: function(mob, target)
     {
+        // For test: automatically grabs target
+        if(typeof target === "undefined")
+        {
+            target = game.units.getUnitList({
+                sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
+                isPlayer: mob.data.isPlayer,
+            })[0];
+        }
+
         // Generate a spell dummy
         var spellDummy = new game.Spell.dummy({
             source: mob, 
@@ -143,7 +170,7 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
         // Heals the target
         target.receiveHeal({
             source: mob,
-            heal: Math.ceil(30 * game.helper.getRandomFloat(0.8, 1.2)),
+            heal: Math.ceil(20 * game.helper.getRandomFloat(0.8, 1.2)),
             spell: spellDummy,
         });
     },

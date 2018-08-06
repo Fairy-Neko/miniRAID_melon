@@ -105,7 +105,9 @@ game.dataBackend.Mob = me.Object.extend
                 nature: 0,
                 wind: 0,
                 thunder: 0,
-                light: 0
+                light: 0,
+
+                heal: 0,
             },
 
             attackPower: {
@@ -119,10 +121,12 @@ game.dataBackend.Mob = me.Object.extend
                 fire: 0,
                 ice: 0,
                 water: 0,
-                nature: 0,
+                nature: 25, 
                 wind: 0,
                 thunder: 0,
-                light: 0
+                light: 0,
+
+                heal: 0, 
             },
 
             // Write a helper to get hit / avoid / crit percentage from current level and parameters ?
@@ -251,6 +255,7 @@ game.dataBackend.Mob = me.Object.extend
         for(let localBuff of this.buffList)
         {
             // no more unlimited bloodlust!
+            // maybe we should add stacks here
             if(localBuff.name === buff.name && localBuff.source === buff.source){
                 localBuff.timeRemain = buff.timeMax;
                 return;
@@ -269,12 +274,9 @@ game.dataBackend.Mob = me.Object.extend
         }
     },
 
-    addListener: function(listener, source = undefined)
+    addListener: function(listener)
     {
         this.listeners.add(listener);
-
-        // Set source and belongings
-        listener.source = source;
 
         if(listener.isBuff)
         {
@@ -427,7 +429,30 @@ game.dataBackend.Mob = me.Object.extend
 
         // Do the calculation
         // _finalHeal: total amount of healing (real + over)
-        healInfo.heal.total = Math.ceil(healInfo.heal.real * 1.0 * ( healInfo.isCrit ? game.data.critMultiplier.heal : 1.0 )); // Maybe something like heal resist etc.
+        healInfo.heal.total = healInfo.heal.real;
+
+        if(healInfo.source)
+        {
+            healInfo.heal.total = Math.ceil(
+                healInfo.heal.total * 
+                (Math.pow(
+                    1.0353,
+                    healInfo.source.data.battleStats.attackPower.heal)));
+        }
+
+        // damage% = 0.9659 ^ resist
+        // This is, every 1 point of resist reduces corresponding damage by 3.41%, 
+        // which will reach 50% damage reducement at 20 points.
+        healInfo.heal.total = Math.ceil(
+            healInfo.heal.total * 
+            (Math.pow(
+                0.9659,
+                this.battleStats.resist.heal)));
+        
+        healInfo.heal.total = Math.ceil(
+            healInfo.heal.total 
+            * ( healInfo.isCrit ? game.data.critMultiplier.heal : 1.0 )
+        );
 
         // calculate overHealing using current HP and max HP.
         healInfo.heal.real = Math.min(healInfo.target.data.maxHealth - healInfo.target.data.currentHealth, healInfo.heal.total);

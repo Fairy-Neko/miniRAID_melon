@@ -378,11 +378,15 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
     {
         if(typeof other.receiveDamage !== "undefined")
         {
+            // for fun !
+            // random type damage (comment out, no more fun)
+            var dmg = {};
+            // dmg[game.data.damageTypeArray[game.helper.getRandomInt(0, game.data.damageTypeArray.length)]] = game.helper.getRandomInt(this.power * 0.5, this.power * 1.5);
+            dmg.ice = game.helper.getRandomInt(this.power * 0.5, this.power * 1.5);
+
             other.receiveDamage({
                 source: this.source,
-                damage: {
-                    ice: game.helper.getRandomInt(this.power * 0.5, this.power * 1.5),
-                },
+                damage: dmg,
                 isCrit: false,
                 spell: this,
             });
@@ -401,7 +405,7 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
                 other.receiveBuff({
                     source: this.source,
                     buff: new game.Buff.IceSlowed({time: 0.15}),
-                    popUp: true,
+                    popUp: false, //Annoying!! (x
                 })
             }
         }
@@ -515,7 +519,7 @@ game.Spell.TestHealBeam = game.Spell.base.extend
 
             this.setRotation(rotation);
             this.setScale(subVec.length() / 16, 1);
-            this.pos.copy(this.visualSource.pos);
+            this.pos.copy(this.visualSource.getRenderPos(0.5, 0.5));
         }
     },
 
@@ -582,7 +586,7 @@ game.Spell.ChibiFairyLamp = game.Spell.Projectile.extend
     }
 });
 
-game.Spell.ChibiFairyLampSpecial = game.Spell.Projectile.extend
+game.Spell.ChibiFairyLampSpecial = game.Spell.base.extend
 ({
     init:function (x, y, source, settings) 
     {
@@ -596,7 +600,7 @@ game.Spell.ChibiFairyLampSpecial = game.Spell.Projectile.extend
         settings.useRotation = true;
         settings.scale = new me.Vector2d(2, 2);
 
-        this._super(game.Spell.Projectile, 'init', [x, y, source, undefined, settings, false]);
+        this._super(game.Spell.base, 'init', [x, y, source, source, settings, false]);
 
         this.flags.isHeal = true;
         this.flags.areaEffect = true;
@@ -612,6 +616,37 @@ game.Spell.ChibiFairyLampSpecial = game.Spell.Projectile.extend
 
     updateSpell: function(dt) 
     {
+        if(typeof this.target === "undefined")
+        {
+            this.timer = 599;
+            this.count = 0;
+        }
+
+        if(this.timer == 600)
+        {
+            // grab targets
+            var currentPos = this.getRenderPos(0.5, 0.5);
+
+            var targetList = game.units.getUnitList({
+                sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
+                availableTest: function(a)
+                {
+                    return (a.getRenderPos(0.5, 0.5).distance(currentPos) < 64);
+                },
+                isPlayer: this.target.data.isPlayer,
+            }).slice(0, 3);
+
+            for(var i = 0; i < targetList.length; i++)
+            {
+                targetList[i].receiveHeal({
+                    source: this.source, 
+                    heal: this.power,
+                    isCrit: false,
+                    spell: this,
+                });
+            }
+        }
+
         this.timer -= dt;
         if(this.timer <= 0)
         {
@@ -619,35 +654,59 @@ game.Spell.ChibiFairyLampSpecial = game.Spell.Projectile.extend
             this.timer = 600;
         }
 
-        if(this.count == 0)
+        if(this.count < 0)
         {
             this.destroy();
         }
 
-        this.renderable.setOpacity(Math.min(600, (this.count - 1) * 600 + this.timer) / 600);
+        this.renderable.setOpacity(Math.min(600, (this.count) * 600 + this.timer) / 600);
+    },
+});
+
+// A simple taunt spell for Tanks
+game.dataBackend.Spell.Taunt = game.dataBackend.Spell.base.extend
+({
+    init: function(settings)
+    {
+        settings.coolDown = 15.0;
+        settings.manaCost = 0;
+
+        this._super(game.dataBackend.Spell.base, 'init', [settings]);
     },
 
-    onCollision: function(response, other)
+    onCast: function(mob, target)
     {
-        if(other.body.collisionType === me.collision.types.WORLD_SHAPE)
+        // For test: automatically grabs target
+        if(typeof target === "undefined")
         {
-            // ignore it
-            return false;
+            var tmpPos = mob.getRenderPos(0.5, 0.5);
+            target = game.units.getUnitList({
+                availableTest: function(a) { return (tmpPos.distance(a.getRenderPos(0.5, 0.5)) < 100); },
+                isPlayer: !mob.data.isPlayer,
+            });
         }
-        // It is my target! (player or enemy)
-        else
+
+        if(target.length <= 0)
         {
-            // heal it if we are in timer
-            if(this.timer > 590)
+            return;
+        }
+
+        // Generate a spell dummy
+        var spellDummy = new game.Spell.dummy({
+            source: mob, 
+            name: "Test Taunt",
+            flags: {
+                hasTarget: true,
+            },
+        });
+
+        // Taunt targets
+        for(var i = 0; i < target.length; i++)
+        {
+            if(typeof target[i].agent.changeTaunt !== "undefined")
             {
-                other.receiveHeal({
-                    source: this.source, 
-                    heal: this.power,
-                    isCrit: false,
-                    spell: this,
-                });
+                target[i].agent.changeTaunt({source: mob, taunt: 2000});
             }
-            return false;
         }
     },
-})
+});
