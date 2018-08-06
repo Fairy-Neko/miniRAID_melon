@@ -668,7 +668,7 @@ game.dataBackend.Spell.Taunt = game.dataBackend.Spell.base.extend
 ({
     init: function(settings)
     {
-        settings.coolDown = 15.0;
+        settings.coolDown = 5.0;
         settings.manaCost = 0;
 
         this._super(game.dataBackend.Spell.base, 'init', [settings]);
