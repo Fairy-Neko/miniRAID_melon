@@ -121,6 +121,14 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
         {
             me.pool.register("testFireball", game.Spell.TestFireball, true);
         }
+
+        if(me.pool.exists("testStarBomb") === false)
+        {
+            me.pool.register("testStarBomb", game.Spell.TestStarBomb, true);
+        }
+
+        this.countMax = 5;
+        this.count = 5;
     },
 
     attack: function(mob, target)
@@ -135,6 +143,33 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
         settings.power = this.power;
 
         me.game.world.addChild(me.pool.pull("testFireball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+
+        if(this.count < 0)
+        {
+            this.count = Math.floor(this.countMax);
+            this.countMax -= 0.8;
+            if(this.countMax < 1) { this.countMax = 1; } // this becomes faster and faster
+
+            var rndTarget = game.units.getUnitList({isPlayer: !mob.data.isPlayer});
+            starBombTarget = rndTarget[game.helper.getRandomInt(0, rndTarget.length)];
+            me.game.world.addChild(me.pool.pull("testStarBomb", starBombTarget.renderAnchorPos.x, starBombTarget.renderAnchorPos.y, mob, starBombTarget, {
+                isTargetPlayer: starBombTarget.data.isPlayer,
+                isTargetEnemy: !starBombTarget.data.isPlayer,
+            }));
+        }
+
+        game.UI.popupMgr.addText({
+            text: "< " + this.count + " ! >",
+            color: "#FF0000",
+            velY: -128,
+            velX: 0,
+            accY: 128,
+            accX: 0,
+            posX: mob.getRenderPos(0.5, 0.5).x,
+            posY: mob.getRenderPos(0.5, 0.5).y
+        });
+
+        this.count --;
     },
 
     grabTargets: function(mob)
@@ -287,7 +322,7 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
         this.statRequirements = { mag: 5 };
 
         // Weapon stats
-        this.weaponGaugeMax = 50;
+        this.weaponGaugeMax = 15;
         this.weaponGaugeIncreasement = function(mob) { return mob.data.baseStats.mag; }
 
         if(me.pool.exists("chibiFairyLampBullet") === false)

@@ -12,9 +12,10 @@ var game = {
         width : 1024,
         height : 576,
 
-        playerSparse: 25,
+        playerSparse: 12,
+        playerSparseInc: 2,
         playerMax: 8,
-        useAutomove : true,
+        useAutomove : false,
         moveThreshold : 150,
 
         // How much heal will taunt? (multiplier)
@@ -137,8 +138,9 @@ var game = {
         this.data.backend = new game.dataBackend();
         this.data.monitor = new game.dataBackend.BattleMonitor();
 
+        var playerType = [1, 1, 5];
         // var playerType = [2, 1, 4];
-        var playerType = [2, 2, 4];
+        // var playerType = [2, 2, 4];
 
         // Tank
         for(var i = 0; i < playerType[0]; i++)
@@ -161,14 +163,14 @@ var game = {
         // Healer
         for(var i = 0; i < playerType[1]; i++)
         {
-            // this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(H) girl " + i, weaponLeft: new game.Weapon.TestHealStaff(
-            //     {
-            //         baseAttackSpeed: game.helper.getRandomFloat(1.0, 1.3),
-            //         activeRange: game.helper.getRandomInt(150, 175),
-            //         targetCount: 1,
-            //         power: 15,
-            //         manaCost: 15,
-            //     }), isPlayer: true, health: 60, mobPrototype: game.PlayerMobs.test, image: "healer_girl2"}));
+            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(H) girl " + i, weaponLeft: new game.Weapon.TestHealStaff(
+                {
+                    baseAttackSpeed: game.helper.getRandomFloat(1.0, 1.3),
+                    activeRange: game.helper.getRandomInt(150, 175),
+                    targetCount: 1,
+                    power: 15,
+                    manaCost: 15,
+                }), isPlayer: true, health: 60, mobPrototype: game.PlayerMobs.test, image: "healer_girl2"}));
 
             this.data.backend.addPlayer(
                 new game.dataBackend.Mob(
@@ -180,16 +182,17 @@ var game = {
         for(var i = 0; i < playerType[2]; i++)
         {
             var choice = Math.random();
+            choice = 0; // force spawn ranged DPS
             if(choice < 0.5)
             {
                 this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, weaponLeft: new game.Weapon.DPSHomingStaff(
                     {
                         baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
-                        activeRange: game.helper.getRandomInt(200, 300),
-                        targetCount: 4,
-                        power: 5,
+                        activeRange: game.helper.getRandomInt(200, 240),
+                        targetCount: 3,
+                        power: 7,
                         manaCost: 2,
-                    }), isPlayer: true, health: 50, mobPrototype: game.PlayerMobs.test, image: "magical_girl2"}));
+                    }), isPlayer: true, health: 65, mobPrototype: game.PlayerMobs.test, image: "magical_girl2"}));
             }
             else
             {

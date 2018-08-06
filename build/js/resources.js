@@ -130,6 +130,21 @@ game.resources = [
         "src": "data/img/object- layer.png"
     },
     {
+        "name": "Star_fall_64x64px",
+        "type": "image",
+        "src": "data/img/Star_fall_64x64px.png"
+    },
+    {
+        "name": "Star_hold_64x64px",
+        "type": "image",
+        "src": "data/img/Star_hold_64x64px.png"
+    },
+    {
+        "name": "StarBombRange",
+        "type": "image",
+        "src": "data/img/StarBombRange.png"
+    },
+    {
         "name": "tank_girl",
         "type": "image",
         "src": "data/img/tank_girl.png"

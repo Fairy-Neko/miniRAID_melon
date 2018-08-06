@@ -201,6 +201,7 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
         }
 
         // Attack !
+        // Todo: attack single time for multi targets, they should add same amount of weapon gauge (basically)
         if(player.doAttack(dt) === true)
         {
             if(typeof (targets = player.data.currentWeapon.grabTargets(player)) !== "undefined")

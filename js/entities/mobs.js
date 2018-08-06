@@ -133,7 +133,7 @@ game.Mobs.UnitManager = me.Object.extend
 
             var playerNum = 0;
 
-            var playerSparse = game.data.playerSparse;
+            var playerSparse = game.data.playerSparse + game.data.playerSparseInc * this.selectedPlayerCount;
 
             if(me.input.isKeyPressed("f"))
             {
@@ -772,13 +772,13 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
 {
     init: function(x, y, settings)
     {
-        settings.health = 1600;
+        settings.health = 5200;
 
         settings.weaponLeft = new game.Weapon.TestBossStaff
         ({
-            baseAttackSpeed: game.helper.getRandomFloat(2, 3),
-            activeRange: game.helper.getRandomInt(100, 500),
-            power: 60,
+            baseAttackSpeed: game.helper.getRandomFloat(1.4, 1.5),
+            activeRange: game.helper.getRandomInt(200, 201),
+            power: 32,
             targetCount: 1,
         });
 

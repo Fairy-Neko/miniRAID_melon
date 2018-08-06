@@ -12,7 +12,7 @@ game.playerSpawnPoint = me.Entity.extend
         for(var i = 0; i < this.spawnCount; i++)
         {
             // TODO: spawn them in a circle sprasely
-            var spawnPos = this.origin.clone().add(new me.Vector2d(game.data.playerSparse, 0).rotate(i / this.spawnCount * 2 * Math.PI));
+            var spawnPos = this.origin.clone().add(new me.Vector2d(game.data.playerSparse + game.data.playerSparseInc * this.spawnCount, 0).rotate(i / this.spawnCount * 2 * Math.PI));
             settings.backendData = game.data.backend.getPlayerList()[i];
             settings.isPlayer = true;
             settings.image = settings.backendData.image;

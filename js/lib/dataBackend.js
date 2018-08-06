@@ -134,11 +134,11 @@ game.dataBackend.Mob = me.Object.extend
             // Those are basic about overall hit accuracy & avoid probabilities, critical hits.
             // Advanced actions (avoid specific spell) should be calculated inside onReceiveDamage() etc.
             // Same for shields, healing absorbs (Heal Pause ====...===...==...=>! SS: [ABSORB]!!! ...*&@^#), etc.
-            hitAcc: 95,
+            hitAcc: 100,
             avoid: 0,
 
             // Percentage
-            crit: 5, // Should crit have types? e.g. physical elemental etc.
+            crit: 0, // Should crit have types? e.g. physical elemental etc.
             antiCrit: 0,
 
             // Parry for shield should calculate inside the shield itself when onReceiveDamage().

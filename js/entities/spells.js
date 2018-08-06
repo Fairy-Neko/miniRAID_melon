@@ -184,11 +184,13 @@ game.Spell.base = game.Moveable.extend
     {
         this._super(game.Moveable, 'init', [x, y, settings]);
 
-        this.alwaysUpdate = true;
+        this.alwaysUpdate = false;
         this.name = settings.name;
 
         this.source = source;
         this.target = target;
+
+        this.isTargetPlayer = target.data.isPlayer;
 
         this.flags = {};
 
@@ -208,7 +210,7 @@ game.Spell.base = game.Moveable.extend
         }
 
         // Cannot see me so die
-        if(this.inViewport === false)
+        if(this.inViewport === false && this.alwaysUpdate === false)
         {
             me.game.world.removeChild(this);
         }
@@ -527,6 +529,97 @@ game.Spell.TestHealBeam = game.Spell.base.extend
     {
         // Don't collide to any objects
         return false;
+    },
+});
+
+game.Spell.TestStarBomb = game.Spell.base.extend
+({
+    init: function(x, y, source, target, settings)
+    {
+        settings.image = settings.image || "Star_fall_64x64px";
+        settings.width = 512;
+        settings.height = 512;
+        settings.framewidth = 64;
+        settings.frameheight = 64;
+        settings.anchorPoint = new me.Vector2d(0.5, 0.5);
+        settings.name = "Star bomb";
+        settings.startHeight = settings.startHeight || 200.0;
+        settings.shapes = [new me.Rect(0, 0, 10, 10)];
+
+        this._super(game.Spell.base, 'init', [x, y - settings.height, source, target, settings, false]);
+
+        // update it when it invisiable
+        this.alwaysUpdate = true;
+
+        this.startHeight = settings.startHeight;
+        this.currentHeight = this.startHeight;
+        this.fallTime = settings.fallTime || 3.0;
+        this.chaseTarget = settings.chaseTarget || true;
+        this.groundPos = target.getRenderPos(0.5, 0.5);
+
+        this.power = settings.power || 200;
+
+        this.renderable.addAnimation("falling", game.helper.genAnimFrames(0, 59), 16);
+        this.renderable.setCurrentAnimation("falling");
+
+        this.renderable.anchorPoint.set(0.5, 0.5);
+        this.pos.copy(this.groundPos.clone().add(new me.Vector2d(0, -this.currentHeight)));
+
+        // Create a range hint
+        this.rangeHint = new me.Sprite(this.groundPos.x, this.groundPos.y, {
+            image: "StarBombRange",
+        });
+        me.game.world.addChild(this.rangeHint);
+    },
+
+    updateSpell: function(dt)
+    {
+        if(this.target && this.chaseTarget)
+        {
+            this.groundPos = this.target.getRenderPos(0.5, 0.5);
+        }
+
+        this.currentHeight -= dt * 0.001 * (this.startHeight / this.fallTime);
+
+        if(this.currentHeight < 0)
+        {
+            this.currentHeight = 0;
+
+            // make the attack
+            // grab targets
+            var gPos = this.groundPos;
+
+            var AoEList = game.units.getUnitList({
+                availableTest: function(a)
+                {
+                    return (a.getRenderPos(0.5, 0.5).distance(gPos) < 64);
+                },
+                isPlayer: this.isTargetPlayer,
+            });
+
+            for(var i = 0; i < AoEList.length; i++)
+            {
+                AoEList[i].receiveDamage({
+                    source: this.source,
+                    damage: {wind: this.power / AoEList.length},
+                    popUp: true,
+                });
+            }
+
+            this.destroy();
+            return;
+        }
+
+        this.pos.copy(this.groundPos.clone().add(new me.Vector2d(0, -this.currentHeight)));
+        this.rangeHint.pos.copy(this.groundPos);
+    },
+
+    onDestroy: function(other)
+    {
+        if(me.game.world.hasChild(this.rangeHint))
+        {
+            me.game.world.removeChild(this.rangeHint);
+        }
     },
 });
 
