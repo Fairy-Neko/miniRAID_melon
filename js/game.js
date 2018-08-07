@@ -1,4 +1,13 @@
 
+/**
+ * TODOs: 
+ * - Select player though the raid frame
+ * - Player grouping (ctrl + 1, ctrl + 2, ...) like RTS
+ * - combine left click for moving (support mobile devices ?)
+ * - Hold long time to sprase players
+ * - double click to cast special spells?
+ */
+
 /* Game namespace */
 var game = {
 
