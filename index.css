@@ -38,3 +38,27 @@ body {
     image-rendering: pixelated;
     -ms-interpolation-mode: nearest-neighbor;
 }
+
+/* UI */
+#tooltip
+{
+    position: absolute;
+
+    background-color: #222;
+    color: white;
+    padding: 10px;
+    padding-bottom: 6px;
+    font-size: 12px;
+
+    line-height: 80%;
+
+    display: none;
+    pointer-events: none;
+}
+
+#tooltip > h1
+{
+    color: gold;
+    font-size: 12px;
+    margin-bottom: 15px;
+}

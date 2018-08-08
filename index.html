@@ -16,7 +16,23 @@
     <body oncontextmenu="return false;">
         <script async></script>
         <!-- Canvas placeholder -->
-        <div id="screen"></div>
+        <div id="screen">
+            <!-- canvas will be here -->
+            <div id="UI">
+                <div id="tooltip">
+                    <script>
+                        var _ui_tt = document.getElementById("tooltip");
+                        document.getElementById("screen").addEventListener("pointermove", function(e)
+                        {
+                            _ui_tt.style.left = e.clientX + 'px';
+                            _ui_tt.style.top = e.clientY + 'px';
+                        }, true);
+                    </script>
+                    <h1 id = "title">测试</h1>
+                    <p id = "body">测试</p>
+                </div>
+            </div>
+        </div>
 
         <!-- an optional ES5-Shim
         <script type="text/javascript" src="lib/es5-shim.min.js"></script>

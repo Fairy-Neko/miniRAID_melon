@@ -5,9 +5,10 @@
 game.UI = game.UI || {};
 
 
-game.UI.Container = me.Container.extend({
-
-    init: function() {
+game.UI.Container = me.Container.extend
+({
+    init: function() 
+    {
         // call the constructor
         this._super(me.Container, 'init');
 
@@ -22,6 +23,8 @@ game.UI.Container = me.Container.extend({
 
         // give a name
         this.name = "UI";
+
+        game.UIManager = this;
 
         // add our child score object at the top left corner
         game.UI.popupMgr = new game.UI.PopupTextManager(0, 0);
@@ -64,7 +67,38 @@ game.UI.Container = me.Container.extend({
             fillColor: new me.Color(0, 255, 0, 0.1),
         });
         this.addChild(game.UI.selectingRect);
-    }
+
+        // Get the toolTip object
+        this.toolTip = {};
+        this.toolTip.toolTip = document.getElementById("tooltip");
+        this.toolTip.title = this.toolTip.toolTip.querySelector("#title");
+        this.toolTip.body = this.toolTip.toolTip.querySelector("#body");
+    },
+
+    // You can use any HTML in title and bodytext.
+    // See index.html body > #screen > #UI > #toolTip.
+    showToolTip({
+        titleColor = "#ffffff",
+        title = "Title",
+        bodyText = "toolTip",
+    })
+    {
+        // change text
+        this.toolTip.title.innerHTML = title;
+        this.toolTip.body.innerHTML = bodyText;
+
+        // change color
+        this.toolTip.title.style.color = titleColor;
+
+        // set it visible
+        this.toolTip.toolTip.style.display = "inherit";
+    },
+
+    hideToolTip()
+    {
+        // set it invisible
+        this.toolTip.toolTip.style.display = "none";
+    },
 });
 
 //
@@ -285,6 +319,9 @@ game.UI.raidFrame = me.Renderable.extend
 
         this.cacheHealth = [0,0,0,0,0,0,0,0];
         this.cacheMana = [0,0,0,0,0,0,0,0];
+
+        me.input.registerPointerEvent("pointermove", me.game.viewport, this.onPointerMove.bind(this));
+        this.prevBuffId = -1;
     },
 
     update: function(dt)
@@ -296,26 +333,26 @@ game.UI.raidFrame = me.Renderable.extend
     {
         context.save();
 
-        var dataList = this.grabFunction();
+        this.dataList = this.grabFunction();
 
-        for(var i = 0; i < dataList.length; i++)
+        for(var i = 0; i < this.dataList.length; i++)
         {
             //smooth the hp change
-            if(Math.abs(this.cacheHealth[i] - dataList[i].currentHealth) < 3){
-                this.cacheHealth[i] = dataList[i].currentHealth;
+            if(Math.abs(this.cacheHealth[i] - this.dataList[i].currentHealth) < 3){
+                this.cacheHealth[i] = this.dataList[i].currentHealth;
             }
             else
             {
-                this.cacheHealth[i] = (4 * this.cacheHealth[i] + dataList[i].currentHealth) / 5;
+                this.cacheHealth[i] = (4 * this.cacheHealth[i] + this.dataList[i].currentHealth) / 5;
             }
 
             //smooth the mp change
-            if(Math.abs(this.cacheMana[i] - dataList[i].currentMana) < 3){
-                this.cacheMana[i] = dataList[i].currentMana;
+            if(Math.abs(this.cacheMana[i] - this.dataList[i].currentMana) < 3){
+                this.cacheMana[i] = this.dataList[i].currentMana;
             }
             else
             {
-                this.cacheMana[i] = (this.cacheMana[i] + 2 * dataList[i].currentMana) / 3;
+                this.cacheMana[i] = (this.cacheMana[i] + 2 * this.dataList[i].currentMana) / 3;
             }
 
             // Black background
@@ -323,7 +360,7 @@ game.UI.raidFrame = me.Renderable.extend
             context.fillRect(this.pos.x, this.pos.y + this.outlinedGridHeight * i, this.outlinedGridWidth + 1, this.outlinedGridHeight - this.gapHeight);
 
             // Draw a white border if the player is in control
-            if(dataList[i].inControl)
+            if(this.dataList[i].inControl)
             {
                 context.setColor('#FFFFFF');
                 context.fillRect(this.pos.x, this.pos.y + this.outlinedGridHeight * i, this.outlinedGridWidth + 1, this.outlinedGridHeight - this.gapHeight);
@@ -340,16 +377,16 @@ game.UI.raidFrame = me.Renderable.extend
             context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + 1, this.gridWidth, this.gridHeight);
         }
 
-        for(var i = 0; i < dataList.length; i++)
+        for(var i = 0; i < this.dataList.length; i++)
         {
-            if(dataList[i].alive)
+            if(this.dataList[i].alive)
             {
                 var sliceLength = 0;
 
                 // Health bar (Big & High green one)
 
                 context.setColor('#1B813E');
-                sliceLength = Math.floor((this.gridWidth - 1) * this.cacheHealth[i] / dataList[i].maxHealth);
+                sliceLength = Math.floor((this.gridWidth - 1) * this.cacheHealth[i] / this.dataList[i].maxHealth);
                 context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + 1, sliceLength + 1, this.gridHeight - 9);
 
                 // Line between Health and Mana Bar
@@ -359,20 +396,20 @@ game.UI.raidFrame = me.Renderable.extend
                 // Mana bar (Small & Short light blue one)
                 // It height was fixed at 3
                 context.setColor('#33A6B8');
-                sliceLength = Math.floor((this.gridWidth - 1) * this.cacheMana[i] / dataList[i].maxMana);
+                sliceLength = Math.floor((this.gridWidth - 1) * this.cacheMana[i] / this.dataList[i].maxMana);
                 context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 8, sliceLength + 1, 9);
 
                 // TODO: CASTING BAR
 
                 // Left-upper corner white block = has been targeted
-                if(dataList[i].beingAttack)
+                if(this.dataList[i].beingAttack)
                 {
                     context.setColor('#FFFFFF');
                     context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + 1, 10, 10);
                 }
 
                 // Right-upper corner white block = has priority on heal
-                if(dataList[i].healPriority)
+                if(this.dataList[i].healPriority)
                 {
                     context.setColor('#FFFFFF');
                     context.fillRect(this.pos.x + this.gridWidth - 9, this.pos.y + this.outlinedGridHeight * i + 1, 10, 10);
@@ -382,8 +419,8 @@ game.UI.raidFrame = me.Renderable.extend
                 var buffNum = 0;
                 
                 // TODO: should we delete buffList and use listenerList instead ? ... (maybe not though)
-                // for(let buff of dataList[i].buffList.values())
-                for(let buff of dataList[i].buffList.values())
+                // for(let buff of this.dataList[i].buffList.values())
+                for(let buff of this.dataList[i].buffList.values())
                 {
                     // All the grids moved up by 1 px cause we have the bottom outline (y -= 1)
 
@@ -401,7 +438,7 @@ game.UI.raidFrame = me.Renderable.extend
                         yAdd = 1;
                     }
                     
-                    if((buffNum % this.buffsPerRow == (this.buffsPerRow - 1)) || buffNum == (dataList[i].buffList.size - 1))
+                    if((buffNum % this.buffsPerRow == (this.buffsPerRow - 1)) || buffNum == (this.dataList[i].buffList.size - 1))
                     {
                         xAdd = 1;
                     }
@@ -410,7 +447,7 @@ game.UI.raidFrame = me.Renderable.extend
                     context.setColor(localcolor.darken(0.7));
                     context.fillRect(
                         this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 1, 
-                        this.pos.y + this.outlinedGridHeight * i - this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow), 
+                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow), 
                         this.outlinedIconSize + xAdd, 
                         this.outlinedIconSize + yAdd);
 
@@ -418,7 +455,7 @@ game.UI.raidFrame = me.Renderable.extend
                     context.setColor(localcolor.lighten(0.2));
                     context.fillRect(
                         this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
-                        this.pos.y + this.outlinedGridHeight * i - this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow)) + 1, 
+                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow)) + 1, 
                         this.buffIconSize, 
                         this.buffIconSize);
 
@@ -426,7 +463,7 @@ game.UI.raidFrame = me.Renderable.extend
                     context.setColor(localcolor.lighten(0.2));
                     context.fillRect(
                         this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
-                        this.pos.y + this.outlinedGridHeight * i - this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow)) + 1, 
+                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow)) + 1, 
                         this.buffIconSize * (buff.timeRemain / buff.timeMax), 
                         this.buffIconSize);
 
@@ -437,13 +474,13 @@ game.UI.raidFrame = me.Renderable.extend
                         context, 
                         buff.name.slice(0, 4), 
                         this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
-                        this.pos.y + this.outlinedGridHeight * i - this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 1);
+                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 1);
 
                     this.font.draw(
                         context, 
                         buff.name.slice(4, 8), 
                         this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
-                        this.pos.y + this.outlinedGridHeight * i - this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 10);
+                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 10);
 
                     buffNum++;
                 }
@@ -461,18 +498,67 @@ game.UI.raidFrame = me.Renderable.extend
             context.setColor('#ffffff');
             
             // Show a part of player name (should be full name after testing)
-            this.font.draw(context, dataList[i].name, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 20);
+            this.font.draw(context, this.dataList[i].name, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 20);
 
             // Player HP
-            this.font.draw(context, dataList[i].currentHealth + "/" + dataList[i].maxHealth, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 27);
+            this.font.draw(context, this.dataList[i].currentHealth + "/" + this.dataList[i].maxHealth, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 27);
 
             // Player Mana
-            this.font.draw(context, Math.round(dataList[i].currentMana) + "/" + dataList[i].maxMana, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 34);
+            this.font.draw(context, Math.round(this.dataList[i].currentMana) + "/" + this.dataList[i].maxMana, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 34);
             
         }
 
         context.restore();
-    }
+    },
+
+    onPointerMove(pointer)
+    {
+        console.log(pointer);
+
+        var buffFrameX = pointer.gameX - this.pos.x - this.outlinedGridWidth;
+        var buffFrameY = pointer.gameY - this.pos.y;
+
+        playerIdx = Math.floor(buffFrameY / this.outlinedGridHeight);
+        buffFrameY = buffFrameY - playerIdx * this.outlinedGridHeight;
+
+        var buffId = 0;
+
+        if(buffFrameX >= 0 && buffFrameX <= this.outlinedIconSize * this.buffsPerRow)
+        {
+            buffId = Math.floor(buffFrameX / this.outlinedIconSize) + Math.floor(buffFrameY / this.outlinedIconSize) * this.buffsPerRow;
+        }
+        else
+        {
+            buffId = -1;
+        }
+
+        console.log("player: " + playerIdx + "buff: " + buffId);
+
+        // test
+        if(playerIdx < 0 || playerIdx >= this.dataList.length || buffId >= this.dataList[playerIdx].buffList.size || buffId == -1)
+        {
+            this.prevBuffId = -1;
+            game.UIManager.hideToolTip();
+
+            return true;
+        }
+
+        if(buffId !== this.prevBuffId)
+        {
+            this.prevBuffId = buffId;
+
+            // need more great ones ?
+            var buff = [...this.dataList[playerIdx].buffList][buffId];
+
+            game.UIManager.showToolTip({
+                titleColor: buff.color,
+                title: buff.toolTip.title,
+                bodyText: buff.toolTip.text,
+            });
+        }
+
+        return true;
+    },
 });
 
 game.UI.ColoredRect = me.Renderable.extend

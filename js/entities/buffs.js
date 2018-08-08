@@ -42,6 +42,8 @@ game.Buff.base = game.MobListener.extend
 
         //Where does this buff come from?
         this.source = settings.source || undefined;
+
+        this.toolTip = {title: "Buff", text: "lol."};
     },
 
     // make a popUp
@@ -87,6 +89,12 @@ game.Buff.IceSlowed = game.Buff.base.extend
         settings.iconId = settings.iconId || 1;
 
         this._super(game.Buff.base, 'init', [settings]);
+
+        this.toolTip = 
+        {
+            title: "减速", 
+            text: "速度降低80%。"
+        };
     },
 
     onStatCalculation: function(mob)
@@ -119,6 +127,12 @@ game.Buff.Fired = game.Buff.base.extend
         
         this.timer = 0.0;
         this.fireCount = 0;
+
+        this.toolTip = 
+        {
+            title: "燃烧", 
+            text: "每" + this.damageGap + "秒损失" + this.damageMin + "~" + this.damageMax + "点生命值。"
+        };
     },
 
     onUpdate: function(mob, deltaTime)
@@ -153,6 +167,12 @@ game.Buff.Bloodlust = game.Buff.base.extend
         this._super(game.Buff.base, 'init', [settings]);
 
         this.timer = 0.0;
+
+        this.toolTip = 
+        {
+            title: "嗜血术", 
+            text: "行动速度提升40%。"
+        };
     },
 
     onUpdate: function(mob, deltaTime)
@@ -185,6 +205,12 @@ game.Buff.IceSpikeTriggered = game.Buff.base.extend
         this._super(game.Buff.base, 'init', [settings]);
         
         this.timer = 0.0;
+
+        this.toolTip = 
+        {
+            title: "冰刺", 
+            text: "你的下一次冰属性攻击造成1000%的伤害，并拥有额外的减速效果。"
+        };
     },
 
     onUpdate: function(mob, deltaTime)
@@ -221,6 +247,12 @@ game.Buff.IceSpikeDebuff = game.Buff.base.extend
         this._super(game.Buff.base, 'init', [settings]);
         
         this.timer = 0.0;
+
+        this.toolTip = 
+        {
+            title: "刺骨寒冰", 
+            text: "行动速度降低99%。"
+        };
     },
 
     onUpdate: function(mob, deltaTime)
@@ -254,6 +286,7 @@ game.Buff.LifeRegen = game.Buff.base.extend
 
         this.healPower = Math.ceil(settings.healTotal / (settings.time / settings.healGap)) || 3;
         this.healGap = settings.healGap || 1.2;
+        this.healCountTotal = Math.floor(settings.time / settings.healGap);
         
         this.timer = 0.0;
         this.healCount = 0;
@@ -267,6 +300,12 @@ game.Buff.LifeRegen = game.Buff.base.extend
                 overTime: true,
             }
         });
+
+        this.toolTip = 
+        {
+            title: "生命之种", 
+            text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值。"
+        };
     },
 
     onUpdate: function(mob, deltaTime)
