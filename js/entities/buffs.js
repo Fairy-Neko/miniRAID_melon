@@ -324,3 +324,28 @@ game.Buff.LifeRegen = game.Buff.base.extend
         }
     },
 });
+
+game.Buff.GerneralInfo = game.Buff.base.extend
+({
+    init: function(settings)
+    {
+        settings.name = settings.name
+        settings.time = settings.time || 5.0;
+        settings.stacks = settings.stacks || 1;
+        settings.color = settings.color || "#ffffff";
+        settings.popUp = settings.popUp || false;
+        settings.popupName = settings.popupName;
+
+        this._super(game.Buff.base, 'init', [settings]);
+
+        this.timer = 0.0;
+        this.healCount = 0;
+
+        this.toolTip = settings.toolTip;
+    },
+    onUpdate: function(mob, deltaTime)
+    {
+        this._super(game.Buff.base, 'onUpdate', [mob, deltaTime]);
+        this.timer += deltaTime * 0.001;
+    },
+});
