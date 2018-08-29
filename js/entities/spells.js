@@ -558,6 +558,7 @@ game.Spell.TestStarBomb = game.Spell.base.extend
         this.groundPos = target.getRenderPos(0.5, 0.5);
 
         this.power = settings.power || 200;
+        this.type = settings.type || "stand";
 
         this.renderable.addAnimation("falling", game.helper.genAnimFrames(0, 59), 16);
         this.renderable.setCurrentAnimation("falling");
@@ -597,15 +598,27 @@ game.Spell.TestStarBomb = game.Spell.base.extend
                 isPlayer: this.isTargetPlayer,
             });
 
-            for(var i = 0; i < AoEList.length; i++)
-            {
-                AoEList[i].receiveDamage({
-                    source: this.source,
-                    damage: {wind: this.power / AoEList.length},
-                    popUp: true,
-                });
+            if(this.type === "stand"){
+                for(var i = 0; i < AoEList.length; i++)
+                {
+                    AoEList[i].receiveDamage({
+                        source: this.source,
+                        damage: {wind: this.power / AoEList.length},
+                        popUp: true,
+                    });
+                }
             }
-
+            else
+            {
+                for(var i = 0; i < AoEList.length; i++)
+                {
+                    AoEList[i].receiveDamage({
+                        source: this.source,
+                        damage: {wind: this.power},
+                        popUp: true,
+                    });
+                }
+            }
             this.destroy();
             return;
         }

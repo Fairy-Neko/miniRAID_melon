@@ -129,6 +129,7 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
 
         this.countMax = 5;
         this.count = 5;
+        this.type = "stand";
     },
 
     attack: function(mob, target)
@@ -152,10 +153,51 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
 
             var rndTarget = game.units.getUnitList({isPlayer: !mob.data.isPlayer});
             starBombTarget = rndTarget[game.helper.getRandomInt(0, rndTarget.length)];
-            me.game.world.addChild(me.pool.pull("testStarBomb", starBombTarget.renderAnchorPos.x, starBombTarget.renderAnchorPos.y, mob, starBombTarget, {
-                isTargetPlayer: starBombTarget.data.isPlayer,
-                isTargetEnemy: !starBombTarget.data.isPlayer,
-            }));
+
+            if(this.type === "stand"){
+                starBombTarget.receiveBuff({
+                    source: mob,
+                    buff: new game.Buff.GerneralInfo({
+                        name: "starBomb",
+                        time: 3.0,
+                        color: "#FF85C2",
+                        toolTip: {
+                            title: "流星-分担！",
+                            text: "在3秒后由范围内所有单位分担伤害.",
+                        },
+                    }),
+                    popUp: true,
+                });
+                me.game.world.addChild(me.pool.pull("testStarBomb", starBombTarget.renderAnchorPos.x, starBombTarget.renderAnchorPos.y, mob, starBombTarget, {
+                    isTargetPlayer: starBombTarget.data.isPlayer,
+                    isTargetEnemy: !starBombTarget.data.isPlayer,
+                    type: "stand",
+                    power: 200,
+                }));
+                this.type = "spread";
+            }
+            else if(this.type === "spread"){
+                starBombTarget.receiveBuff({
+                    source: mob,
+                    buff: new game.Buff.GerneralInfo({
+                        name: "starBomb",
+                        time: 3.0,
+                        color: "#FF85C2",
+                        toolTip: {
+                            title: "流星-分散！",
+                            text: "在3秒后范围内所有单位受到伤害.",
+                        },
+                    }),
+                    popUp: true,
+                });
+                me.game.world.addChild(me.pool.pull("testStarBomb", starBombTarget.renderAnchorPos.x, starBombTarget.renderAnchorPos.y, mob, starBombTarget, {
+                    isTargetPlayer: starBombTarget.data.isPlayer,
+                    isTargetEnemy: !starBombTarget.data.isPlayer,
+                    type: "spread",
+                    power: 40,
+                }));
+                this.type = "stand";
+            }
         }
 
         game.UI.popupMgr.addText({
