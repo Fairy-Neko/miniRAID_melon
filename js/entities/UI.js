@@ -321,6 +321,7 @@ game.UI.raidFrame = me.Renderable.extend
         this.cacheMana = [0,0,0,0,0,0,0,0];
 
         me.input.registerPointerEvent("pointermove", me.game.viewport, this.onPointerMove.bind(this));
+        me.input.registerPointerEvent("pointerdown", me.game.viewport, this.onPointerDown.bind(this));
         this.prevBuffId = -1;
     },
 
@@ -338,7 +339,8 @@ game.UI.raidFrame = me.Renderable.extend
         for(var i = 0; i < this.dataList.length; i++)
         {
             //smooth the hp change
-            if(Math.abs(this.cacheHealth[i] - this.dataList[i].currentHealth) < 3){
+            if(Math.abs(this.cacheHealth[i] - this.dataList[i].currentHealth) < 3)
+            {
                 this.cacheHealth[i] = this.dataList[i].currentHealth;
             }
             else
@@ -347,7 +349,8 @@ game.UI.raidFrame = me.Renderable.extend
             }
 
             //smooth the mp change
-            if(Math.abs(this.cacheMana[i] - this.dataList[i].currentMana) < 3){
+            if(Math.abs(this.cacheMana[i] - this.dataList[i].currentMana) < 3)
+            {
                 this.cacheMana[i] = this.dataList[i].currentMana;
             }
             else
@@ -513,8 +516,6 @@ game.UI.raidFrame = me.Renderable.extend
 
     onPointerMove(pointer)
     {
-        console.log(pointer);
-
         var buffFrameX = pointer.gameX - this.pos.x - this.outlinedGridWidth;
         var buffFrameY = pointer.gameY - this.pos.y;
 
@@ -532,8 +533,6 @@ game.UI.raidFrame = me.Renderable.extend
             buffId = -1;
         }
 
-        console.log("player: " + playerIdx + "buff: " + buffId);
-
         // test
         if(playerIdx < 0 || playerIdx >= this.dataList.length || buffId >= this.dataList[playerIdx].buffList.size || buffId == -1)
         {
@@ -547,7 +546,7 @@ game.UI.raidFrame = me.Renderable.extend
         {
             this.prevBuffId = buffId;
 
-            // need more great ones ?
+            // need more great ways ?
             var buff = [...this.dataList[playerIdx].buffList][buffId];
 
             game.UIManager.showToolTip({
@@ -558,6 +557,25 @@ game.UI.raidFrame = me.Renderable.extend
         }
 
         return true;
+    },
+
+    onPointerDown(pointer)
+    {
+        console.log(pointer);
+
+        var buffFrameX = pointer.gameX - this.pos.x;
+        var buffFrameY = pointer.gameY - this.pos.y;
+
+        playerIdx = Math.floor(buffFrameY / this.outlinedGridHeight);
+        buffFrameY = buffFrameY - playerIdx * this.outlinedGridHeight;
+
+        if(buffFrameX > this.outlinedGridWidth + 1 || buffFrameY > this.outlinedGridHeight - this.gapHeight)
+        {
+            // TODO: select the player
+            return true;
+        }
+
+        return false;
     },
 });
 

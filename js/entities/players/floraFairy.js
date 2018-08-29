@@ -31,6 +31,8 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
 
         // Add a spell
         this.data.spells.floraHeal = new game.dataBackend.Spell.FloraHeal({});
+
+        this.data.currentFlower = new game.dataBackend.Spell.NekoClawGrass({});
     },
 
     updatePlayer: function(dt)
@@ -131,7 +133,9 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
                     healGap: 1.0,
                 }),
                 popUp: true,
-            })
+            });
+
+            this.data.currentFlower.cast(this, undefined);
         }
     }
 });
@@ -173,5 +177,42 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
             heal: Math.ceil(20 * game.helper.getRandomFloat(0.8, 1.2)),
             spell: spellDummy,
         });
+    },
+});
+
+// Test
+game.dataBackend.Spell.NekoClawGrass = game.dataBackend.Spell.base.extend
+({
+    init: function(settings)
+    {
+        settings.coolDown = 0.0;
+        settings.manaCost = 0;
+
+        this._super(game.dataBackend.Spell.base, 'init', [settings]);
+    },
+
+    onCast: function(mob, target)
+    {
+        // For test: automatically grabs target
+        if(typeof target === "undefined")
+        {
+            target = game.units.getUnitList({
+                sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
+                isPlayer: mob.data.isPlayer,
+            }).slice(0, 3);
+        }
+
+        for(var i = 0; i < target.length; i++)
+        {
+            target[i].receiveBuff({
+                source: mob,
+                buff: new game.Buff.LifeRegen({
+                    time: 8.0,
+                    healTotal: 24,
+                    healGap: 1.5,
+                }),
+                popUp: true,
+            })
+        }
     },
 });

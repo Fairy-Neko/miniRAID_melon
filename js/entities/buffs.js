@@ -293,7 +293,7 @@ game.Buff.LifeRegen = game.Buff.base.extend
 
         this.spellDummy = new game.Spell.dummy({
             source: this.source,
-            name: "Seed of life",
+            name: this.name || "Seed of life",
             flags: {
                 isHeal: true,
                 hasTarget: true,
@@ -303,7 +303,7 @@ game.Buff.LifeRegen = game.Buff.base.extend
 
         this.toolTip = 
         {
-            title: "生命之种", 
+            title: this.name || "生命之种", 
             text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值。"
         };
     },
