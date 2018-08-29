@@ -170,6 +170,11 @@ game.resources = [
         "src": "data/img/vioBullet.png"
     },
     {
+        "name": "Weapon_icon_32x32",
+        "type": "image",
+        "src": "data/img/Weapon_icon_32x32.png"
+    },
+    {
         "name": "FixedSys",
         "type": "image",
         "src": "data/fnt/FixedSys.png"

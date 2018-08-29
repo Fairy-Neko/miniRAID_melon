@@ -52,11 +52,13 @@ game.Mobs.UnitManager = me.Object.extend
                     var pt = player.getRenderPos(0.5, 0.5).clone();
                     var frame = game.UI.unitFrameSlots.slots[playerCount];
 
+                    // TODO: use box intersection instead of containsPoint
                     if(this.selectingRect.containsPoint(pt.x - minX, pt.y - minY))
                     {
                         player.data.inControl = true;
                     }
-                    else if(this.selectingRect.containsPoint(frame.pos.x - minX, frame.pos.y - minY)){
+                    else if(this.selectingRect.containsPoint(frame.pos.x - minX, frame.pos.y - minY))
+                    {
                         player.data.inControl = true;
                     }
                     else
@@ -106,6 +108,8 @@ game.Mobs.UnitManager = me.Object.extend
         {
             this.isDown = true;
             this.isDragging = true;
+
+            console.log("Drag start");
 
             this.rectOrigin.set(pointer.gameX, pointer.gameY);
             this.rectTarget.set(pointer.gameX, pointer.gameY);

@@ -20,6 +20,9 @@ game.Weapon.base = game.Equipable.extend
         this.weaponType = game.data.weaponType.staff;
         this.weaponSubType = game.data.weaponType.common;
         this.level = 1;
+
+        this.iconIdx = 0;
+        this.color = '#ffffff';
     },
 
     attack: function(mob, target) 
@@ -83,6 +86,9 @@ game.Weapon.TestStaff = game.Weapon.base.extend
         {
             me.pool.register("testFireball", game.Spell.TestFireball, true);
         }
+
+        this.iconIdx = 3;
+        this.color = '#ff7700';
     },
 
     attack: function(mob, target)
@@ -163,7 +169,7 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
                         color: "#FF85C2",
                         toolTip: {
                             title: "流星-分担！",
-                            text: "在3秒后由范围内所有单位分担伤害.",
+                            text: "在3秒后由范围内所有单位分担200点伤害.",
                         },
                     }),
                     popUp: true,
@@ -185,7 +191,7 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
                         color: "#FF85C2",
                         toolTip: {
                             title: "流星-分散！",
-                            text: "在3秒后范围内所有单位受到伤害.",
+                            text: "在3秒后范围内所有单位受到40点伤害.",
                         },
                     }),
                     popUp: true,
@@ -233,6 +239,9 @@ game.Weapon.TestHomingStaff = game.Weapon.base.extend
         {
             me.pool.register("testHomingIceball", game.Spell.TestHomingIceball, true);
         }
+
+        this.iconIdx = 3;
+        this.color = '#ff8800';
     },
 
     attack: function(mob, target)
@@ -274,6 +283,9 @@ game.Weapon.TestHealStaff = game.Weapon.base.extend
         {
             me.pool.register("testHealBeam", game.Spell.TestHealBeam, true);
         }
+
+        this.iconIdx = 3;
+        this.color = '#66ff77';
     },
 
     attack: function(mob, target)
@@ -375,6 +387,9 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
         {
             me.pool.register("chibiFairyLampSpecial", game.Spell.ChibiFairyLampSpecial, true);
         }
+
+        this.iconIdx = 1;
+        this.color = '#ff77cc';
     },
 
     attack: function(mob, target)
@@ -425,6 +440,9 @@ game.Weapon.DPSHomingStaff = game.Weapon.base.extend
         {
             me.pool.register("testHomingIceball", game.Spell.TestHomingIceball, true);
         }
+
+        this.iconIdx = 3;
+        this.color = '#00ccff';
     },
 
     attack: function(mob, target)

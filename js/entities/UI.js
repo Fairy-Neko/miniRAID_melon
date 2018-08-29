@@ -304,7 +304,11 @@ game.UI.raidFrame = me.Renderable.extend
         this.outlinedGridHeight = this.gridHeight + this.gapHeight + 2;
 
         // max count of buffs that can show in a row
-        this.buffsPerRow = settings.buffsPerRow || 3;
+        this.buffsPerRow = settings.buffsPerRow || 20;
+
+        // buffs pivot position
+        this.buffsPivotX = settings.buffsPivotX || -1;
+        this.buffsPivotY = settings.buffsPivotY || 45;
 
         // size of the buff (without outline)
         this.buffIconSize = settings.buffIconSize || 16;
@@ -420,6 +424,8 @@ game.UI.raidFrame = me.Renderable.extend
 
                 // Draw the buffs
                 var buffNum = 0;
+                var tmpBuffPivotX = this.pos.x + this.buffsPivotX;
+                var tmpBuffPivotY = this.pos.y + this.outlinedGridHeight * i + this.buffsPivotY;
                 
                 // TODO: should we delete buffList and use listenerList instead ? ... (maybe not though)
                 // for(let buff of this.dataList[i].buffList.values())
@@ -449,41 +455,49 @@ game.UI.raidFrame = me.Renderable.extend
                     // Outline rect
                     context.setColor(localcolor.darken(0.7));
                     context.fillRect(
-                        this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 1, 
-                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow), 
+                        tmpBuffPivotX + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 1, 
+                        tmpBuffPivotY + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow), 
                         this.outlinedIconSize + xAdd, 
                         this.outlinedIconSize + yAdd);
 
                     // Background filling rect
                     context.setColor(localcolor.lighten(0.2));
                     context.fillRect(
-                        this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
-                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow)) + 1, 
+                        tmpBuffPivotX + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
+                        tmpBuffPivotY + this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow)) + 1, 
                         this.buffIconSize, 
                         this.buffIconSize);
 
                     // Timer rect
                     context.setColor(localcolor.lighten(0.2));
                     context.fillRect(
-                        this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
-                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow)) + 1, 
+                        tmpBuffPivotX + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
+                        tmpBuffPivotY + this.outlinedIconSize * (Math.floor(buffNum / this.buffsPerRow)) + 1, 
                         this.buffIconSize * (buff.timeRemain / buff.timeMax), 
                         this.buffIconSize);
 
                     // Draw the buff name with seperate textline
                     // TODO: maybe '\n' works here ?
-                    context.setColor('#EFCDEF');
-                    this.font.draw(
-                        context, 
-                        buff.name.slice(0, 4), 
-                        this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
-                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 1);
+                    // context.setColor('#EFCDEF');
+                    // this.font.draw(
+                    //     context, 
+                    //     buff.name.slice(0, 4), 
+                    //     tmpBuffPivotX + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
+                    //     tmpBuffPivotY + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 1);
 
+                    // this.font.draw(
+                    //     context, 
+                    //     buff.name.slice(4, 8), 
+                    //     tmpBuffPivotX + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
+                    //     tmpBuffPivotY + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 10);
+                    
+                    // Draw the stack count
+                    context.setColor('#FFFFFF');
                     this.font.draw(
-                        context, 
-                        buff.name.slice(4, 8), 
-                        this.pos.x + this.outlinedGridWidth + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
-                        this.pos.y + this.outlinedGridHeight * i + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 10);
+                        context,
+                        buff.stacks,
+                        tmpBuffPivotX + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
+                        tmpBuffPivotY + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 10);
 
                     buffNum++;
                 }
@@ -516,8 +530,13 @@ game.UI.raidFrame = me.Renderable.extend
 
     onPointerMove(pointer)
     {
-        var buffFrameX = pointer.gameX - this.pos.x - this.outlinedGridWidth;
-        var buffFrameY = pointer.gameY - this.pos.y;
+        if(typeof this.dataList === "undefined")
+        {
+            return true;
+        }
+
+        var buffFrameX = pointer.gameX - this.pos.x - this.buffsPivotX;
+        var buffFrameY = pointer.gameY - this.pos.y - this.buffsPivotY;
 
         playerIdx = Math.floor(buffFrameY / this.outlinedGridHeight);
         buffFrameY = buffFrameY - playerIdx * this.outlinedGridHeight;
@@ -532,6 +551,8 @@ game.UI.raidFrame = me.Renderable.extend
         {
             buffId = -1;
         }
+
+        console.log("player: " + playerIdx + "buff: " + buffId);
 
         // test
         if(playerIdx < 0 || playerIdx >= this.dataList.length || buffId >= this.dataList[playerIdx].buffList.size || buffId == -1)
@@ -551,7 +572,7 @@ game.UI.raidFrame = me.Renderable.extend
 
             game.UIManager.showToolTip({
                 titleColor: buff.color,
-                title: buff.toolTip.title,
+                title: buff.toolTip.title + " (" + buff.stacks + ")",
                 bodyText: buff.toolTip.text,
             });
         }
@@ -561,21 +582,24 @@ game.UI.raidFrame = me.Renderable.extend
 
     onPointerDown(pointer)
     {
-        console.log(pointer);
-
         var buffFrameX = pointer.gameX - this.pos.x;
         var buffFrameY = pointer.gameY - this.pos.y;
 
         playerIdx = Math.floor(buffFrameY / this.outlinedGridHeight);
         buffFrameY = buffFrameY - playerIdx * this.outlinedGridHeight;
 
-        if(buffFrameX > this.outlinedGridWidth + 1 || buffFrameY > this.outlinedGridHeight - this.gapHeight)
+        if( buffFrameX >= 0 && buffFrameY >= 0 && 
+            buffFrameX <= this.outlinedGridWidth + 1 && buffFrameY <= this.outlinedGridHeight - this.gapHeight)
         {
-            // TODO: select the player
-            return true;
+            if(this.dataList[playerIdx].alive)
+            {
+                this.dataList.forEach(function(e, i){ e.inControl = false; });
+                this.dataList[playerIdx].inControl = true;
+            }
+            return false;
         }
 
-        return false;
+        return true;
     },
 });
 
@@ -644,6 +668,9 @@ game.UI.unitFrameSlots = me.Container.extend
             settings.id = i;
             this.slots[settings.id] = new game.UI.slot(12, 70 * i + 29, settings);
             this.addChild(this.slots[settings.id]);
+
+            this.addChild(new game.UI.WeaponIcons({id: i}));
+            this.addChild(new game.UI.WeaponSwitchButton(193, 70 * i + 29 + 14, {id: i}));
         }
     }
 });
@@ -697,6 +724,98 @@ game.UI.slot = me.GUI_Object.extend(
                 buff: new game.Buff.Bloodlust({time: 15.0}), 
                 popUp: true
             });
+        }
+        return false;
+    }
+});
+
+game.UI.WeaponIcons = me.Renderable.extend
+({
+    init: function(settings)
+    {
+        this.weaponIconSize = settings.iconSize || 32;
+        this.weaponIconGap = settings.iconGap || 20;
+
+        this.pivotX = settings.pivotX || 150;
+        this.pivotY = settings.pivotY || 26;
+        this.multiplierY = settings.multiplierY || 70;
+
+        this.imageSize = settings.imageSize || 512;
+        this.imageGrid = settings.imageGrid || 32;
+        this.imageGridCount = this.imageSize / this.imageGrid;
+
+        this.image = settings.image || "Weapon_icon_32x32";
+        settings.image = this.image;
+        settings.width = this.imageSize;
+        settings.height = this.imageSize;
+
+        this.id = settings.id;
+
+        this._super(me.Renderable, 'init', [this.pivotX, this.pivotY + this.id * this.multiplierY, this.weaponIconSize * 2 + this.weaponIconGap, this.weaponIconSize]);
+        this.anchorPoint.set(0, 0);
+
+        this.alwaysUpdate = true;
+        this.floating = true;
+    },
+
+    draw: function(context)
+    {
+        this.player = game.units.getPlayerListWithDead()[this.id];
+        this.weaponFront = this.player.data.currentWeapon;
+        this.weaponBack = this.player.data.anotherWeapon;
+
+        var color = context.getColor();
+
+        context.setColor(this.weaponFront.color);
+        context.drawImage(
+            me.loader.getImage(this.image), 
+            // this.image, 
+            this.weaponFront.iconIdx % this.imageGridCount * this.imageGrid, //sx
+            Math.floor(this.weaponFront.iconIdx / this.imageGridCount) * this.imageGrid, //sy
+            this.imageGrid, //sw
+            this.imageGrid, //sh
+            this.pos.x, this.pos.y, this.imageGrid, this.imageGrid // dx, dy, dw, dh
+        );
+
+        if(typeof this.weaponBack !== "undefined")
+        {
+            context.setColor(this.weaponBack.color);
+            context.drawImage(
+                me.loader.getImage(this.image), 
+                // this.image, 
+                this.weaponBack.iconIdx % this.imageGridCount * this.imageGrid, //sx
+                Math.floor(this.weaponBack.iconIdx / this.imageGridCount) * this.imageGrid, //sy
+                this.imageGrid, //sw
+                this.imageGrid, //sh
+                this.pos.x + this.weaponIconSize + this.weaponIconGap, this.pos.y, this.imageGrid, this.imageGrid // dx, dy, dw, dh
+            );
+        }
+
+        context.setColor(color);
+    },
+});
+
+game.UI.WeaponSwitchButton = me.GUI_Object.extend(
+{
+    init:function (x, y, settings)
+    {
+        // FIXME: another image !
+        settings.image = "healButton";
+        settings.framewidth = 16;
+        settings.frameheight = 16;
+        this.id = settings.id;
+        this._super(me.GUI_Object, "init", [x, y, settings]);
+
+        this.pos.z = 4;
+    },
+
+    onClick:function (event)
+    {
+        this.player = game.units.getPlayerListWithDead()[this.id];
+
+        if(this.player.data.alive)
+        {
+            this.player.data.switchWeapon();
         }
         return false;
     }

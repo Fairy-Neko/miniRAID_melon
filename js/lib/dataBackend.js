@@ -154,6 +154,7 @@ game.dataBackend.Mob = me.Object.extend
         this.accessory = settings.accessory;// || new game.Accessory(settings);
 
         this.currentWeapon = this.weaponLeft;
+        this.anotherWeapon = this.weaponRight;
 
         // Is this mob a player?
         this.isPlayer = settings.isPlayer || false;
@@ -179,6 +180,17 @@ game.dataBackend.Mob = me.Object.extend
 
         // Which class should be used when realize this mob ?
         this.mobPrototype = settings.mobPrototype || game.Mobs.TestMob;
+    },
+
+    switchWeapon: function()
+    {
+        if(typeof this.anotherWeapon !== "undefined")
+        {
+            var tmp = this.currentWeapon;
+            this.currentWeapon = this.anotherWeapon;
+            this.anotherWeapon = tmp;
+        }
+        // TODO: trigger onWeaponChange()
     },
 
     getPercentage: function(parameter)
