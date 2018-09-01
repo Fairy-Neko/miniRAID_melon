@@ -128,9 +128,11 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
             healInfo.target.receiveBuff({
                 source: this,
                 buff: new game.Buff.LifeRegen({
-                    time: 6.0,
+                    time: 16.0,
                     healTotal: healAmount,
-                    healGap: 1.0,
+                    healGap: 2.0,
+
+                    name: "生命之种",
                 }),
                 popUp: true,
             });
@@ -207,9 +209,13 @@ game.dataBackend.Spell.NekoClawGrass = game.dataBackend.Spell.base.extend
             target[i].receiveBuff({
                 source: mob,
                 buff: new game.Buff.LifeRegen({
-                    time: 8.0,
-                    healTotal: 24,
+                    time: 12.0,
+                    healTotal: 20,
                     healGap: 1.5,
+                    
+                    color: "#ffff00",
+                    name: "猫爪草",
+                    popUpName: "MEOW",
                 }),
                 popUp: true,
             })

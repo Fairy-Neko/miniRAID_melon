@@ -182,8 +182,17 @@ var game = {
                 }), isPlayer: true, health: 60, mobPrototype: game.PlayerMobs.test, image: "healer_girl2"}));
 
             this.data.backend.addPlayer(
-                new game.dataBackend.Mob(
-                    {name: "(H) fairy " + i, weaponLeft: new game.Weapon.ChibiFairyLamp({}), 
+                new game.dataBackend.Mob({
+                    name: "(H) fairy " + i, 
+                    weaponLeft: new game.Weapon.ChibiFairyLamp({}), 
+                    weaponRight: new game.Weapon.TestHealStaff(
+                        {
+                            baseAttackSpeed: game.helper.getRandomFloat(1.0, 1.3),
+                            activeRange: game.helper.getRandomInt(150, 175),
+                            targetCount: 1,
+                            power: 15,
+                            manaCost: 15,
+                        }),
                     isPlayer: true, health: 60, mag: 5, mobPrototype: game.PlayerMobs.FloraFairy}));
         }
 

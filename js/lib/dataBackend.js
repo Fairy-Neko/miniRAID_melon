@@ -156,6 +156,9 @@ game.dataBackend.Mob = me.Object.extend
         this.currentWeapon = this.weaponLeft;
         this.anotherWeapon = this.weaponRight;
 
+        // Should we switch the weapon now ?
+        this.shouldSwitchWeapon = false;
+
         // Is this mob a player?
         this.isPlayer = settings.isPlayer || false;
 
@@ -184,13 +187,7 @@ game.dataBackend.Mob = me.Object.extend
 
     switchWeapon: function()
     {
-        if(typeof this.anotherWeapon !== "undefined")
-        {
-            var tmp = this.currentWeapon;
-            this.currentWeapon = this.anotherWeapon;
-            this.anotherWeapon = tmp;
-        }
-        // TODO: trigger onWeaponChange()
+        this.shouldSwitchWeapon = true;
     },
 
     getPercentage: function(parameter)
@@ -211,6 +208,22 @@ game.dataBackend.Mob = me.Object.extend
 
     updateMobBackend: function(mob, dt)
     {
+        // Switch weapon ?
+        if(this.shouldSwitchWeapon === true)
+        {
+            this.shouldSwitchWeapon = false;
+            
+            if(typeof this.anotherWeapon !== "undefined")
+            {
+                var tmp = this.currentWeapon;
+                this.currentWeapon = this.anotherWeapon;
+                this.anotherWeapon = tmp;
+            }
+    
+            // I switched my weapon !!!
+            this.updateListeners('onSwitchWeapon', [mob, this.currentWeapon]);
+        }
+
         // Update all listeners
         this.updateListeners('onUpdate', [mob, dt]);
         for (let listener of this.listeners.values())
@@ -609,6 +622,9 @@ game.MobListener = me.Object.extend
     // This will be triggered before onStatCalculation.
     // e.g. reduce remain time, etc.
     onUpdate: function(mob, dt) {},
+
+    // Be triggered when the mob switches its weapon.
+    onSwitchWeapon: function(mob, weapon) {},
 
     // Following functions return a boolean.
     // True:    the damage / heal was modified.

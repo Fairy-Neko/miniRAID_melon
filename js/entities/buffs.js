@@ -280,7 +280,7 @@ game.Buff.LifeRegen = game.Buff.base.extend
         settings.stacks = settings.stacks || 1;
         settings.color = settings.color || "#71ff42";
         settings.popUp = settings.popUp || false;
-        settings.popupName = "SEED"
+        settings.popupName = settings.popUpName || "SEED";
 
         this._super(game.Buff.base, 'init', [settings]);
 

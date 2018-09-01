@@ -468,6 +468,8 @@ game.Spell.TestHealBeam = game.Spell.base.extend
         var visualPos = visualSource.getRenderPos(0.5, 0.5);
         this._super(game.Spell.base, 'init', [visualPos.x, visualPos.y, source, target, settings, false]);
 
+        this.name = settings.name || "Test heal stuff: attack";
+
         this.setRotation(rotation);
         this.setScale(scaleX, 1);
 

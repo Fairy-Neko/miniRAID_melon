@@ -554,7 +554,7 @@ game.UI.raidFrame = me.Renderable.extend
             buffId = -1;
         }
 
-        console.log("player: " + playerIdx + "buff: " + buffId);
+        // console.log("player: " + playerIdx + "buff: " + buffId);
 
         // test
         if(playerIdx < 0 || playerIdx >= this.dataList.length || buffId >= this.dataList[playerIdx].buffList.size || buffId == -1)
