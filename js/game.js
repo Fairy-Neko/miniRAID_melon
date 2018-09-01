@@ -194,14 +194,17 @@ var game = {
             choice = 0; // force spawn ranged DPS
             if(choice < 0.5)
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, weaponLeft: new game.Weapon.DPSHomingStaff(
-                    {
-                        baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
-                        activeRange: game.helper.getRandomInt(200, 240),
-                        targetCount: 3,
-                        power: 7,
-                        manaCost: 2,
-                    }), isPlayer: true, health: 65, mobPrototype: game.PlayerMobs.test, image: "magical_girl2"}));
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, 
+                    weaponLeft: new game.Weapon.DPSHomingStaff(
+                        {
+                            baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
+                            activeRange: game.helper.getRandomInt(200, 240),
+                            targetCount: 3,
+                            power: 7,
+                            manaCost: 2,
+                        }),
+                    weaponRight: new game.Weapon.ChibiFairyLamp({}),
+                    isPlayer: true, health: 65, mag: 5, mobPrototype: game.PlayerMobs.test, image: "magical_girl2"}));
             }
             else
             {
