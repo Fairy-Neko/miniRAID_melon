@@ -29,15 +29,15 @@ game.UI.Container = me.Container.extend
         // add our child score object at the top left corner
         game.UI.popupMgr = new game.UI.PopupTextManager(0, 0);
 
-        // game.UI.damageMonitor = new game.UI.BattleMonitor(me.game.viewport.width - 100, me.game.viewport.height - 12*9 - 2, {
-        //     grabFunction: game.data.monitor.getDPSList.bind(game.data.monitor),
-        //     title: "Damage Per Sec",
-        // });
+        game.UI.damageMonitorS = new game.UI.BattleMonitor(me.game.viewport.width - 320, me.game.viewport.height - 12*9 - 2, {
+            grabFunction: game.data.monitor.getDPSList.bind(game.data.monitor),
+            title: "Damage Per Sec",
+        });
 
-        // game.UI.healMonitor = new game.UI.BattleMonitor(me.game.viewport.width - 200, me.game.viewport.height - 12*9 - 2, {
-        //     grabFunction: game.data.monitor.getHPSList.bind(game.data.monitor),
-        //     title: "Heal Per Sec",
-        // });
+        game.UI.healMonitorS = new game.UI.BattleMonitor(me.game.viewport.width - 420, me.game.viewport.height - 12*9 - 2, {
+            grabFunction: game.data.monitor.getHPSList.bind(game.data.monitor),
+            title: "Heal Per Sec",
+        });
 
         game.UI.damageMonitor = new game.UI.BattleMonitor(me.game.viewport.width - 100, me.game.viewport.height - 12*9 - 2, {
             grabFunction: game.data.monitor.getDamageList.bind(game.data.monitor),
@@ -57,7 +57,9 @@ game.UI.Container = me.Container.extend
         game.UI.unitFrameSlots = new game.UI.unitFrameSlots();
         
         this.addChild(game.UI.damageMonitor);
+        this.addChild(game.UI.damageMonitorS);
         this.addChild(game.UI.healMonitor);
+        this.addChild(game.UI.healMonitorS);
         this.addChild(game.UI.raidFrame);
         this.addChild(game.UI.unitFrameSlots);
         this.addChild(game.UI.popupMgr);
