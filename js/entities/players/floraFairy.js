@@ -146,6 +146,16 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
         // FIXME: remove this !
         this.data.currentFlower.forceCast(this, undefined);
     },
+
+    onStatCalculation(mob)
+    {
+        mob.data.battleStats.attackPower.nature = mob.data.baseStats.mag + mob.data.baseStats.int * 0.5;
+    },
+
+    onStatCalculationFinish(mob)
+    {
+        mob.data.battleStats.attackPower.heal = mob.data.battleStats.attackPower.nature;
+    },
 });
 
 game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend

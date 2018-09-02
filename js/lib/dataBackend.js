@@ -89,6 +89,13 @@ game.dataBackend.Mob = me.Object.extend
             mag: settings.mag || 1,
         };
 
+        // Used to store the player base stats before any modifiers (but after lvlup, talent selections etc.)
+        this.baseStatsFundemental = {};
+        for(let stat in this.baseStats)
+        {
+            this.baseStatsFundemental[stat] = this.baseStats[stat];
+        }
+
         // Stats (cannot increase directly)
         this.battleStats = {
             resist: {
@@ -121,7 +128,7 @@ game.dataBackend.Mob = me.Object.extend
                 fire: 0,
                 ice: 0,
                 water: 0,
-                nature: 25, 
+                nature: 0, 
                 wind: 0,
                 thunder: 0,
                 light: 0,
@@ -224,11 +231,11 @@ game.dataBackend.Mob = me.Object.extend
             this.addListener(this.currentWeapon);
     
             // I switched my weapon !!!
-            this.updateListeners('onSwitchWeapon', [mob, this.currentWeapon]);
+            this.updateListeners(mob, 'onSwitchWeapon', [mob, this.currentWeapon]);
         }
 
         // Update all listeners
-        this.updateListeners('onUpdate', [mob, dt]);
+        this.updateListeners(mob, 'onUpdate', [mob, dt]);
         for (let listener of this.listeners.values())
         {
             if(listener.isOver && listener.isOver == true)
@@ -241,8 +248,7 @@ game.dataBackend.Mob = me.Object.extend
 
         // calculate Stats
         // TODO: seperate calculation to 2 phase, base and battle stats.
-        this.calcStats();
-        this.updateListeners('onStatCalculation', [mob]);
+        this.calcStats(mob);
 
         // update spells
         for (let spell in this.spells)
@@ -256,7 +262,7 @@ game.dataBackend.Mob = me.Object.extend
 
     // Function used to tell buffs and agents what was going on
     // when damage and heal happens. They can modify them.
-    updateListeners: function(method, args)
+    updateListeners: function(mob, method, args)
     {
         var flag = false;
         if(!Array.isArray(args))
@@ -264,10 +270,18 @@ game.dataBackend.Mob = me.Object.extend
             args = [args];
         }
 
-        // call every listener
+        // call the mob firstly
+        if(
+            (mob.enabled == undefined || mob.enabled && mob.enabled == true)
+          && mob[method])
+        {
+            mob[method].apply(mob, args);   
+        }
+
+        // call every listener except mob
         for(let listener of this.listeners.values())
         {
-            if(
+            if(  listener != mob && 
                 (listener.enabled == undefined || listener.enabled && listener.enabled == true)
               && listener[method])
             {
@@ -328,19 +342,104 @@ game.dataBackend.Mob = me.Object.extend
         this.listeners.delete(listener);
     },
 
-    calcStats: function()
+    calcStats: function(mob)
     {
         // TODO: Stats calculation:
         // 1. Calculate (get) base stats from self
-        // 2. Add equipment base stats to self by listener.calcBaseStats()
-        // 3. Calculate battle (advanced) stats from base stats (e.g. atkPower = INT * 0.7 * floor( MAG * 1.4 ) ... )
-        // 4. Add equipment by listener.calcStats()
-        // 5. Finish
+        for(let stat in this.baseStats)
+        {
+            this.baseStats[stat] = this.baseStatsFundemental[stat];
+        }
 
-        //Go back to base speed
+        // 2. Add equipment base stats to self by listener.calcBaseStats()
+        this.updateListeners(mob, 'onBaseStatCalculation', [mob]);        
+
+        // 3. Reset battle stats
+        this.battleStats = {
+            resist: {
+                physical: 0,
+                elemental: 0,
+                pure: 0, // It should be 0
+
+                slash: 0,
+                knock: 0,
+                pierce: 0,
+                fire: 0,
+                ice: 0,
+                water: 0,
+                nature: 0,
+                wind: 0,
+                thunder: 0,
+                light: 0,
+
+                heal: 0,
+            },
+
+            attackPower: {
+                physical: 0,
+                elemental: 0,
+                pure: 0, // It should be 0
+
+                slash: 0,
+                knock: 0,
+                pierce: 0,
+                fire: 0,
+                ice: 0,
+                water: 0,
+                nature: 0, 
+                wind: 0,
+                thunder: 0,
+                light: 0,
+
+                heal: 0, 
+            },
+
+            // Write a helper to get hit / avoid / crit percentage from current level and parameters ?
+            // Percentage
+            // Those are basic about overall hit accuracy & avoid probabilities, critical hits.
+            // Advanced actions (avoid specific spell) should be calculated inside onReceiveDamage() etc.
+            // Same for shields, healing absorbs (Heal Pause ====...===...==...=>! SS: [ABSORB]!!! ...*&@^#), etc.
+            hitAcc: 100,
+            avoid: 0,
+
+            // Percentage
+            crit: 0, // Should crit have types? e.g. physical elemental etc.
+            antiCrit: 0,
+
+            // Parry for shield should calculate inside the shield itself when onReceiveDamage().
+
+            attackRange: 0,
+            extraRange: 0,
+        };
+
+        this.tauntMul = 1.0;
+
+        // Go back to base speed
         this.modifiers.speed = 1.0;
         this.modifiers.movingSpeed = 1.0;
         this.modifiers.attackSpeed = 1.0;
+        this.modifiers.spellSpeed = 1.0;
+
+        // Calculate health from stats
+        this.healthRatio = this.currentHealth / this.maxHealth;
+        this.maxHealth = 
+            this.baseStats.vit * 10
+          + this.baseStats.str * 8
+          + this.baseStats.dex * 4
+          + this.baseStats.tec * 4
+          + this.baseStats.int * 4
+          + this.baseStats.mag * 4;
+        this.currentHealth = Math.ceil(this.healthRatio * this.maxHealth);
+
+        // 4. Calculate battle (advanced) stats from base stats (e.g. atkPower = INT * 0.7 * floor( MAG * 1.4 ) ... )
+        // 5. Add equipment by listener.calcStats()
+        // Actually, those steps were combined in a single call,
+        // as the calculation step of each class will happen in their player classes,
+        // which should be the first called listener in updateListeners().
+        this.updateListeners(mob, 'onStatCalculation', [mob]);
+        this.updateListeners(mob, 'onStatCalculationFinish', [mob]);
+
+        // 5. Finish
     },
 
     receiveDamage: function(damageInfo)
@@ -357,10 +456,10 @@ game.dataBackend.Mob = me.Object.extend
                 damageInfo.target.data.getPercentage(damageInfo.target.data.battleStats.avoid));
         }
 
-        this.updateListeners('onReceiveDamage', damageInfo);
+        this.updateListeners(damageInfo.target, 'onReceiveDamage', damageInfo);
         if (damageInfo.source)
         {
-            damageInfo.source.data.updateListeners('onDealDamage', damageInfo);
+            damageInfo.source.data.updateListeners(damageInfo.source, 'onDealDamage', damageInfo);
         }
         game.units.boardcast('onFocusReceiveDamage', damageInfo.target, damageInfo);
         game.units.boardcast('onFocusDealDamage', damageInfo.source, damageInfo);
@@ -393,6 +492,7 @@ game.dataBackend.Mob = me.Object.extend
             // damage% = 0.9659 ^ resist
             // This is, every 1 point of resist reduces corresponding damage by 3.41%, 
             // which will reach 50% damage reducement at 20 points.
+            // TODO: it should all correspond to current level (resist based on source level, atkPower based on target level, same as healing)
             damageInfo.damage[dmgType] = Math.ceil(
                 damageInfo.damage[dmgType] * 
                 (Math.pow(
@@ -409,10 +509,10 @@ game.dataBackend.Mob = me.Object.extend
         // Let everyone know what is happening
         // damageObj.damage = finalDmg;
 
-        this.updateListeners('onReceiveDamageFinal', damageInfo);
+        this.updateListeners(damageInfo.target, 'onReceiveDamageFinal', damageInfo);
         if(damageInfo.source)
         {
-            damageInfo.source.data.updateListeners('onDealDamageFinal', damageInfo);
+            damageInfo.source.data.updateListeners(damageInfo.source, 'onDealDamageFinal', damageInfo);
         }
         game.units.boardcast('onFocusReceiveDamageFinal', damageInfo.target, damageInfo);
         game.units.boardcast('onFocusDealDamageFinal', damageInfo.source, damageInfo);
@@ -427,10 +527,10 @@ game.dataBackend.Mob = me.Object.extend
             if(this.currentHealth <= 0)
             {
                 // Let everyone know what is happening
-                this.updateListeners('onDeath', damageInfo);
+                this.updateListeners(damageInfo.target, 'onDeath', damageInfo);
                 if(damageInfo.source)
                 {
-                    damageInfo.source.data.updateListeners('onKill', damageInfo);
+                    damageInfo.source.data.updateListeners(damageInfo.source, 'onKill', damageInfo);
                 }
                 game.units.boardcast('onFocusDeath', damageInfo.target, damageInfo);
                 game.units.boardcast('onFocusKill', damageInfo.source, damageInfo);
@@ -459,10 +559,10 @@ game.dataBackend.Mob = me.Object.extend
         }
 
         // Let everyone know what is happening
-        this.updateListeners('onReceiveHeal', healInfo);
+        this.updateListeners(healInfo.target, 'onReceiveHeal', healInfo);
         if(healInfo.source)
         {
-            healInfo.source.data.updateListeners('onDealHeal', healInfo);
+            healInfo.source.data.updateListeners(healInfo.source, 'onDealHeal', healInfo);
         }
         game.units.boardcast('onFocusReceiveHeal', healInfo.target, healInfo);
         game.units.boardcast('onFocusDealHeal', healInfo.source, healInfo);
@@ -499,10 +599,10 @@ game.dataBackend.Mob = me.Object.extend
         healInfo.heal.over = healInfo.heal.total - healInfo.heal.real;
 
         // Let buffs and agents know what is happening
-        this.updateListeners('onReceiveHealFinal', healInfo);
+        this.updateListeners(healInfo.target, 'onReceiveHealFinal', healInfo);
         if(healInfo.source)
         {
-            healInfo.source.data.updateListeners('onDealHealFinal', healInfo);
+            healInfo.source.data.updateListeners(healInfo.source, 'onDealHealFinal', healInfo);
         }
         game.units.boardcast('onFocusReceiveHealFinal', healInfo.target, healInfo);
         game.units.boardcast('onFocusDealHealFinal', healInfo.source, healInfo);
@@ -618,7 +718,9 @@ game.MobListener = me.Object.extend
     // Be triggered when the mob is calculating its stats.
     // Typically, this will trigged on start of each frame.
     // On every frame, the stats of the mob will be recalculated from its base value.
+    onBaseStatCalculation: function(mob) {},
     onStatCalculation: function(mob) {},
+    onStatCalculationFinish: function(mob) {},
 
     // Be triggered when the mob is attacking.
     // This is triggered before the mob's attack.
@@ -710,11 +812,11 @@ game.Equipable = game.MobListener.extend
             str: 0,
             dex: 0,
             tec: 0,
-            int: 9,
+            int: 0, // Why it was nine ⑨ before ?????????????????????????????????????
             mag: 0,
         };
 
-        this.healthIncreasement = 0;
+        // this.healthIncreasement = 0;
 
         this.battleStats = {
             resist: {

@@ -171,7 +171,7 @@ var game = {
                     targetCount: 1,
                     power: 2,
                     manaCost: 1,
-                }), isPlayer: true, health: 120, tauntMul: 5.0, mobPrototype: game.PlayerMobs.ForestElfGuardian, image: "tank_girl2",});
+                }), isPlayer: true, health: 120, str: 5, vit: 3, mobPrototype: game.PlayerMobs.ForestElfGuardian, image: "tank_girl2",});
 
             // give them a taunt skill
             tank.spells.taunt = new game.dataBackend.Spell.Taunt({});
@@ -203,7 +203,7 @@ var game = {
                             power: 15,
                             manaCost: 15,
                         }),
-                    isPlayer: true, health: 60, mag: 5, mobPrototype: game.PlayerMobs.FloraFairy}));
+                    isPlayer: true, health: 60, mag: 5, int: 2, mobPrototype: game.PlayerMobs.FloraFairy}));
         }
 
         // DPS

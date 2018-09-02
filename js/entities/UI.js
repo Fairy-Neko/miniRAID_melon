@@ -580,7 +580,7 @@ game.UI.raidFrame = me.Renderable.extend
 
             game.UIManager.showToolTip({
                 titleColor: buff.color,
-                title: buff.toolTip.title + " (" + buff.stacks + ")",
+                title: buff.toolTip.title + " (" + buff.stacks + ") - " + Math.floor(buff.timeRemain) + "s",
                 bodyText: buff.toolTip.text,
             });
         }

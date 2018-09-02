@@ -66,6 +66,14 @@ game.Weapon.base = game.Equipable.extend
         return undefined;
     },
 
+    onBaseStatCalculation(mob)
+    {
+        for(let stat in this.stats)
+        {
+            mob.data.baseStats[stat] += this.stats[stat];
+        }
+    },
+
     onStatCalculation: function(mob)
     {
 
@@ -503,6 +511,8 @@ game.Weapon.TestShield = game.Weapon.base.extend
         this._super(game.Weapon.base, 'init', [settings]);
         this.name = "test shield";
         this.weaponType = game.data.weaponType.shield;
+
+        this.stats.vit = 3;
 
         this.power = settings.power || 5;
 

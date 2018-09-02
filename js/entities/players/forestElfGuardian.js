@@ -56,4 +56,16 @@ game.PlayerMobs.ForestElfGuardian = game.PlayerMobs.base.extend
             this.data.spells.taunt.forceCast(mob);
         }
     },
+
+    onStatCalculation(mob)
+    {
+        mob.data.battleStats.resist.physical = mob.data.baseStats.vit + mob.data.baseStats.str * 0.5;
+        mob.data.battleStats.resist.elemental = mob.data.baseStats.str + mob.data.baseStats.vit * 0.5;
+
+        mob.data.tauntMul = 5.0;
+    },
+
+    onStatCalculationFinish(mob)
+    {
+    },
 });

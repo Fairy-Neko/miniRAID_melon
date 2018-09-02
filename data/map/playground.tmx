@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="84">
+<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="159">
  <tileset firstgid="1" name="ground_tiles" tilewidth="32" tileheight="32" tilecount="441" columns="21">
   <image source="../img/ground_tiles.png" width="672" height="701"/>
  </tileset>
@@ -78,190 +78,200 @@
     <property name="spawnCount" type="int" value="8"/>
    </properties>
   </object>
-  <object id="35" name="testMob" x="839.333" y="237.333" width="32" height="32">
+  <object id="37" name="testMob" x="835" y="299.333" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="37" name="testMob" x="804.333" y="313.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="38" name="testMob" x="886" y="317" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="45" name="testMob" x="983" y="248.666" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="49" name="testMob" x="880.666" y="286.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="54" name="testMob" x="800.666" y="165.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="55" name="testMob" x="937" y="225.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="56" name="testMob" x="932" y="149.666" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="58" name="testMob" x="889.333" y="154.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="60" name="testMob" x="829.667" y="315" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="63" name="testMob" x="843.334" y="189.667" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="65" name="testMob" x="812.333" y="296.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="66" name="testMob" x="880.333" y="205.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="67" name="testMob" x="824.667" y="256" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="68" name="testMob" x="851.333" y="359.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="69" name="testMob" x="898" y="377" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="70" name="testMob" x="874.667" y="258" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="71" name="testMob" x="829.667" y="176" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="72" name="testMob" x="948.333" y="172.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="73" name="testMob" x="900.666" y="222" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="74" name="testMob" x="881" y="354" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
-   </properties>
-  </object>
-  <object id="75" name="testMob" x="891.667" y="321.333" width="32" height="32">
-   <properties>
-    <property name="framewidth" type="int" value="32"/>
-    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
    </properties>
   </object>
   <object id="80" name="testBoss" x="473.667" y="388.333" width="56" height="56">
    <properties>
     <property name="framewidth" type="int" value="56"/>
     <property name="image" value="fatthing"/>
+    <property name="vit" type="float" value="350"/>
    </properties>
   </object>
-  <object id="76" name="testMob" x="940.666" y="315.333" width="32" height="32">
+  <object id="84" name="testMob" x="844.667" y="213.333" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
    </properties>
   </object>
-  <object id="77" name="testMob" x="969.333" y="317.333" width="32" height="32">
+  <object id="85" name="testMob" x="885.333" y="268.667" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
    </properties>
   </object>
-  <object id="78" name="testMob" x="885.333" y="344.666" width="32" height="32">
+  <object id="86" name="testMob" x="904.667" y="284" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
    </properties>
   </object>
-  <object id="79" name="testMob" x="959.333" y="290" width="32" height="32">
+  <object id="87" name="testMob" x="820" y="271.333" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
    </properties>
   </object>
-  <object id="80" name="testMob" x="865.333" y="266" width="32" height="32">
+  <object id="88" name="testMob" x="880.667" y="201.333" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
    </properties>
   </object>
-  <object id="81" name="testMob" x="863.333" y="128" width="32" height="32">
+  <object id="89" name="testMob" x="920.667" y="197.333" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
    </properties>
   </object>
-  <object id="82" name="testMob" x="915.334" y="208" width="32" height="32">
+  <object id="90" name="testMob" x="884" y="362.334" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
    </properties>
   </object>
-  <object id="83" name="testMob" x="929.334" y="260" width="32" height="32">
+  <object id="91" name="testMob" x="897.667" y="251.667" width="32" height="32">
    <properties>
     <property name="framewidth" type="int" value="32"/>
     <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="92" name="testMob" x="964.333" y="287" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="93" name="testMob" x="944.333" y="320.334" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="94" name="testMob" x="873" y="309.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="95" name="testMob" x="928.333" y="250.333" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="96" name="testMob" x="973.667" y="235.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="100" name="testMob" x="905.666" y="209" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="101" name="testMob" x="834.333" y="198.333" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="111" name="testMob" x="870.667" y="345" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="112" name="testMob" x="870.334" y="304.333" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="113" name="testMob" x="937" y="339.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="114" name="testMob" x="825" y="335" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="115" name="testMob" x="845.667" y="362.333" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="116" name="testMob" x="904.334" y="315" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="117" name="testMob" x="941" y="267.666" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="123" name="testMob" x="915" y="370.333" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="124" name="testMob" x="955" y="366.333" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="157" name="testMob" x="851.333" y="252.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="158" name="testMob" x="964.667" y="194.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
    </properties>
   </object>
  </objectgroup>
