@@ -532,6 +532,14 @@ game.Weapon.TestShield = game.Weapon.base.extend
         me.game.world.addChild(me.pool.pull("testFireball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
     },
 
+    onReceiveDamage: function(damageInfo)
+    {
+        for(var dmgType in damageInfo.damage)
+        {
+            damageInfo.damage[dmgType] *= 0.7;
+        }
+    },
+
     grabTargets: function(mob)
     {
         return result = game.units.getNearest(mob.getRenderPos(0.5, 0.5), isPlayer = !mob.data.isPlayer, count = this.targetCount);

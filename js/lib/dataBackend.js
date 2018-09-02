@@ -219,6 +219,9 @@ game.dataBackend.Mob = me.Object.extend
                 this.currentWeapon = this.anotherWeapon;
                 this.anotherWeapon = tmp;
             }
+
+            this.removeListener(this.anotherWeapon);
+            this.addListener(this.currentWeapon);
     
             // I switched my weapon !!!
             this.updateListeners('onSwitchWeapon', [mob, this.currentWeapon]);
@@ -327,6 +330,13 @@ game.dataBackend.Mob = me.Object.extend
 
     calcStats: function()
     {
+        // TODO: Stats calculation:
+        // 1. Calculate (get) base stats from self
+        // 2. Add equipment base stats to self by listener.calcBaseStats()
+        // 3. Calculate battle (advanced) stats from base stats (e.g. atkPower = INT * 0.7 * floor( MAG * 1.4 ) ... )
+        // 4. Add equipment by listener.calcStats()
+        // 5. Finish
+
         //Go back to base speed
         this.modifiers.speed = 1.0;
         this.modifiers.movingSpeed = 1.0;
