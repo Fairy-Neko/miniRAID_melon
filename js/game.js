@@ -24,7 +24,7 @@ var game = {
         playerSparse: 12,
         playerSparseInc: 2,
         playerMax: 8,
-        useAutomove : false,
+        useAutomove : true,
         moveThreshold : 150,
 
         // How much heal will taunt? (multiplier)
@@ -147,21 +147,31 @@ var game = {
         this.data.backend = new game.dataBackend();
         this.data.monitor = new game.dataBackend.BattleMonitor();
 
-        var playerType = [1, 1, 5];
+        // var playerType = [1, 1, 5];
         // var playerType = [2, 1, 4];
-        // var playerType = [2, 2, 4];
+        var playerType = [2, 2, 4];
 
         // Tank
         for(var i = 0; i < playerType[0]; i++)
         {
-            var tank = new game.dataBackend.Mob({name: "(T) girl " + i, weaponLeft: new game.Weapon.TestStaff(
-                {
+            var tank = new game.dataBackend.Mob({name: "(T) girl " + i, 
+                weaponLeft: new game.Weapon.TestStaff
+                ({
                     baseAttackSpeed: game.helper.getRandomFloat(0.2, 0.3),
                     activeRange: game.helper.getRandomInt(40, 60),
                     targetCount: 1,
                     power: 2,
                     manaCost: 1,
-                }), isPlayer: true, health: 120, tauntMul: 5.0, mobPrototype: game.PlayerMobs.test, image: "tank_girl2",});
+                }), 
+                
+                weaponRight: new game.Weapon.TestShield
+                ({
+                    baseAttackSpeed: game.helper.getRandomFloat(0.2, 0.3),
+                    activeRange: game.helper.getRandomInt(40, 60),
+                    targetCount: 1,
+                    power: 2,
+                    manaCost: 1,
+                }), isPlayer: true, health: 120, tauntMul: 5.0, mobPrototype: game.PlayerMobs.ForestElfGuardian, image: "tank_girl2",});
 
             // give them a taunt skill
             tank.spells.taunt = new game.dataBackend.Spell.Taunt({});
@@ -172,14 +182,14 @@ var game = {
         // Healer
         for(var i = 0; i < playerType[1]; i++)
         {
-            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(H) girl " + i, weaponLeft: new game.Weapon.TestHealStaff(
-                {
-                    baseAttackSpeed: game.helper.getRandomFloat(1.0, 1.3),
-                    activeRange: game.helper.getRandomInt(150, 175),
-                    targetCount: 1,
-                    power: 15,
-                    manaCost: 15,
-                }), isPlayer: true, health: 60, mobPrototype: game.PlayerMobs.test, image: "healer_girl2"}));
+            // this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(H) girl " + i, weaponLeft: new game.Weapon.TestHealStaff(
+            //     {
+            //         baseAttackSpeed: game.helper.getRandomFloat(1.0, 1.3),
+            //         activeRange: game.helper.getRandomInt(150, 175),
+            //         targetCount: 1,
+            //         power: 15,
+            //         manaCost: 15,
+            //     }), isPlayer: true, health: 60, mobPrototype: game.PlayerMobs.test, image: "healer_girl2"}));
 
             this.data.backend.addPlayer(
                 new game.dataBackend.Mob({

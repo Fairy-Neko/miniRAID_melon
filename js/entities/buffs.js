@@ -26,7 +26,7 @@ game.Buff.base = game.MobListener.extend
 
         //stacks of the buff (if any)
         this.stacks = settings.stacks || 1;
-        this.stackable = settings.stackable || true; 
+        this.stackable = settings.stackable || false; 
 
         //cellIndex of this buff in the buffIcons image, might be shown under boss lifebar / player lifebar
         this.iconId = settings.iconId || 0;
@@ -160,6 +160,7 @@ game.Buff.Bloodlust = game.Buff.base.extend
         settings.name = settings.name || "bloodlustBuff";
         settings.time = settings.time || 10.0;
         settings.stacks = settings.stacks || 1;
+        settings.stackable = true;
         settings.iconId = 2;
         settings.popupName = "TIME WARP!",
         settings.color = settings.color || "#FF5566";
@@ -171,20 +172,26 @@ game.Buff.Bloodlust = game.Buff.base.extend
         this.toolTip = 
         {
             title: "嗜血术", 
-            text: "行动速度提升40%。"
+            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%",
         };
     },
 
     onUpdate: function(mob, deltaTime)
     {
         this._super(game.Buff.base, 'onUpdate', [mob, deltaTime]);
+
+        this.toolTip = 
+        {
+            title: "嗜血术", 
+            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%",
+        };
     },
 
     onStatCalculation: function(mob)
     {
         if('modifiers' in mob.data)
         {
-            mob.data.modifiers.attackSpeed = 1.4 * mob.data.modifiers.attackSpeed;
+            mob.data.modifiers.attackSpeed = Math.pow(1.4, this.stacks) * mob.data.modifiers.attackSpeed;
         }
     },
 });

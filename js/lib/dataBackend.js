@@ -283,6 +283,11 @@ game.dataBackend.Mob = me.Object.extend
             // maybe we should add stacks here
             if(localBuff.name === buff.name && localBuff.source === buff.source){
                 localBuff.timeRemain = buff.timeMax;
+
+                if(localBuff.stackable === true)
+                {
+                    localBuff.stacks += 1;
+                }
                 return;
             }
         }
@@ -566,6 +571,11 @@ game.dataBackend.Spell.base = me.Object.extend
             this.coolDownRemain = this.coolDown;
             this.onCast(mob, target);
         }
+    },
+
+    forceCast: function(mob, target)
+    {
+        this.onCast(mob, target);
     },
 
     isAvailable: function(mob)

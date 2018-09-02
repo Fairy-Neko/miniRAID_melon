@@ -77,6 +77,13 @@ game.UI.Container = me.Container.extend
         this.toolTip.body = this.toolTip.toolTip.querySelector("#body");
     },
 
+    update(dt)
+    {
+        this._super(me.Container, 'update', [dt]);
+
+        game.data.monitor.update(dt);
+    },
+
     // You can use any HTML in title and bodytext.
     // See index.html body > #screen > #UI > #toolTip.
     showToolTip({
@@ -240,7 +247,6 @@ game.UI.BattleMonitor = me.Renderable.extend
 
     update: function(dt)
     {
-        game.data.monitor.update(dt);
     },
 
     draw: function(context)

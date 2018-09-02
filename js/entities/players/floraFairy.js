@@ -139,7 +139,13 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
 
             this.data.currentFlower.cast(this, undefined);
         }
-    }
+    },
+
+    onSwitchWeapon(mob, weapon)
+    {
+        // FIXME: remove this !
+        this.data.currentFlower.forceCast(this, undefined);
+    },
 });
 
 game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend

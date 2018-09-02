@@ -367,6 +367,7 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
     {
         this._super(game.Weapon.base, 'init', [settings]);
         this.name = "Chibi fairy lamp";
+        this.weaponType = game.data.weaponType.magicItem;
 
         this.minPower = settings.minPower || 3;
         this.maxPower = settings.maxPower || 5;
@@ -487,6 +488,48 @@ game.Weapon.DPSHomingStaff = game.Weapon.base.extend
         }
 
         me.game.world.addChild(me.pool.pull("testHomingIceball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
+    },
+
+    grabTargets: function(mob)
+    {
+        return result = game.units.getNearest(mob.getRenderPos(0.5, 0.5), isPlayer = !mob.data.isPlayer, count = this.targetCount);
+    },
+});
+
+game.Weapon.TestShield = game.Weapon.base.extend
+({
+    init: function(settings)
+    {
+        this._super(game.Weapon.base, 'init', [settings]);
+        this.name = "test shield";
+        this.weaponType = game.data.weaponType.shield;
+
+        this.power = settings.power || 5;
+
+        if(me.pool.exists("testFireball") === false)
+        {
+            me.pool.register("testFireball", game.Spell.TestFireball, true);
+        }
+
+        this.iconIdx = 2;
+        this.color = '#ffcccc';
+    },
+
+    attack: function(mob, target)
+    {
+        var settings = {};
+        if(target.data.isPlayer === true)
+        {
+            settings.isTargetPlayer = true;
+        }
+        else
+        {
+            settings.isTargetEnemy = true;
+        }
+
+        settings.power = this.power;
+
+        me.game.world.addChild(me.pool.pull("testFireball", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, target, settings));
     },
 
     grabTargets: function(mob)
