@@ -474,7 +474,7 @@ game.Mobs.base = game.Moveable.extend(
 
         return false;
     },
-
+    
     // Will be called when a buff is going to affect the mob.
     // If anything some object with buff ability (e.g. fireball can fire sth up) hits has method receiveBuff(),
     // receiveBuff() will be called and the mob will be buffed.

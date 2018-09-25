@@ -56,6 +56,11 @@ body {
     pointer-events: none;
 }
 
+#tooltip > p
+{
+    line-height: 130%;
+}
+
 #tooltip > h1
 {
     color: gold;

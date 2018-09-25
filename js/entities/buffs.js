@@ -172,7 +172,7 @@ game.Buff.Bloodlust = game.Buff.base.extend
         this.toolTip = 
         {
             title: "嗜血术", 
-            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%",
+            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%" + "<br/>生命值上限提高" + Math.ceil((Math.pow(1.1, this.stacks) - 1.0) * 100) + "%",
         };
     },
 
@@ -183,12 +183,15 @@ game.Buff.Bloodlust = game.Buff.base.extend
         this.toolTip = 
         {
             title: "嗜血术", 
-            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%",
+            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%" + "<br/>生命值上限提高" + Math.ceil((Math.pow(1.5, this.stacks) - 1.0) * 100) + "%",
         };
     },
 
     onStatCalculation: function(mob)
     {
+        mob.data.maxHealth *= Math.pow(1.5, this.stacks);
+        mob.data.currentMana = 100;
+
         if('modifiers' in mob.data)
         {
             mob.data.modifiers.attackSpeed = Math.pow(1.4, this.stacks) * mob.data.modifiers.attackSpeed;
@@ -294,6 +297,8 @@ game.Buff.LifeRegen = game.Buff.base.extend
         this.healPower = Math.ceil(settings.healTotal / (settings.time / settings.healGap)) || 3;
         this.healGap = settings.healGap || 1.2;
         this.healCountTotal = Math.floor(settings.time / settings.healGap);
+
+        this.vitIncrease = settings.vitInc || 0;
         
         this.timer = 0.0;
         this.healCount = 0;
@@ -308,11 +313,27 @@ game.Buff.LifeRegen = game.Buff.base.extend
             }
         });
 
-        this.toolTip = 
+        if(this.vitIncrease > 0)
         {
-            title: this.name || "生命之种", 
-            text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值。"
-        };
+            this.toolTip = 
+            {
+                title: this.name || "生命之种", 
+                text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值，" + "<br/>并提高" + this.vitIncrease + "点体格。",
+            };
+        }
+        else
+        {
+            this.toolTip = 
+            {
+                title: this.name || "生命之种", 
+                text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值。",
+            };
+        }
+    },
+
+    onBaseStatCalculation(mob)
+    {
+        mob.data.baseStats.vit += this.vitIncrease;
     },
 
     onUpdate: function(mob, deltaTime)

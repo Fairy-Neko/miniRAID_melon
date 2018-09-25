@@ -131,6 +131,7 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
                     time: 16.0,
                     healTotal: healAmount,
                     healGap: 2.0,
+                    vitInc: 1,
 
                     name: "生命之种",
                 }),
@@ -163,7 +164,7 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
     init: function(settings)
     {
         settings.coolDown = 6.0;
-        settings.manaCost = 10;
+        settings.manaCost = 15;
 
         this._super(game.dataBackend.Spell.base, 'init', [settings]);
     },
@@ -215,6 +216,18 @@ game.dataBackend.Spell.NekoClawGrass = game.dataBackend.Spell.base.extend
         if(typeof target === "undefined")
         {
             target = game.units.getUnitList({
+                availableTest: 
+                    function(mob)
+                    {
+                        for(let localBuff of mob.data.buffList)
+                        {
+                            if(localBuff.name === "猫爪草")
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    },
                 sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
                 isPlayer: mob.data.isPlayer,
             }).slice(0, 3);
@@ -228,6 +241,7 @@ game.dataBackend.Spell.NekoClawGrass = game.dataBackend.Spell.base.extend
                     time: 12.0,
                     healTotal: 20,
                     healGap: 1.5,
+                    vitInc: 0,
                     
                     color: "#ffff00",
                     name: "猫爪草",

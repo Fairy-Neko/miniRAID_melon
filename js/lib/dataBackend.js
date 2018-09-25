@@ -78,6 +78,58 @@ game.dataBackend.Mob = me.Object.extend
         this.baseSpeed = settings.baseSpeed || 2.0;
         this.baseAttackSpeed = settings.baseAttackSpeed || 20.0;
 
+        /*
+        Idle (canCastSpell):
+            globalCDRemain <= 0
+            inCasting == false
+            inChanneling == false
+
+        Cast a spell:
+            mob.cast(spell):
+                * start GCD timer
+                if(spell.isCast) 
+                    inCasting = true
+                    castTime = xxx
+                    castRemain = castTime
+                    currentSpell = spell
+                else
+                    mob.finishCast(spell)
+            ->
+            mob.update():
+                if(castRemain >= 0) castRemain -= dt
+            ->
+            mob.finishCast(currentSpell):
+                if(spell.isChannel)
+                    inCasting = false
+                    inChanneling = true
+                    channelTime = xxx
+                    channelTimeFactor = xxx
+                    channelRemain = channelTime
+                else
+                    inCasting = false
+
+                spell.cast(mob, target)
+            ->
+            mob.update():
+                if(channelRemain >= 0) channelRemain -= dt
+                spell.onChanneling(mob, target, dt * channelTimeFactor)
+            ->
+            inChanneling = false
+        */
+        this.globalCDRemain = 0;
+
+        this.inCasting = false;
+        this.castTime = 0;
+        this.castRemain = 0;
+
+        this.inChanneling = false;
+        this.channelTime = 0;
+        this.channelTimeFactor = 1.0;
+        this.channelRemain = 0;
+
+        this.currentSpell = undefined;
+        this.currentSpellTarget = undefined;
+
         // Stats
         this.level = settings.level || 1;
         this.baseStats = {
@@ -246,6 +298,52 @@ game.dataBackend.Mob = me.Object.extend
             }
         }
 
+        // Mana Regen
+        if(typeof this.currentWeapon !== undefined)
+        {
+            this.currentMana += dt * this.currentWeapon.manaRegen * 0.001;
+        }
+        if(this.currentMana > this.maxMana)
+        {
+            this.currentMana = this.maxMana;
+        }
+
+        // Spell Casting
+        if(this.globalCDRemain > 0)
+        {
+            this.globalCDRemain -= dt * 0.001;
+        }
+        else
+        {
+            this.globalCDRemain = 0;
+        }
+
+        if(this.inCasting == true)
+        {
+            if(this.castRemain > 0)
+            {
+                this.castRemain -= dt * 0.001;
+            }
+            else
+            {
+                this.inCasting = false;
+                this.finishCast(mob, this.currentSpellTarget, this.currentSpell);
+            }
+        }
+
+        if(this.inChanneling == true)
+        {
+            if(this.channelRemain > 0)
+            {
+                this.channelRemain -= dt * 0.001;
+                this.currentSpell.onChanneling(mob, this.currentSpellTarget, dt * 0.001 * this.channelTimeFactor);
+            }
+            else
+            {
+                this.inChanneling = false;
+            }
+        }
+
         // calculate Stats
         // TODO: seperate calculation to 2 phase, base and battle stats.
         this.calcStats(mob);
@@ -298,7 +396,7 @@ game.dataBackend.Mob = me.Object.extend
         {
             // no more unlimited bloodlust!
             // maybe we should add stacks here
-            if(localBuff.name === buff.name && localBuff.source === buff.source){
+            if(localBuff.name === buff.name/* && localBuff.source === buff.source*/){
                 localBuff.timeRemain = buff.timeMax;
 
                 if(localBuff.stackable === true)
@@ -340,6 +438,50 @@ game.dataBackend.Mob = me.Object.extend
         }
 
         this.listeners.delete(listener);
+    },
+
+    cast: function(mob, target, spell)
+    {
+        // Check if ready to cast
+        if(mob.data.canCastSpell() == false)
+        {
+            return;
+        }
+
+        // TODO: Check mana cost, cooldown etc.
+        // May combined into readyToCast().
+
+        // Start GCD Timer
+        mob.data.globalCDRemain = spell.globalCoolDown / mob.data.modifiers.spellSpeed;
+
+        if(spell.isCast == true)
+        {
+            // Start casting
+            mob.data.inCasting = true;
+            mob.data.castTime = spell.castTime / mob.data.modifiers.spellSpeed;
+            mob.data.castRemain = mob.data.castTime;
+            mob.data.currentSpell = spell;
+        }
+        else
+        {
+            mob.data.finishCast(mob, target, spell);
+        }
+    },
+
+    finishCast: function(mob, target, spell)
+    {
+        mob.data.inCasting = false;
+
+        if(spell.isChannel == true)
+        {
+            // Start channeling
+            mob.data.inChanneling = true;
+            mob.data.channelTimeFactor = mob.data.modifiers.spellSpeed;
+            mob.data.channelTime = spell.channelTime / mob.data.channelTimeFactor;
+            mob.data.channelRemain = mob.data.channelTime;
+        }
+
+        spell.cast(mob, target);
     },
 
     calcStats: function(mob)
@@ -403,7 +545,7 @@ game.dataBackend.Mob = me.Object.extend
             avoid: 0,
 
             // Percentage
-            crit: 0, // Should crit have types? e.g. physical elemental etc.
+            crit: 20, // Should crit have types? e.g. physical elemental etc.
             antiCrit: 0,
 
             // Parry for shield should calculate inside the shield itself when onReceiveDamage().
@@ -429,7 +571,6 @@ game.dataBackend.Mob = me.Object.extend
           + this.baseStats.tec * 4
           + this.baseStats.int * 4
           + this.baseStats.mag * 4;
-        this.currentHealth = Math.ceil(this.healthRatio * this.maxHealth);
 
         // 4. Calculate battle (advanced) stats from base stats (e.g. atkPower = INT * 0.7 * floor( MAG * 1.4 ) ... )
         // 5. Add equipment by listener.calcStats()
@@ -440,6 +581,8 @@ game.dataBackend.Mob = me.Object.extend
         this.updateListeners(mob, 'onStatCalculationFinish', [mob]);
 
         // 5. Finish
+        this.maxHealth = Math.ceil(this.maxHealth);
+        this.currentHealth = Math.ceil(this.healthRatio * this.maxHealth);
     },
 
     receiveDamage: function(damageInfo)
@@ -616,7 +759,12 @@ game.dataBackend.Mob = me.Object.extend
 
     canCastSpell: function()
     {
-        return true;
+        if(this.globalCDRemain <= 0 && this.inCasting == false && this.inChanneling == false)
+        {
+            return true;
+        }
+
+        return false;
     },
 
     useMana: function(mana)
@@ -656,12 +804,16 @@ game.dataBackend.Spell.base = me.Object.extend
 
         // Available when init
         this.coolDownRemain = 0;
+        this.globalCoolDown = 0;
 
         // priority should be calculated on the fly
         this.priority = 0;
         this.available = true;
 
-        // TODO: casting time?
+        this.isChannel = false;
+        this.isCast = false;
+        this.castTime = 0;
+        this.channelTime = 0;
     },
 
     update: function(mob, dt)
@@ -672,7 +824,12 @@ game.dataBackend.Spell.base = me.Object.extend
         }
 
         this.available = this.isAvailable(mob);
+        this.onUpdate(mob, dt);
     },
+
+    onUpdate: function(mob, dt) {},
+
+    onChanneling: function(mob, target, dt) {},
 
     cast: function(mob, target)
     {

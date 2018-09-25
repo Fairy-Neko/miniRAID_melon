@@ -24,7 +24,7 @@ var game = {
         playerSparse: 12,
         playerSparseInc: 2,
         playerMax: 8,
-        useAutomove : true,
+        useAutomove : false,
         moveThreshold : 150,
 
         // How much heal will taunt? (multiplier)
@@ -65,7 +65,7 @@ var game = {
             knock: 1.6,  
             pierce: 2.5,  
             fire: 2.0,
-            ice: 2.5,
+            ice: 2.0,
             water: 1.6,
             nature: 2.0,
             wind: 2.5,
@@ -203,7 +203,7 @@ var game = {
                             power: 15,
                             manaCost: 15,
                         }),
-                    isPlayer: true, health: 60, mag: 5, int: 2, mobPrototype: game.PlayerMobs.FloraFairy}));
+                    isPlayer: true, health: 60, vit: 3, mag: 5, int: 2, mobPrototype: game.PlayerMobs.FloraFairy}));
         }
 
         // DPS
@@ -223,7 +223,7 @@ var game = {
                             manaCost: 2,
                         }),
                     weaponRight: new game.Weapon.ChibiFairyLamp({}),
-                    isPlayer: true, health: 65, mag: 5, mobPrototype: game.PlayerMobs.test, image: "magical_girl2"}));
+                    isPlayer: true, health: 65, vit: 2, int: 5, mobPrototype: game.PlayerMobs.HumanMageIceFire, image: "magical_girl2"}));
             }
             else
             {

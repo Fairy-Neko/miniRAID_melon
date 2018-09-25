@@ -544,10 +544,10 @@ game.Weapon.TestShield = game.Weapon.base.extend
 
     onReceiveDamage: function(damageInfo)
     {
-        for(var dmgType in damageInfo.damage)
-        {
-            damageInfo.damage[dmgType] *= 0.7;
-        }
+        // for(var dmgType in damageInfo.damage)
+        // {
+        //     damageInfo.damage[dmgType] *= 0.7;
+        // }
     },
 
     grabTargets: function(mob)

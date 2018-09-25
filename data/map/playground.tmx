@@ -89,7 +89,7 @@
    <properties>
     <property name="framewidth" type="int" value="56"/>
     <property name="image" value="fatthing"/>
-    <property name="vit" type="float" value="350"/>
+    <property name="vit" type="float" value="35000"/>
    </properties>
   </object>
   <object id="84" name="testMob" x="844.667" y="213.333" width="32" height="32">

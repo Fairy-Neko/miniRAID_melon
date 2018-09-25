@@ -818,3 +818,57 @@ game.dataBackend.Spell.Taunt = game.dataBackend.Spell.base.extend
         }
     },
 });
+
+//
+// ─── FOREST ELF ACADEMIC ────────────────────────────────────────────────────────
+//
+
+game.dataBackend.Spell.ForestElf = game.dataBackend.Spell.ForestElf || {};
+game.dataBackend.Spell.ForestElf.MagicEnhancement = game.dataBackend.Spell.ForestElf.MagicEnhancement || {};
+
+game.dataBackend.Spell.ForestElf.MagicEnhancement.Fire = game.dataBackend.Spell.base.extend
+({
+    init: function(settings)
+    {
+        settings.coolDown = 5.0;
+        settings.manaCost = 0;
+
+        this._super(game.dataBackend.Spell.base, 'init', [settings]);
+    },
+
+    onCast: function(mob, target)
+    {
+        // For test: automatically grabs target
+        if(typeof target === "undefined")
+        {
+            var tmpPos = mob.getRenderPos(0.5, 0.5);
+            target = game.units.getUnitList({
+                availableTest: function(a) { return (tmpPos.distance(a.getRenderPos(0.5, 0.5)) < 100); },
+                isPlayer: !mob.data.isPlayer,
+            });
+        }
+
+        if(target.length <= 0)
+        {
+            return;
+        }
+
+        // Generate a spell dummy
+        var spellDummy = new game.Spell.dummy({
+            source: mob, 
+            name: "Test Taunt",
+            flags: {
+                hasTarget: true,
+            },
+        });
+
+        // Taunt targets
+        for(var i = 0; i < target.length; i++)
+        {
+            if(typeof target[i].agent.changeTaunt !== "undefined")
+            {
+                target[i].agent.changeTaunt({source: mob, taunt: 2000});
+            }
+        }
+    },
+})

@@ -194,12 +194,6 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
             }
         }
 
-        player.data.currentMana += dt * player.data.currentWeapon.manaRegen * 0.001;
-        if(player.data.currentMana > player.data.maxMana)
-        {
-            player.data.currentMana = player.data.maxMana
-        }
-
         // Attack !
         // Todo: attack single time for multi targets, they should add same amount of weapon gauge (basically)
         if(player.doAttack(dt) === true)
