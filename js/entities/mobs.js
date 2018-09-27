@@ -430,6 +430,15 @@ game.Mobs.base = game.Moveable.extend(
 
     updateMoveable: function(dt)
     {
+        if(this.renderable.isCurrentAnimation("move") == true)
+        {
+            this.data.isMoving = true;
+        }
+        else
+        {
+            this.data.isMoving = false;
+        }
+
         // Tell data backend to update our data.
         // This does almost all the things with our backend data (status calculation, update listeners, etc.)
         this.data.updateMobBackend(this, dt);
@@ -780,10 +789,10 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
 
         settings.weaponLeft = new game.Weapon.TestBossStaff
         ({
-            baseAttackSpeed: game.helper.getRandomFloat(1.4, 1.5),
-            activeRange: game.helper.getRandomInt(200, 201),
-            power: 32,
-            targetCount: 1,
+            baseAttackSpeed: 1.2,
+            activeRange: 200,
+            power: 45,
+            targetCount: 2,
         });
 
         settings.agent = game.MobAgent.TauntBased;
@@ -816,6 +825,12 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
         // }
 
         me.collision.check(this);
+    },
+
+    onStatCalculation: function(mob)
+    {
+        // Horrible !!
+        mob.data.battleStats.crit = 0;
     },
 
     onCollision: function(response, other)

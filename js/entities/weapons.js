@@ -141,8 +141,8 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
             me.pool.register("testStarBomb", game.Spell.TestStarBomb, true);
         }
 
-        this.countMax = 5;
-        this.count = 5;
+        this.countMax = 2;
+        this.count = 2;
         this.type = "stand";
     },
 

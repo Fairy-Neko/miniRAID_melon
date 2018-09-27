@@ -219,9 +219,12 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
         {
             if(player.data.spells.hasOwnProperty(spell))
             {
-                if(player.data.spells[spell].available)
+                if(this.isMoving == false)
                 {
-                    player.data.spells[spell].cast(player);
+                    if(player.data.spells[spell].available)
+                    {
+                        player.data.cast(player, null, player.data.spells[spell])
+                    }
                 }
             }
         }

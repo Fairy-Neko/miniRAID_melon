@@ -267,6 +267,12 @@ game.UI.BattleMonitor = me.Renderable.extend
             maxLength = Math.max(maxLength, dataList[i].length);
         }
 
+        if(maxLength <= 0)
+        {
+            context.restore();
+            return;
+        }
+
         for(var i = 0; i < dataList.length; i++)
         {
             context.setColor('#ffffff');
@@ -415,6 +421,37 @@ game.UI.raidFrame = me.Renderable.extend
                 context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 8, sliceLength + 1, 9);
 
                 // TODO: CASTING BAR
+                if(this.dataList[i].inCasting)
+                {
+                    // TODO: Custom spell cast bar color
+                    context.setColor('#6d6d6d');
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth - 1, 3)
+
+                    context.setColor('#ff91d8');
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, 
+                        (1 - this.dataList[i].castRemain / this.dataList[i].castTime) * (this.gridWidth - 1), 3);
+                    
+                    context.setColor('#ffffff');
+                    this.font.set("right");
+                    this.font.draw(context, this.dataList[i].currentSpell.name, this.pos.x + this.gridWidth, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 20);
+                    this.font.set("left");
+                }
+
+                if(this.dataList[i].inChanneling)
+                {
+                    // TODO: Custom spell cast bar color
+                    context.setColor('#6d6d6d');
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth - 1, 3)
+
+                    context.setColor('#dcff96');
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, 
+                        (this.dataList[i].channelRemain / this.dataList[i].channelTime) * (this.gridWidth - 1), 3);
+                    
+                    context.setColor('#ffffff');
+                    this.font.set("right");
+                    this.font.draw(context, this.dataList[i].currentSpell.name, this.pos.x + this.gridWidth, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 20);
+                    this.font.set("left");
+                }
 
                 // Left-upper corner white block = has been targeted
                 if(this.dataList[i].beingAttack)
@@ -523,10 +560,10 @@ game.UI.raidFrame = me.Renderable.extend
             context.setColor('#ffffff');
             
             // Show a part of player name (should be full name after testing)
-            this.font.draw(context, this.dataList[i].name, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 20);
+            this.font.draw(context, this.dataList[i].name, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 16);
 
             // Player HP
-            this.font.draw(context, this.dataList[i].currentHealth + "/" + this.dataList[i].maxHealth, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 27);
+            this.font.draw(context, this.dataList[i].currentHealth + "/" + this.dataList[i].maxHealth, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 23);
 
             // Player Mana
             this.font.draw(context, Math.round(this.dataList[i].currentMana) + "/" + this.dataList[i].maxMana, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 34);

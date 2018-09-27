@@ -116,6 +116,8 @@ game.dataBackend.Mob = me.Object.extend
             ->
             inChanneling = false
         */
+        this.isMoving = false;
+
         this.globalCDRemain = 0;
 
         this.inCasting = false;
@@ -316,6 +318,15 @@ game.dataBackend.Mob = me.Object.extend
         else
         {
             this.globalCDRemain = 0;
+        }
+
+        if(this.isMoving == true)
+        {
+            // TODO: check if this can cast during moving
+            this.inCasting = false;
+            this.inChanneling = false;
+            this.castRemain = 0;
+            this.channelRemain = 0;
         }
 
         if(this.inCasting == true)
@@ -801,6 +812,7 @@ game.dataBackend.Spell.base = me.Object.extend
         // CD (sec)
         this.coolDown = settings.coolDown || 10.0;
         this.manaCost = settings.manaCost || 0;
+        this.name = settings.name || "Spell";
 
         // Available when init
         this.coolDownRemain = 0;

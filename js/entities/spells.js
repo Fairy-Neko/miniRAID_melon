@@ -785,14 +785,11 @@ game.dataBackend.Spell.Taunt = game.dataBackend.Spell.base.extend
     onCast: function(mob, target)
     {
         // For test: automatically grabs target
-        if(typeof target === "undefined")
-        {
-            var tmpPos = mob.getRenderPos(0.5, 0.5);
-            target = game.units.getUnitList({
-                availableTest: function(a) { return (tmpPos.distance(a.getRenderPos(0.5, 0.5)) < 100); },
-                isPlayer: !mob.data.isPlayer,
-            });
-        }
+        var tmpPos = mob.getRenderPos(0.5, 0.5);
+        target = game.units.getUnitList({
+            availableTest: function(a) { return (tmpPos.distance(a.getRenderPos(0.5, 0.5)) < 100); },
+            isPlayer: !mob.data.isPlayer,
+        });
 
         if(target.length <= 0)
         {
