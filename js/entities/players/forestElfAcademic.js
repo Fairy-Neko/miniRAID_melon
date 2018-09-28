@@ -75,6 +75,7 @@ game.PlayerMobs.ForestElfAcademic = game.PlayerMobs.base.extend
 game.dataBackend.Spell.Elf = game.dataBackend.Spell.Elf || {};
 game.dataBackend.Spell.Elf.MagicEnhancement = game.dataBackend.Spell.Elf.MagicEnhancement || {};
 
+// Need weapon skill queue or elf academic cannot work
 game.dataBackend.Spell.Elf.MagicEnhancement.Fire = game.dataBackend.Spell.base.extend
 ({
     init: function(settings)
@@ -86,7 +87,7 @@ game.dataBackend.Spell.Elf.MagicEnhancement.Fire = game.dataBackend.Spell.base.e
         this._super(game.dataBackend.Spell.base, 'init', [settings]);
 
         this.isCast = true;
-        this.castTime = 1.0;
+        this.castTime = 0.5;
     },
 
     onCast: function(mob, target)
@@ -111,7 +112,7 @@ game.dataBackend.Spell.Elf.MagicEnhancement.Thunder = game.dataBackend.Spell.bas
         this._super(game.dataBackend.Spell.base, 'init', [settings]);
 
         this.isCast = true;
-        this.castTime = 1.0;
+        this.castTime = 0.5;
     },
 
     onCast: function(mob, target)
@@ -179,18 +180,56 @@ game.Buff.Elf.MagicRing.FireFireFire = game.Buff.base.extend
             return true;
         }
 
+        // for debug
+        return true;
+
         // For test: Fire -> Fire
         switch (this.currentType) 
         {
             case "fire":
-                if(newType == "thunder")
+                if(newType == "thunder" || newType == "light")
+                {
+                    return true;
+                }
+                return false;
+
+            case "light":
+                if(newType == "fire" || newType == "nature")
+                {
+                    return true;
+                }
+                return false;
+
+            case "ice":
+                if(newType == "water" || newType == "wind")
+                {
+                    return true;
+                }
+                return false;
+
+            case "water":
+                if(newType == "ice" || newType == "nature")
                 {
                     return true;
                 }
                 return false;
             
             case "thunder":
-                if(newType == "fire")
+                if(newType == "wind" || newType == "fire")
+                {
+                    return true;
+                }
+                return false;
+
+            case "wind":
+                if(newType == "thunder" || newType == "fire")
+                {
+                    return true;
+                }
+                return false;
+
+            case "nature":
+                if(newType == "water" || newType == "light")
                 {
                     return true;
                 }
@@ -205,7 +244,7 @@ game.Buff.Elf.MagicRing.FireFireFire = game.Buff.base.extend
     {
         if(this.canStack(newType) == false)
         {
-            // TODO: generate spirit etc.
+            // TODO: Summon spirits
             this.stacks = 0;
             this.currentType = null;
             this.magicTypes = [];
