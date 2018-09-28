@@ -472,6 +472,11 @@ game.Mobs.base = game.Moveable.extend(
 
         this.attackCounter += dt * 0.001;
 
+        if(this.data.canCastSpell() == false)
+        {
+            return false;
+        }
+
         if(this.attackCounter > (this.data.getAttackSpeed()))
         {
             // This will cause mutiple attacks if attackspeed increases.
@@ -728,6 +733,14 @@ game.Mobs.base = game.Moveable.extend(
         }
         me.game.world.removeChild(this);
     },
+
+    // Listener interfaces
+    // When this listener was added to the mob by source
+    // Buffs will also be triggered when new stack comes.
+    onAdded: function(mob, source) {},
+
+    // When this listener was removed from the mob by source
+    onRemoved: function(mob, source) {},
 });
 
 game.Mobs.checkAlive = function(target)
@@ -789,9 +802,9 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
 
         settings.weaponLeft = new game.Weapon.TestBossStaff
         ({
-            baseAttackSpeed: 1.2,
+            baseAttackSpeed: 100.2,
             activeRange: 200,
-            power: 45,
+            power: 4,
             targetCount: 2,
         });
 

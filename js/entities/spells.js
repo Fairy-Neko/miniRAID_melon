@@ -361,7 +361,7 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
         settings.width = settings.width || 16;
         settings.height = settings.height || 24;
         settings.anchorPoint = new me.Vector2d(0.5, 0.5);
-        settings.name = "HomingIceBall";
+        settings.name = settings.name || "HomingIceBall";
 
         this._super(game.Spell.Projectile, 'init', [x, y, source, target, settings]);
 
@@ -369,6 +369,9 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
 
         this.speed = settings.projectileSpeed || 200;
         this.speedVector = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
+
+        this.flags.overTime = false;
+        this.flags.hasTarget = true;
 
         if(me.pool.exists("magicalHit") === false)
         {
@@ -778,8 +781,12 @@ game.dataBackend.Spell.Taunt = game.dataBackend.Spell.base.extend
     {
         settings.coolDown = 5.0;
         settings.manaCost = 0;
+        settings.name = "Taunt"
 
         this._super(game.dataBackend.Spell.base, 'init', [settings]);
+
+        this.isCast = true;
+        this.castTime = 1.0;
     },
 
     onCast: function(mob, target)
@@ -815,57 +822,3 @@ game.dataBackend.Spell.Taunt = game.dataBackend.Spell.base.extend
         }
     },
 });
-
-//
-// ─── FOREST ELF ACADEMIC ────────────────────────────────────────────────────────
-//
-
-game.dataBackend.Spell.ForestElf = game.dataBackend.Spell.ForestElf || {};
-game.dataBackend.Spell.ForestElf.MagicEnhancement = game.dataBackend.Spell.ForestElf.MagicEnhancement || {};
-
-game.dataBackend.Spell.ForestElf.MagicEnhancement.Fire = game.dataBackend.Spell.base.extend
-({
-    init: function(settings)
-    {
-        settings.coolDown = 5.0;
-        settings.manaCost = 0;
-
-        this._super(game.dataBackend.Spell.base, 'init', [settings]);
-    },
-
-    onCast: function(mob, target)
-    {
-        // For test: automatically grabs target
-        if(typeof target === "undefined")
-        {
-            var tmpPos = mob.getRenderPos(0.5, 0.5);
-            target = game.units.getUnitList({
-                availableTest: function(a) { return (tmpPos.distance(a.getRenderPos(0.5, 0.5)) < 100); },
-                isPlayer: !mob.data.isPlayer,
-            });
-        }
-
-        if(target.length <= 0)
-        {
-            return;
-        }
-
-        // Generate a spell dummy
-        var spellDummy = new game.Spell.dummy({
-            source: mob, 
-            name: "Test Taunt",
-            flags: {
-                hasTarget: true,
-            },
-        });
-
-        // Taunt targets
-        for(var i = 0; i < target.length; i++)
-        {
-            if(typeof target[i].agent.changeTaunt !== "undefined")
-            {
-                target[i].agent.changeTaunt({source: mob, taunt: 2000});
-            }
-        }
-    },
-})

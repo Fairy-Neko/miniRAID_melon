@@ -151,6 +151,8 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
     onStatCalculation(mob)
     {
         mob.data.battleStats.attackPower.nature = mob.data.baseStats.mag + mob.data.baseStats.int * 0.5;
+
+        // mob.data.modifiers.spellSpeed = 5.5;
     },
 
     onStatCalculationFinish(mob)
@@ -171,7 +173,7 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
 
         this.isCast = true;
         this.isChannel = true;
-        this.channelTime = 2.0;
+        this.channelTime = 20.0;
         this.castTime = 1.5;
 
         this.totalTime = 0;
@@ -180,6 +182,8 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
 
     onCast: function(mob, target)
     {
+        console.log("OnCast - Flora Heal");
+
         // For test: automatically grabs target
         target = game.units.getUnitList({
             sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
@@ -209,6 +213,7 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
 
     onChanneling: function(mob, target, dt)
     {
+        console.log("OnChanneling - Flora Heal");
         this.totalTime += dt;
         if(Math.ceil(this.totalTime / 1) > this.hitCount)
         {
@@ -234,7 +239,7 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
             targets.forEach(target => {
                 target.receiveHeal({
                     source: mob,
-                    heal: Math.ceil(3 * game.helper.getRandomFloat(0.8, 1.2)),
+                    heal: Math.ceil(30 * game.helper.getRandomFloat(0.8, 1.2)),
                     spell: spellDummy,
                 });
             });

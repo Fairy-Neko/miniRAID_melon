@@ -73,6 +73,7 @@ game.dataBackend.Mob = me.Object.extend
             movingSpeed: settings.movingSpeed || 1.0,
             attackSpeed: settings.attackSpeed || 1.0,
             spellSpeed: settings.spellSpeed || 1.0,
+            resourceCost: settings.resourceCost || 1.0,
         };
 
         this.baseSpeed = settings.baseSpeed || 2.0;
@@ -244,6 +245,9 @@ game.dataBackend.Mob = me.Object.extend
 
         // Which class should be used when realize this mob ?
         this.mobPrototype = settings.mobPrototype || game.Mobs.TestMob;
+
+        // I finally added this ... (x)
+        this.parentMob = undefined;
     },
 
     switchWeapon: function()
@@ -269,6 +273,12 @@ game.dataBackend.Mob = me.Object.extend
 
     updateMobBackend: function(mob, dt)
     {
+        // Register parent mob
+        if(typeof this.parentMob == undefined)
+        {
+            this.parentMob = mob;
+        }
+
         // Switch weapon ?
         if(this.shouldSwitchWeapon === true)
         {
@@ -403,18 +413,24 @@ game.dataBackend.Mob = me.Object.extend
 
     addBuff: function(buff)
     {
-        for(let localBuff of this.buffList)
+        if(buff.multiply == false)
         {
-            // no more unlimited bloodlust!
-            // maybe we should add stacks here
-            if(localBuff.name === buff.name/* && localBuff.source === buff.source*/){
-                localBuff.timeRemain = buff.timeMax;
-
-                if(localBuff.stackable === true)
+            for(let localBuff of this.buffList)
+            {
+                // no more unlimited bloodlust!
+                // maybe we should add stacks here
+                if(localBuff.name === buff.name/* && localBuff.source === buff.source*/)
                 {
-                    localBuff.stacks += 1;
+                    localBuff.timeRemain = buff.timeMax;
+
+                    if(localBuff.stackable === true)
+                    {
+                        localBuff.stacks += 1;
+                        localBuff.onAdded(this.parentMob, null);
+                    }
+
+                    return;
                 }
-                return;
             }
         }
         this.addListener(buff);
@@ -424,15 +440,32 @@ game.dataBackend.Mob = me.Object.extend
     {
         for(let localBuff of this.buffList)
         {
-            if(localBuff.name === buffname){
+            if(localBuff.name === buffname)
+            {
                 return localBuff;
             }
         }
+
+        return undefined;
+    },
+
+    findBuffIncludesName: function(buffname)
+    {
+        for(let localBuff of this.buffList)
+        {
+            if(localBuff.name.includes(buffname))
+            {
+                return localBuff;
+            }
+        }
+
+        return undefined;
     },
 
     addListener: function(listener)
     {
         this.listeners.add(listener);
+        listener.onAdded(this.parentMob, null);
 
         if(listener.isBuff)
         {
@@ -443,6 +476,9 @@ game.dataBackend.Mob = me.Object.extend
 
     removeListener: function(listener)
     {
+        // TODO: Who removed this listener ?
+        listener.onRemoved(this.parentMob, null);
+
         if(listener.isBuff)
         {
             this.buffList.delete(listener);
@@ -454,7 +490,7 @@ game.dataBackend.Mob = me.Object.extend
     cast: function(mob, target, spell)
     {
         // Check if ready to cast
-        if(mob.data.canCastSpell() == false)
+        if(mob.data.canCastSpell() == false || spell.preCast(mob, target) == false)
         {
             return;
         }
@@ -788,6 +824,15 @@ game.dataBackend.Mob = me.Object.extend
         return false;
     },
 
+    hasMana: function(mana)
+    {
+        if(this.currentMana >= mana)
+        {
+            return true;
+        }
+        return false;
+    },
+
     die: function({
         source = undefined, 
         damage = {},
@@ -841,12 +886,25 @@ game.dataBackend.Spell.base = me.Object.extend
 
     onUpdate: function(mob, dt) {},
 
+    onCast: function(mob, target) {},
+
     onChanneling: function(mob, target, dt) {},
+
+    preCast: function(mob, target)
+    {
+        if(this.available && mob.data.canCastSpell() && mob.data.hasMana(this.getManaCost(mob)))
+        {
+            return true;
+        }
+
+        return false;
+    },
 
     cast: function(mob, target)
     {
-        if(this.available && mob.data.canCastSpell() && mob.data.useMana(this.getManaCost(mob)))
+        if(this.available && mob.data.useMana(this.getManaCost(mob)))
         {
+            console.log("Casting spell - " + this.name);
             this.coolDownRemain = this.coolDown;
             this.onCast(mob, target);
         }
@@ -890,6 +948,13 @@ game.MobListener = me.Object.extend
     onBaseStatCalculation: function(mob) {},
     onStatCalculation: function(mob) {},
     onStatCalculationFinish: function(mob) {},
+
+    // When this listener was added to the mob by source
+    // Buffs will also be triggered when new stack comes.
+    onAdded: function(mob, source) {},
+
+    // When this listener was removed from the mob by source
+    onRemoved: function(mob, source) {},
 
     // Be triggered when the mob is attacking.
     // This is triggered before the mob's attack.

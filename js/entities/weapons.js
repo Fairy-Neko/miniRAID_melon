@@ -477,6 +477,7 @@ game.Weapon.DPSHomingStaff = game.Weapon.base.extend
             settings.image = "crystalcoin3";
             settings.width = 32;
             settings.height = 48;
+            settings.name = "Ice Spick"
             mob.data.removeListener(buff);
         }
         else

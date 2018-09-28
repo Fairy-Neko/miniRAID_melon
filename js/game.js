@@ -60,6 +60,19 @@ var game = {
 
         damageTypeArray : ["slash", "knock", "pierce", "fire", "ice", "water", "nature", "wind", "thunder", "light"],
 
+        damageTypeString: {
+            slash: "斩击",  
+            knock: "打击",  
+            pierce: "突刺",  
+            fire: "火",
+            ice: "冰",
+            water: "水",
+            nature: "自然",
+            wind: "风",
+            thunder: "雷",
+            light: "光",
+        },
+
         critMultiplier: {
             slash: 2.0,  
             knock: 1.6,  
@@ -150,6 +163,7 @@ var game = {
         // var playerType = [1, 1, 5];
         // var playerType = [2, 1, 4];
         var playerType = [2, 2, 4];
+        // var playerType = [0, 0, 1];
 
         // Tank
         for(var i = 0; i < playerType[0]; i++)
@@ -210,7 +224,7 @@ var game = {
         for(var i = 0; i < playerType[2]; i++)
         {
             var choice = Math.random();
-            choice = 0; // force spawn ranged DPS
+            // choice = 0; // force spawn ranged DPS
             if(choice < 0.5)
             {
                 this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, 
@@ -227,14 +241,17 @@ var game = {
             }
             else
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (M) " + i, weaponLeft: new game.Weapon.TestStaff(
-                    {
-                        baseAttackSpeed: game.helper.getRandomFloat(0.3, 0.5),
-                        activeRange: game.helper.getRandomInt(50, 70),
-                        targetCount: 1,
-                        power: 5,
-                        manaCost: 1,
-                    }), isPlayer: true, health: 100, mobPrototype: game.PlayerMobs.test, image: "magical_girl2"}));
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) elf girl (R) " + i, 
+                    weaponLeft: new game.Weapon.DPSHomingStaff(
+                        {
+                            baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
+                            activeRange: game.helper.getRandomInt(200, 240),
+                            targetCount: 3,
+                            power: 7,
+                            manaCost: 2,
+                        }),
+                    weaponRight: new game.Weapon.ChibiFairyLamp({}),
+                    isPlayer: true, health: 65, vit: 2, int: 5, mobPrototype: game.PlayerMobs.ForestElfAcademic, image: "magical_girl2"}));
             }
         }
 

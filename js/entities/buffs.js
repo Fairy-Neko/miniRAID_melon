@@ -15,6 +15,13 @@ game.Buff.base = game.MobListener.extend
         //This listener is a buff
         this.isBuff = true;
         
+        //Is this buff counts time?
+        this.countTime = true;
+        if(settings.hasOwnProperty("countTime"))
+        {
+            this.countTime = settings.countTime;
+        }
+
         //time in seconds, indicates the durtion of buff
         this.timeMax = settings.time || 1.0;
 
@@ -27,6 +34,7 @@ game.Buff.base = game.MobListener.extend
         //stacks of the buff (if any)
         this.stacks = settings.stacks || 1;
         this.stackable = settings.stackable || false; 
+        this.multiply = settings.multiply || false;
 
         //cellIndex of this buff in the buffIcons image, might be shown under boss lifebar / player lifebar
         this.iconId = settings.iconId || 0;
@@ -66,13 +74,15 @@ game.Buff.base = game.MobListener.extend
     onUpdate: function(mob, deltaTime)
     {
         // unit of deltaTime now becomes ms. (instead of s)
+        this._super(game.MobListener, 'onUpdate', [mob, deltaTime]);
 
-        this._super(game.MobListener, 'init', [mob, deltaTime]);
-
-        this.timeRemain -= deltaTime * 0.001;
-        if(this.timeRemain < 0)
+        if(this.countTime == true)
         {
-            this.isOver = true;
+            this.timeRemain -= deltaTime * 0.001;
+            if(this.timeRemain < 0)
+            {
+                this.isOver = true;
+            }
         }
     },
 });
@@ -187,6 +197,11 @@ game.Buff.Bloodlust = game.Buff.base.extend
         };
     },
 
+    onAdded: function(mob, source)
+    {
+        console.log("BloodLust added x" + this.stacks);
+    },
+
     onStatCalculation: function(mob)
     {
         mob.data.maxHealth *= Math.pow(1.5, this.stacks);
@@ -206,6 +221,8 @@ game.Buff.IceSpikeTriggered = game.Buff.base.extend
     {
         settings.name = settings.name || "IceSpick!";
         // time to kick some ass
+        // wtf TKSS means that ??????
+        // omgg
         settings.popupName = settings.popupName || "TKSS!";
         settings.time = settings.time || 10.0;
         settings.stacks = settings.stacks || 1;

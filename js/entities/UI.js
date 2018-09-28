@@ -267,7 +267,7 @@ game.UI.BattleMonitor = me.Renderable.extend
             maxLength = Math.max(maxLength, dataList[i].length);
         }
 
-        if(maxLength <= 0)
+        if(maxLength <= 0 || isNaN(maxLength))
         {
             context.restore();
             return;
@@ -326,7 +326,7 @@ game.UI.raidFrame = me.Renderable.extend
 
         // size of the buff (without outline)
         this.buffIconSize = settings.buffIconSize || 16;
-        this.outlinedIconSize = this.buffIconSize + 1;
+        this.outlinedIconSize = this.buffIconSize + 2;
 
         this.font = {};
         
@@ -425,11 +425,11 @@ game.UI.raidFrame = me.Renderable.extend
                 {
                     // TODO: Custom spell cast bar color
                     context.setColor('#6d6d6d');
-                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth - 1, 3)
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth, 3)
 
                     context.setColor('#ff91d8');
                     context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, 
-                        (1 - this.dataList[i].castRemain / this.dataList[i].castTime) * (this.gridWidth - 1), 3);
+                        (1 - this.dataList[i].castRemain / this.dataList[i].castTime) * (this.gridWidth), 3);
                     
                     context.setColor('#ffffff');
                     this.font.set("right");
@@ -441,11 +441,11 @@ game.UI.raidFrame = me.Renderable.extend
                 {
                     // TODO: Custom spell cast bar color
                     context.setColor('#6d6d6d');
-                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth - 1, 3)
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth, 3)
 
                     context.setColor('#dcff96');
                     context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, 
-                        (this.dataList[i].channelRemain / this.dataList[i].channelTime) * (this.gridWidth - 1), 3);
+                        (this.dataList[i].channelRemain / this.dataList[i].channelTime) * (this.gridWidth), 3);
                     
                     context.setColor('#ffffff');
                     this.font.set("right");
@@ -486,16 +486,6 @@ game.UI.raidFrame = me.Renderable.extend
                     //Buff color
                     var localcolor = new me.Color();
                     localcolor.parseHex(buff.color);
-                    
-                    if(Math.floor(buffNum / this.buffsPerRow) == 0)
-                    {
-                        yAdd = 1;
-                    }
-                    
-                    if((buffNum % this.buffsPerRow == (this.buffsPerRow - 1)) || buffNum == (this.dataList[i].buffList.size - 1))
-                    {
-                        xAdd = 1;
-                    }
 
                     // Outline rect
                     context.setColor(localcolor.darken(0.7));
@@ -566,7 +556,7 @@ game.UI.raidFrame = me.Renderable.extend
             this.font.draw(context, this.dataList[i].currentHealth + "/" + this.dataList[i].maxHealth, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 23);
 
             // Player Mana
-            this.font.draw(context, Math.round(this.dataList[i].currentMana) + "/" + this.dataList[i].maxMana, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 34);
+            this.font.draw(context, Math.round(this.dataList[i].currentMana) + "/" + this.dataList[i].maxMana, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 35);
             
         }
 
@@ -615,9 +605,15 @@ game.UI.raidFrame = me.Renderable.extend
             // need more great ways ?
             var buff = [...this.dataList[playerIdx].buffList][buffId];
 
+            var str = buff.toolTip.title + " (" + buff.stacks + ")";
+            if(buff.countTime == true)
+            {
+                str += " - " + Math.floor(buff.timeRemain) + "s";
+            }
+
             game.UIManager.showToolTip({
                 titleColor: buff.color,
-                title: buff.toolTip.title + " (" + buff.stacks + ") - " + Math.floor(buff.timeRemain) + "s",
+                title: str,
                 bodyText: buff.toolTip.text,
             });
         }
