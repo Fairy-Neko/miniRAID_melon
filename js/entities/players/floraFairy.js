@@ -22,6 +22,7 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
         // Animations
         this.renderable.addAnimation("idle", [0, 1, 2, 3, 4]);
         this.renderable.addAnimation("move", [0, 1, 2, 3, 4]);
+        this.renderable.addAnimation("dead", [5]);
 
         this.renderable.setCurrentAnimation("idle");
 

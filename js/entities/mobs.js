@@ -718,8 +718,6 @@ game.Mobs.base = game.Moveable.extend(
     {
         this.data.die({source: source, damage: damage});
 
-        me.game.world.removeChild(this.HPBar);
-
         this.body.collisionType = me.collision.types.NO_OBJECT;
 
         if(this.data.isPlayer === true)
@@ -729,9 +727,10 @@ game.Mobs.base = game.Moveable.extend(
         }
         else
         {
+            me.game.world.removeChild(this.HPBar);
             game.units.removeEnemy(this);
+            me.game.world.removeChild(this);
         }
-        me.game.world.removeChild(this);
     },
 
     // Listener interfaces
@@ -742,6 +741,11 @@ game.Mobs.base = game.Moveable.extend(
     // When this listener was removed from the mob by source
     onRemoved: function(mob, source) {},
 });
+
+game.Mobs.checkExist = function(target)
+{
+    return ((typeof target !== "undefined") && (typeof target.renderable !== "undefined") && (typeof target.body !== "undefined"));
+};
 
 game.Mobs.checkAlive = function(target)
 {

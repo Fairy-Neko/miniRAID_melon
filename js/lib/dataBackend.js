@@ -839,6 +839,7 @@ game.dataBackend.Mob = me.Object.extend
     } = {})
     {
         this.beingAttack = 0;
+        this.alive = false;
     },
 });
 

@@ -47,7 +47,7 @@ game.Utils.TestHPBarRenderable = me.Renderable.extend
         
         // HP
         renderer.setColor('#ff4c4c');
-        renderer.fillRect(0, 0, this.width * this.HPBarParent.percentage, this.height);
+        renderer.fillRect(0, 0, this.width * Math.max(this.HPBarParent.percentage, 0), this.height);
 
         renderer.setColor(color);
     }

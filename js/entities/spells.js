@@ -720,6 +720,7 @@ game.Spell.ChibiFairyLampSpecial = game.Spell.base.extend
         // this.setScale(2, 2);
 
         this.power = settings.power || 10;
+        this.isPlayer = this.target.data.isPlayer;
 
         this.timer = 600;
         this.count = 2;
@@ -727,11 +728,11 @@ game.Spell.ChibiFairyLampSpecial = game.Spell.base.extend
 
     updateSpell: function(dt) 
     {
-        if(typeof this.target === "undefined")
-        {
-            this.timer = 599;
-            this.count = 0;
-        }
+        // if(typeof this.target === "undefined")
+        // {
+        //     this.timer = 599;
+        //     this.count = 0;
+        // }
 
         if(this.timer == 600)
         {
@@ -744,7 +745,7 @@ game.Spell.ChibiFairyLampSpecial = game.Spell.base.extend
                 {
                     return (a.getRenderPos(0.5, 0.5).distance(currentPos) < 64);
                 },
-                isPlayer: this.target.data.isPlayer,
+                isPlayer: this.isPlayer,
             }).slice(0, 3);
 
             for(var i = 0; i < targetList.length; i++)
