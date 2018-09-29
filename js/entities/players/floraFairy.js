@@ -173,7 +173,7 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
 
         this.isCast = true;
         this.isChannel = true;
-        this.channelTime = 20.0;
+        this.channelTime = 2.0;
         this.castTime = 1.5;
 
         this.totalTime = 0;
@@ -182,8 +182,6 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
 
     onCast: function(mob, target)
     {
-        console.log("OnCast - Flora Heal");
-
         // For test: automatically grabs target
         target = game.units.getUnitList({
             sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
@@ -213,7 +211,6 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
 
     onChanneling: function(mob, target, dt)
     {
-        console.log("OnChanneling - Flora Heal");
         this.totalTime += dt;
         if(Math.ceil(this.totalTime / 1) > this.hitCount)
         {
@@ -239,7 +236,7 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
             targets.forEach(target => {
                 target.receiveHeal({
                     source: mob,
-                    heal: Math.ceil(30 * game.helper.getRandomFloat(0.8, 1.2)),
+                    heal: Math.ceil(3 * game.helper.getRandomFloat(0.8, 1.2)),
                     spell: spellDummy,
                 });
             });
@@ -278,7 +275,7 @@ game.dataBackend.Spell.NekoClawGrass = game.dataBackend.Spell.base.extend
                     },
                 sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
                 isPlayer: mob.data.isPlayer,
-            }).slice(0, 3);
+            }).slice(0, 1);
         }
 
         for(var i = 0; i < target.length; i++)

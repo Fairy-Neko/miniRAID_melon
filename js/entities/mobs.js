@@ -802,9 +802,9 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
 
         settings.weaponLeft = new game.Weapon.TestBossStaff
         ({
-            baseAttackSpeed: 100.2,
+            baseAttackSpeed: 1.2,
             activeRange: 200,
-            power: 4,
+            power: 45,
             targetCount: 2,
         });
 

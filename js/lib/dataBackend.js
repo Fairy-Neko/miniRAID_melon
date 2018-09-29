@@ -904,7 +904,6 @@ game.dataBackend.Spell.base = me.Object.extend
     {
         if(this.available && mob.data.useMana(this.getManaCost(mob)))
         {
-            console.log("Casting spell - " + this.name);
             this.coolDownRemain = this.coolDown;
             this.onCast(mob, target);
         }

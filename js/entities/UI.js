@@ -2,8 +2,9 @@
  * a UI container and child items
  */
 
-game.UI = game.UI || {};
+// This is In-Game UI, instead of HTML based Out-game UI
 
+game.UI = game.UI || {};
 
 game.UI.Container = me.Container.extend
 ({
@@ -75,17 +76,52 @@ game.UI.Container = me.Container.extend
         this.toolTip.toolTip = document.getElementById("tooltip");
         this.toolTip.title = this.toolTip.toolTip.querySelector("#title");
         this.toolTip.body = this.toolTip.toolTip.querySelector("#body");
+
+        // Bind menu key
+        me.input.bindKey(me.input.KEY.ESC, "menu");
+        this.pauseMenu = document.getElementById("pause_menu");
+
+        // Prevent auto un-pause when lose and re-get window focus.
+        game.paused = false;
+        me.state.onResume = function()
+        {
+            if(game.paused == true)
+            {
+                me.state.pause(true);
+            }
+        }
     },
 
     update(dt)
     {
         this._super(me.Container, 'update', [dt]);
 
+        if(game.ignorePause === true)
+        {
+            // Prevent re-pausing while user still holding the escape key
+            if(me.input.keyStatus("menu") === false)
+            {
+                game.ignorePause = false;
+            }
+        }
+        else
+        {
+            if(me.input.isKeyPressed('menu'))
+            {
+                // Display the menu
+                this.pauseMenu.style.display = "flex";
+
+                // Set a "higher priority" pause
+                wakeupMenu();
+                me.state.pause(true);
+            }
+        }
+
         game.data.monitor.update(dt);
     },
 
     // You can use any HTML in title and bodytext.
-    // See index.html body > #screen > #UI > #toolTip.
+    // See index.html: body > #screen > #UI > #toolTip.
     showToolTip({
         titleColor = "#ffffff",
         title = "Title",

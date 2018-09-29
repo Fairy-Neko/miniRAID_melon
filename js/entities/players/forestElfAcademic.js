@@ -409,7 +409,7 @@ game.Buff.Elf.MagicEnhancement.Fire = game.Buff.base.extend
         this.toolTip = 
         {
             title: "魔力附加：火", 
-            text: "下次造成的直接伤害变为火属性。<br/>攻击带有额外50%的溅射伤害。"
+            text: "下次造成的直接伤害变为火属性。<br/>攻击带有额外50%的火属性溅射伤害。"
         };
     },
 
@@ -420,7 +420,7 @@ game.Buff.Elf.MagicEnhancement.Fire = game.Buff.base.extend
         this.toolTip = 
         {
             title: "魔力附加：火", 
-            text: "攻击带有额外50%的溅射伤害。"
+            text: "攻击带有额外50%的火属性溅射伤害。"
         };
     },
 
@@ -440,7 +440,6 @@ game.Buff.Elf.MagicEnhancement.Fire = game.Buff.base.extend
                     damageInfo.damage[dmg] = 0;
                 }
             }
-            console.log(damageInfo)
 
             if(damageInfo.spell.flags.hasTarget == true && (typeof damageInfo.spell.flags.overTime == undefined || damageInfo.spell.flags.overTime == false))
             {
@@ -459,11 +458,35 @@ game.Buff.Elf.MagicEnhancement.Fire = game.Buff.base.extend
             dmgTotal += damageInfo.damage[dmg];
         }
 
-        if(!damageInfo.hasOwnProperty("fire"))
+        if(damageInfo.spell.flags.hasTarget == true && (typeof damageInfo.spell.flags.overTime == undefined || damageInfo.spell.flags.overTime == false))
         {
-            damageInfo.damage["fire"] = 0;
+            // grab targets
+            var splashRange = 64;
+            var tmpPos = damageInfo.target.getRenderPos(0.5, 0.5);
+            var AoEList = game.units.getUnitList({
+                availableTest: function(a) { return (tmpPos.distance(a.getRenderPos(0.5, 0.5)) < splashRange); },
+                isPlayer: damageInfo.target.data.isPlayer,
+            });
+
+            // Generate a spell dummy
+            var spellDummy = new game.Spell.dummy({
+                source: damageInfo.source, 
+                name: "Fire Splash",
+                flags: {
+                    hasTarget: false,
+                    overTime: false,
+                },
+            });
+
+            for(i = 0; i < AoEList.length; i++)
+            {
+                AoEList[i].receiveDamage({
+                    source: damageInfo.source,
+                    damage: { fire: Math.ceil(dmgTotal * 0.5), },
+                    spell: spellDummy,
+                });
+            }
         }
-        damageInfo.damage["fire"] += Math.ceil(dmgTotal * 0.5);
     },
 });
 
@@ -517,7 +540,6 @@ game.Buff.Elf.MagicEnhancement.Thunder = game.Buff.base.extend
                     damageInfo.damage[dmg] = 0;
                 }
             }
-            console.log(damageInfo)
 
             if(damageInfo.spell.flags.hasTarget == true && (typeof damageInfo.spell.flags.overTime == undefined || damageInfo.spell.flags.overTime == false))
             {

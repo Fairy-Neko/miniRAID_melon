@@ -16,16 +16,62 @@
     <body oncontextmenu="return false;">
         <script async></script>
         <!-- Canvas placeholder -->
-        <div id="screen">
+        <div id = "screen">
             <!-- canvas will be here -->
-            <div id="UI">
-                <div id="tooltip">
+            <div id = "UI">
+
+                <!-- Pause menu -->
+                <div id = "pause_menu">
+                    <div class = "navigation_tab">
+                        <button class = "tab" onClick = "openMenuTab(event, 'pm_Team')" id = "btnTeam" style="--main-color: 59,121,175">Team</button>
+                        <button class = "tab" onClick = "openMenuTab(event, 'pm_Characters')" id = "btnCharacters" style="--main-color: 65,160,113">Characters</button>
+                        <button class = "tab" onClick = "openMenuTab(event, 'pm_Inventory')" id = "btnInventory" style="--main-color: 165,129,51">Inventory</button>
+                        <div class = "navigation_tab" id = "bottom">
+                            <button class = "tab" onClick = "openMenuTab(event, 'pm_Settings')" id = "btnSettings" style="--main-color: 165,51,83">Settings</button>
+                        </div>
+                    </div>
+                    <div id = "menu_content">
+                        <div id="pm_Team" class="tabcontent">
+                            <div class = "flexFiller" style="flex-direction: column;">
+                                <div id = "team_header" class = "panel">
+                                    <div id = "team_name">
+                                        <h1>XXX's Fantastic Team</h1>
+                                    </div>
+                                    <div id = "team_member">
+                                        <h1 id = "member_count">8 - </h1>
+                                        <p id = "member_content">2 Tanks<br/>2 Healers<br/>4 DPS</p>
+                                    </div>
+                                </div>
+                                <div id = "team_content" class = "panel">
+                                    <div id = "character_0" class = "team_character_panel">
+                                        <p id = "character_name">Your character here.</p>
+                                    </div>
+                                </div>
+                                <div id = "team_footer" class = "panel">
+                                    <p>This is some footer.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="pm_Characters" class="tabcontent">
+                            Your character here.
+                        </div>
+                        <div id="pm_Inventory" class="tabcontent">
+                            Your inventory here.
+                        </div>
+                        <div id="pm_Settings" class="tabcontent">
+                            Some settings here.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tool tip -->
+                <div id = "tooltip">
                     <script>
                         var _ui_tt = document.getElementById("tooltip");
                         document.getElementById("screen").addEventListener("pointermove", function(e)
                         {
-                            _ui_tt.style.left = e.clientX + 'px';
-                            _ui_tt.style.top = e.clientY + 'px';
+                            _ui_tt.style.left = e.layerX + 'px';
+                            _ui_tt.style.top = e.layerY + 'px';
                         }, true);
                     </script>
                     <h1 id = "title">测试</h1>
@@ -74,6 +120,8 @@
                 game.onload();
             });
         </script>
+
+        <script type="text/javascript" src="js/UI/pauseMenu.js"></script>
 
         <p>Switched to melonjs. &gt;w&lt;~</p>
     </body>
