@@ -73,10 +73,65 @@ game.dataBackend.Mob = me.Object.extend
             movingSpeed: settings.movingSpeed || 1.0,
             attackSpeed: settings.attackSpeed || 1.0,
             spellSpeed: settings.spellSpeed || 1.0,
+            resourceCost: settings.resourceCost || 1.0,
         };
 
         this.baseSpeed = settings.baseSpeed || 2.0;
         this.baseAttackSpeed = settings.baseAttackSpeed || 20.0;
+
+        /*
+        Idle (canCastSpell):
+            globalCDRemain <= 0
+            inCasting == false
+            inChanneling == false
+
+        Cast a spell:
+            mob.cast(spell):
+                * start GCD timer
+                if(spell.isCast) 
+                    inCasting = true
+                    castTime = xxx
+                    castRemain = castTime
+                    currentSpell = spell
+                else
+                    mob.finishCast(spell)
+            ->
+            mob.update():
+                if(castRemain >= 0) castRemain -= dt
+            ->
+            mob.finishCast(currentSpell):
+                if(spell.isChannel)
+                    inCasting = false
+                    inChanneling = true
+                    channelTime = xxx
+                    channelTimeFactor = xxx
+                    channelRemain = channelTime
+                else
+                    inCasting = false
+
+                spell.cast(mob, target)
+            ->
+            mob.update():
+                if(channelRemain >= 0) channelRemain -= dt
+                spell.onChanneling(mob, target, dt * channelTimeFactor)
+            ->
+            inChanneling = false
+        */
+        this.isMoving = false;
+
+        this.globalCDRemain = 0;
+
+        this.inCasting = false;
+        this.castTime = 0;
+        this.castRemain = 0;
+
+        this.inChanneling = false;
+        this.channelTime = 0;
+        this.channelTimeFactor = 1.0;
+        this.channelRemain = 0;
+
+        this.currentSpell = undefined;
+        this.currentSpellTarget = undefined;
 
         // Stats
         this.level = settings.level || 1;
@@ -88,6 +143,13 @@ game.dataBackend.Mob = me.Object.extend
             int: settings.int || 1,
             mag: settings.mag || 1,
         };
+
+        // Used to store the player base stats before any modifiers (but after lvlup, talent selections etc.)
+        this.baseStatsFundemental = {};
+        for(let stat in this.baseStats)
+        {
+            this.baseStatsFundemental[stat] = this.baseStats[stat];
+        }
 
         // Stats (cannot increase directly)
         this.battleStats = {
@@ -121,7 +183,7 @@ game.dataBackend.Mob = me.Object.extend
                 fire: 0,
                 ice: 0,
                 water: 0,
-                nature: 25, 
+                nature: 0, 
                 wind: 0,
                 thunder: 0,
                 light: 0,
@@ -183,6 +245,9 @@ game.dataBackend.Mob = me.Object.extend
 
         // Which class should be used when realize this mob ?
         this.mobPrototype = settings.mobPrototype || game.Mobs.TestMob;
+
+        // I finally added this ... (x)
+        this.parentMob = undefined;
     },
 
     switchWeapon: function()
@@ -208,6 +273,12 @@ game.dataBackend.Mob = me.Object.extend
 
     updateMobBackend: function(mob, dt)
     {
+        // Register parent mob
+        if(typeof this.parentMob == undefined)
+        {
+            this.parentMob = mob;
+        }
+
         // Switch weapon ?
         if(this.shouldSwitchWeapon === true)
         {
@@ -224,11 +295,11 @@ game.dataBackend.Mob = me.Object.extend
             this.addListener(this.currentWeapon);
     
             // I switched my weapon !!!
-            this.updateListeners('onSwitchWeapon', [mob, this.currentWeapon]);
+            this.updateListeners(mob, 'onSwitchWeapon', [mob, this.currentWeapon]);
         }
 
         // Update all listeners
-        this.updateListeners('onUpdate', [mob, dt]);
+        this.updateListeners(mob, 'onUpdate', [mob, dt]);
         for (let listener of this.listeners.values())
         {
             if(listener.isOver && listener.isOver == true)
@@ -239,10 +310,64 @@ game.dataBackend.Mob = me.Object.extend
             }
         }
 
+        // Mana Regen
+        if(typeof this.currentWeapon !== undefined)
+        {
+            this.currentMana += dt * this.currentWeapon.manaRegen * 0.001;
+        }
+        if(this.currentMana > this.maxMana)
+        {
+            this.currentMana = this.maxMana;
+        }
+
+        // Spell Casting
+        if(this.globalCDRemain > 0)
+        {
+            this.globalCDRemain -= dt * 0.001;
+        }
+        else
+        {
+            this.globalCDRemain = 0;
+        }
+
+        if(this.isMoving == true)
+        {
+            // TODO: check if this can cast during moving
+            this.inCasting = false;
+            this.inChanneling = false;
+            this.castRemain = 0;
+            this.channelRemain = 0;
+        }
+
+        if(this.inCasting == true)
+        {
+            if(this.castRemain > 0)
+            {
+                this.castRemain -= dt * 0.001;
+            }
+            else
+            {
+                this.inCasting = false;
+                this.finishCast(mob, this.currentSpellTarget, this.currentSpell);
+            }
+        }
+
+        if(this.inChanneling == true)
+        {
+            if(this.channelRemain > 0)
+            {
+                this.channelRemain -= dt * 0.001;
+                this.currentSpell.onChanneling(mob, this.currentSpellTarget, dt * 0.001 * this.channelTimeFactor);
+            }
+            else
+            {
+                this.inChanneling = false;
+            }
+        }
+
         // calculate Stats
         // TODO: seperate calculation to 2 phase, base and battle stats.
-        this.calcStats();
-        this.updateListeners('onStatCalculation', [mob]);
+        this.calcStats(mob);
 
         // update spells
         for (let spell in this.spells)
@@ -256,7 +381,7 @@ game.dataBackend.Mob = me.Object.extend
 
     // Function used to tell buffs and agents what was going on
     // when damage and heal happens. They can modify them.
-    updateListeners: function(method, args)
+    updateListeners: function(mob, method, args)
     {
         var flag = false;
         if(!Array.isArray(args))
@@ -264,10 +389,18 @@ game.dataBackend.Mob = me.Object.extend
             args = [args];
         }
 
-        // call every listener
+        // call the mob firstly
+        if(
+            (mob.enabled == undefined || mob.enabled && mob.enabled == true)
+          && mob[method])
+        {
+            mob[method].apply(mob, args);   
+        }
+
+        // call every listener except mob
         for(let listener of this.listeners.values())
         {
-            if(
+            if(  listener != mob && 
                 (listener.enabled == undefined || listener.enabled && listener.enabled == true)
               && listener[method])
             {
@@ -280,18 +413,24 @@ game.dataBackend.Mob = me.Object.extend
 
     addBuff: function(buff)
     {
-        for(let localBuff of this.buffList)
+        if(buff.multiply == false)
         {
-            // no more unlimited bloodlust!
-            // maybe we should add stacks here
-            if(localBuff.name === buff.name && localBuff.source === buff.source){
-                localBuff.timeRemain = buff.timeMax;
-
-                if(localBuff.stackable === true)
+            for(let localBuff of this.buffList)
+            {
+                // no more unlimited bloodlust!
+                // maybe we should add stacks here
+                if(localBuff.name === buff.name/* && localBuff.source === buff.source*/)
                 {
-                    localBuff.stacks += 1;
+                    localBuff.timeRemain = buff.timeMax;
+
+                    if(localBuff.stackable === true)
+                    {
+                        localBuff.stacks += 1;
+                        localBuff.onAdded(this.parentMob, null);
+                    }
+
+                    return;
                 }
-                return;
             }
         }
         this.addListener(buff);
@@ -301,15 +440,32 @@ game.dataBackend.Mob = me.Object.extend
     {
         for(let localBuff of this.buffList)
         {
-            if(localBuff.name === buffname){
+            if(localBuff.name === buffname)
+            {
                 return localBuff;
             }
         }
+
+        return undefined;
+    },
+
+    findBuffIncludesName: function(buffname)
+    {
+        for(let localBuff of this.buffList)
+        {
+            if(localBuff.name.includes(buffname))
+            {
+                return localBuff;
+            }
+        }
+
+        return undefined;
     },
 
     addListener: function(listener)
     {
         this.listeners.add(listener);
+        listener.onAdded(this.parentMob, null);
 
         if(listener.isBuff)
         {
@@ -320,6 +476,9 @@ game.dataBackend.Mob = me.Object.extend
 
     removeListener: function(listener)
     {
+        // TODO: Who removed this listener ?
+        listener.onRemoved(this.parentMob, null);
+
         if(listener.isBuff)
         {
             this.buffList.delete(listener);
@@ -328,19 +487,149 @@ game.dataBackend.Mob = me.Object.extend
         this.listeners.delete(listener);
     },
 
-    calcStats: function()
+    cast: function(mob, target, spell)
+    {
+        // Check if ready to cast
+        if(mob.data.canCastSpell() == false || spell.preCast(mob, target) == false)
+        {
+            return;
+        }
+
+        // TODO: Check mana cost, cooldown etc.
+        // May combined into readyToCast().
+
+        // Start GCD Timer
+        mob.data.globalCDRemain = spell.globalCoolDown / mob.data.modifiers.spellSpeed;
+
+        if(spell.isCast == true)
+        {
+            // Start casting
+            mob.data.inCasting = true;
+            mob.data.castTime = spell.castTime / mob.data.modifiers.spellSpeed;
+            mob.data.castRemain = mob.data.castTime;
+            mob.data.currentSpell = spell;
+        }
+        else
+        {
+            mob.data.finishCast(mob, target, spell);
+        }
+    },
+
+    finishCast: function(mob, target, spell)
+    {
+        mob.data.inCasting = false;
+
+        if(spell.isChannel == true)
+        {
+            // Start channeling
+            mob.data.inChanneling = true;
+            mob.data.channelTimeFactor = mob.data.modifiers.spellSpeed;
+            mob.data.channelTime = spell.channelTime / mob.data.channelTimeFactor;
+            mob.data.channelRemain = mob.data.channelTime;
+        }
+
+        spell.cast(mob, target);
+    },
+
+    calcStats: function(mob)
     {
         // TODO: Stats calculation:
         // 1. Calculate (get) base stats from self
-        // 2. Add equipment base stats to self by listener.calcBaseStats()
-        // 3. Calculate battle (advanced) stats from base stats (e.g. atkPower = INT * 0.7 * floor( MAG * 1.4 ) ... )
-        // 4. Add equipment by listener.calcStats()
-        // 5. Finish
+        for(let stat in this.baseStats)
+        {
+            this.baseStats[stat] = this.baseStatsFundemental[stat];
+        }
 
-        //Go back to base speed
+        // 2. Add equipment base stats to self by listener.calcBaseStats()
+        this.updateListeners(mob, 'onBaseStatCalculation', [mob]);        
+
+        // 3. Reset battle stats
+        this.battleStats = {
+            resist: {
+                physical: 0,
+                elemental: 0,
+                pure: 0, // It should be 0
+
+                slash: 0,
+                knock: 0,
+                pierce: 0,
+                fire: 0,
+                ice: 0,
+                water: 0,
+                nature: 0,
+                wind: 0,
+                thunder: 0,
+                light: 0,
+
+                heal: 0,
+            },
+
+            attackPower: {
+                physical: 0,
+                elemental: 0,
+                pure: 0, // It should be 0
+
+                slash: 0,
+                knock: 0,
+                pierce: 0,
+                fire: 0,
+                ice: 0,
+                water: 0,
+                nature: 0, 
+                wind: 0,
+                thunder: 0,
+                light: 0,
+
+                heal: 0, 
+            },
+
+            // Write a helper to get hit / avoid / crit percentage from current level and parameters ?
+            // Percentage
+            // Those are basic about overall hit accuracy & avoid probabilities, critical hits.
+            // Advanced actions (avoid specific spell) should be calculated inside onReceiveDamage() etc.
+            // Same for shields, healing absorbs (Heal Pause ====...===...==...=>! SS: [ABSORB]!!! ...*&@^#), etc.
+            hitAcc: 100,
+            avoid: 0,
+
+            // Percentage
+            crit: 20, // Should crit have types? e.g. physical elemental etc.
+            antiCrit: 0,
+
+            // Parry for shield should calculate inside the shield itself when onReceiveDamage().
+
+            attackRange: 0,
+            extraRange: 0,
+        };
+
+        this.tauntMul = 1.0;
+
+        // Go back to base speed
         this.modifiers.speed = 1.0;
         this.modifiers.movingSpeed = 1.0;
         this.modifiers.attackSpeed = 1.0;
+        this.modifiers.spellSpeed = 1.0;
+
+        // Calculate health from stats
+        this.healthRatio = this.currentHealth / this.maxHealth;
+        this.maxHealth = 
+            this.baseStats.vit * 10
+          + this.baseStats.str * 8
+          + this.baseStats.dex * 4
+          + this.baseStats.tec * 4
+          + this.baseStats.int * 4
+          + this.baseStats.mag * 4;
+
+        // 4. Calculate battle (advanced) stats from base stats (e.g. atkPower = INT * 0.7 * floor( MAG * 1.4 ) ... )
+        // 5. Add equipment by listener.calcStats()
+        // Actually, those steps were combined in a single call,
+        // as the calculation step of each class will happen in their player classes,
+        // which should be the first called listener in updateListeners().
+        this.updateListeners(mob, 'onStatCalculation', [mob]);
+        this.updateListeners(mob, 'onStatCalculationFinish', [mob]);
+
+        // 5. Finish
+        this.maxHealth = Math.ceil(this.maxHealth);
+        this.currentHealth = Math.ceil(this.healthRatio * this.maxHealth);
     },
 
     receiveDamage: function(damageInfo)
@@ -357,10 +646,10 @@ game.dataBackend.Mob = me.Object.extend
                 damageInfo.target.data.getPercentage(damageInfo.target.data.battleStats.avoid));
         }
 
-        this.updateListeners('onReceiveDamage', damageInfo);
+        this.updateListeners(damageInfo.target, 'onReceiveDamage', damageInfo);
         if (damageInfo.source)
         {
-            damageInfo.source.data.updateListeners('onDealDamage', damageInfo);
+            damageInfo.source.data.updateListeners(damageInfo.source, 'onDealDamage', damageInfo);
         }
         game.units.boardcast('onFocusReceiveDamage', damageInfo.target, damageInfo);
         game.units.boardcast('onFocusDealDamage', damageInfo.source, damageInfo);
@@ -393,6 +682,7 @@ game.dataBackend.Mob = me.Object.extend
             // damage% = 0.9659 ^ resist
             // This is, every 1 point of resist reduces corresponding damage by 3.41%, 
             // which will reach 50% damage reducement at 20 points.
+            // TODO: it should all correspond to current level (resist based on source level, atkPower based on target level, same as healing)
             damageInfo.damage[dmgType] = Math.ceil(
                 damageInfo.damage[dmgType] * 
                 (Math.pow(
@@ -409,10 +699,10 @@ game.dataBackend.Mob = me.Object.extend
         // Let everyone know what is happening
         // damageObj.damage = finalDmg;
 
-        this.updateListeners('onReceiveDamageFinal', damageInfo);
+        this.updateListeners(damageInfo.target, 'onReceiveDamageFinal', damageInfo);
         if(damageInfo.source)
         {
-            damageInfo.source.data.updateListeners('onDealDamageFinal', damageInfo);
+            damageInfo.source.data.updateListeners(damageInfo.source, 'onDealDamageFinal', damageInfo);
         }
         game.units.boardcast('onFocusReceiveDamageFinal', damageInfo.target, damageInfo);
         game.units.boardcast('onFocusDealDamageFinal', damageInfo.source, damageInfo);
@@ -427,10 +717,10 @@ game.dataBackend.Mob = me.Object.extend
             if(this.currentHealth <= 0)
             {
                 // Let everyone know what is happening
-                this.updateListeners('onDeath', damageInfo);
+                this.updateListeners(damageInfo.target, 'onDeath', damageInfo);
                 if(damageInfo.source)
                 {
-                    damageInfo.source.data.updateListeners('onKill', damageInfo);
+                    damageInfo.source.data.updateListeners(damageInfo.source, 'onKill', damageInfo);
                 }
                 game.units.boardcast('onFocusDeath', damageInfo.target, damageInfo);
                 game.units.boardcast('onFocusKill', damageInfo.source, damageInfo);
@@ -459,10 +749,10 @@ game.dataBackend.Mob = me.Object.extend
         }
 
         // Let everyone know what is happening
-        this.updateListeners('onReceiveHeal', healInfo);
+        this.updateListeners(healInfo.target, 'onReceiveHeal', healInfo);
         if(healInfo.source)
         {
-            healInfo.source.data.updateListeners('onDealHeal', healInfo);
+            healInfo.source.data.updateListeners(healInfo.source, 'onDealHeal', healInfo);
         }
         game.units.boardcast('onFocusReceiveHeal', healInfo.target, healInfo);
         game.units.boardcast('onFocusDealHeal', healInfo.source, healInfo);
@@ -499,10 +789,10 @@ game.dataBackend.Mob = me.Object.extend
         healInfo.heal.over = healInfo.heal.total - healInfo.heal.real;
 
         // Let buffs and agents know what is happening
-        this.updateListeners('onReceiveHealFinal', healInfo);
+        this.updateListeners(healInfo.target, 'onReceiveHealFinal', healInfo);
         if(healInfo.source)
         {
-            healInfo.source.data.updateListeners('onDealHealFinal', healInfo);
+            healInfo.source.data.updateListeners(healInfo.source, 'onDealHealFinal', healInfo);
         }
         game.units.boardcast('onFocusReceiveHealFinal', healInfo.target, healInfo);
         game.units.boardcast('onFocusDealHealFinal', healInfo.source, healInfo);
@@ -516,7 +806,12 @@ game.dataBackend.Mob = me.Object.extend
 
     canCastSpell: function()
     {
-        return true;
+        if(this.globalCDRemain <= 0 && this.inCasting == false && this.inChanneling == false)
+        {
+            return true;
+        }
+
+        return false;
     },
 
     useMana: function(mana)
@@ -529,12 +824,22 @@ game.dataBackend.Mob = me.Object.extend
         return false;
     },
 
+    hasMana: function(mana)
+    {
+        if(this.currentMana >= mana)
+        {
+            return true;
+        }
+        return false;
+    },
+
     die: function({
         source = undefined, 
         damage = {},
     } = {})
     {
         this.beingAttack = 0;
+        this.alive = false;
     },
 });
 
@@ -553,15 +858,20 @@ game.dataBackend.Spell.base = me.Object.extend
         // CD (sec)
         this.coolDown = settings.coolDown || 10.0;
         this.manaCost = settings.manaCost || 0;
+        this.name = settings.name || "Spell";
 
         // Available when init
         this.coolDownRemain = 0;
+        this.globalCoolDown = 0;
 
         // priority should be calculated on the fly
         this.priority = 0;
         this.available = true;
 
-        // TODO: casting time?
+        this.isChannel = false;
+        this.isCast = false;
+        this.castTime = 0;
+        this.channelTime = 0;
     },
 
     update: function(mob, dt)
@@ -572,11 +882,28 @@ game.dataBackend.Spell.base = me.Object.extend
         }
 
         this.available = this.isAvailable(mob);
+        this.onUpdate(mob, dt);
+    },
+
+    onUpdate: function(mob, dt) {},
+
+    onCast: function(mob, target) {},
+
+    onChanneling: function(mob, target, dt) {},
+
+    preCast: function(mob, target)
+    {
+        if(this.available && mob.data.canCastSpell() && mob.data.hasMana(this.getManaCost(mob)))
+        {
+            return true;
+        }
+
+        return false;
     },
 
     cast: function(mob, target)
     {
-        if(this.available && mob.data.canCastSpell() && mob.data.useMana(this.getManaCost(mob)))
+        if(this.available && mob.data.useMana(this.getManaCost(mob)))
         {
             this.coolDownRemain = this.coolDown;
             this.onCast(mob, target);
@@ -618,7 +945,16 @@ game.MobListener = me.Object.extend
     // Be triggered when the mob is calculating its stats.
     // Typically, this will trigged on start of each frame.
     // On every frame, the stats of the mob will be recalculated from its base value.
+    onBaseStatCalculation: function(mob) {},
     onStatCalculation: function(mob) {},
+    onStatCalculationFinish: function(mob) {},
+
+    // When this listener was added to the mob by source
+    // Buffs will also be triggered when new stack comes.
+    onAdded: function(mob, source) {},
+
+    // When this listener was removed from the mob by source
+    onRemoved: function(mob, source) {},
 
     // Be triggered when the mob is attacking.
     // This is triggered before the mob's attack.
@@ -710,11 +1046,11 @@ game.Equipable = game.MobListener.extend
             str: 0,
             dex: 0,
             tec: 0,
-            int: 9,
+            int: 0, // Why it was nine ⑨ before ?????????????????????????????????????
             mag: 0,
         };
 
-        this.healthIncreasement = 0;
+        // this.healthIncreasement = 0;
 
         this.battleStats = {
             resist: {

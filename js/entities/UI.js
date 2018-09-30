@@ -2,8 +2,9 @@
  * a UI container and child items
  */
 
-game.UI = game.UI || {};
+// This is In-Game UI, instead of HTML based Out-game UI
 
+game.UI = game.UI || {};
 
 game.UI.Container = me.Container.extend
 ({
@@ -75,17 +76,52 @@ game.UI.Container = me.Container.extend
         this.toolTip.toolTip = document.getElementById("tooltip");
         this.toolTip.title = this.toolTip.toolTip.querySelector("#title");
         this.toolTip.body = this.toolTip.toolTip.querySelector("#body");
+
+        // Bind menu key
+        me.input.bindKey(me.input.KEY.ESC, "menu");
+        this.pauseMenu = document.getElementById("pause_menu");
+
+        // Prevent auto un-pause when lose and re-get window focus.
+        game.paused = false;
+        me.state.onResume = function()
+        {
+            if(game.paused == true)
+            {
+                me.state.pause(true);
+            }
+        }
     },
 
     update(dt)
     {
         this._super(me.Container, 'update', [dt]);
 
+        if(game.ignorePause === true)
+        {
+            // Prevent re-pausing while user still holding the escape key
+            if(me.input.keyStatus("menu") === false)
+            {
+                game.ignorePause = false;
+            }
+        }
+        else
+        {
+            if(me.input.isKeyPressed('menu'))
+            {
+                // Display the menu
+                this.pauseMenu.style.display = "flex";
+
+                // Set a "higher priority" pause
+                wakeupMenu();
+                me.state.pause(true);
+            }
+        }
+
         game.data.monitor.update(dt);
     },
 
     // You can use any HTML in title and bodytext.
-    // See index.html body > #screen > #UI > #toolTip.
+    // See index.html: body > #screen > #UI > #toolTip.
     showToolTip({
         titleColor = "#ffffff",
         title = "Title",
@@ -267,6 +303,12 @@ game.UI.BattleMonitor = me.Renderable.extend
             maxLength = Math.max(maxLength, dataList[i].length);
         }
 
+        if(maxLength <= 0 || isNaN(maxLength))
+        {
+            context.restore();
+            return;
+        }
+
         for(var i = 0; i < dataList.length; i++)
         {
             context.setColor('#ffffff');
@@ -320,7 +362,7 @@ game.UI.raidFrame = me.Renderable.extend
 
         // size of the buff (without outline)
         this.buffIconSize = settings.buffIconSize || 16;
-        this.outlinedIconSize = this.buffIconSize + 1;
+        this.outlinedIconSize = this.buffIconSize + 2;
 
         this.font = {};
         
@@ -415,6 +457,37 @@ game.UI.raidFrame = me.Renderable.extend
                 context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 8, sliceLength + 1, 9);
 
                 // TODO: CASTING BAR
+                if(this.dataList[i].inCasting)
+                {
+                    // TODO: Custom spell cast bar color
+                    context.setColor('#6d6d6d');
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth, 3)
+
+                    context.setColor('#ff91d8');
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, 
+                        (1 - this.dataList[i].castRemain / this.dataList[i].castTime) * (this.gridWidth), 3);
+                    
+                    context.setColor('#ffffff');
+                    this.font.set("right");
+                    this.font.draw(context, this.dataList[i].currentSpell.name, this.pos.x + this.gridWidth, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 20);
+                    this.font.set("left");
+                }
+
+                if(this.dataList[i].inChanneling)
+                {
+                    // TODO: Custom spell cast bar color
+                    context.setColor('#6d6d6d');
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth, 3)
+
+                    context.setColor('#dcff96');
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, 
+                        (this.dataList[i].channelRemain / this.dataList[i].channelTime) * (this.gridWidth), 3);
+                    
+                    context.setColor('#ffffff');
+                    this.font.set("right");
+                    this.font.draw(context, this.dataList[i].currentSpell.name, this.pos.x + this.gridWidth, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 20);
+                    this.font.set("left");
+                }
 
                 // Left-upper corner white block = has been targeted
                 if(this.dataList[i].beingAttack)
@@ -449,16 +522,6 @@ game.UI.raidFrame = me.Renderable.extend
                     //Buff color
                     var localcolor = new me.Color();
                     localcolor.parseHex(buff.color);
-                    
-                    if(Math.floor(buffNum / this.buffsPerRow) == 0)
-                    {
-                        yAdd = 1;
-                    }
-                    
-                    if((buffNum % this.buffsPerRow == (this.buffsPerRow - 1)) || buffNum == (this.dataList[i].buffList.size - 1))
-                    {
-                        xAdd = 1;
-                    }
 
                     // Outline rect
                     context.setColor(localcolor.darken(0.7));
@@ -523,13 +586,13 @@ game.UI.raidFrame = me.Renderable.extend
             context.setColor('#ffffff');
             
             // Show a part of player name (should be full name after testing)
-            this.font.draw(context, this.dataList[i].name, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 20);
+            this.font.draw(context, this.dataList[i].name, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 16);
 
             // Player HP
-            this.font.draw(context, this.dataList[i].currentHealth + "/" + this.dataList[i].maxHealth, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 27);
+            this.font.draw(context, this.dataList[i].currentHealth + "/" + this.dataList[i].maxHealth, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 23);
 
             // Player Mana
-            this.font.draw(context, Math.round(this.dataList[i].currentMana) + "/" + this.dataList[i].maxMana, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 34);
+            this.font.draw(context, Math.round(this.dataList[i].currentMana) + "/" + this.dataList[i].maxMana, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 35);
             
         }
 
@@ -578,9 +641,15 @@ game.UI.raidFrame = me.Renderable.extend
             // need more great ways ?
             var buff = [...this.dataList[playerIdx].buffList][buffId];
 
+            var str = buff.toolTip.title + " (" + buff.stacks + ")";
+            if(buff.countTime == true)
+            {
+                str += " - " + Math.floor(buff.timeRemain) + "s";
+            }
+
             game.UIManager.showToolTip({
                 titleColor: buff.color,
-                title: buff.toolTip.title + " (" + buff.stacks + ")",
+                title: str,
                 bodyText: buff.toolTip.text,
             });
         }

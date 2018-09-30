@@ -22,6 +22,7 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
         // Animations
         this.renderable.addAnimation("idle", [0, 1, 2, 3, 4]);
         this.renderable.addAnimation("move", [0, 1, 2, 3, 4]);
+        this.renderable.addAnimation("dead", [5]);
 
         this.renderable.setCurrentAnimation("idle");
 
@@ -131,6 +132,7 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
                     time: 16.0,
                     healTotal: healAmount,
                     healGap: 2.0,
+                    vitInc: 1,
 
                     name: "生命之种",
                 }),
@@ -146,6 +148,18 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
         // FIXME: remove this !
         this.data.currentFlower.forceCast(this, undefined);
     },
+
+    onStatCalculation(mob)
+    {
+        mob.data.battleStats.attackPower.nature = mob.data.baseStats.mag + mob.data.baseStats.int * 0.5;
+
+        // mob.data.modifiers.spellSpeed = 5.5;
+    },
+
+    onStatCalculationFinish(mob)
+    {
+        mob.data.battleStats.attackPower.heal = mob.data.battleStats.attackPower.nature;
+    },
 });
 
 game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
@@ -153,21 +167,27 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
     init: function(settings)
     {
         settings.coolDown = 6.0;
-        settings.manaCost = 10;
+        settings.manaCost = 15;
+        settings.name = "Flora Heal";
 
         this._super(game.dataBackend.Spell.base, 'init', [settings]);
+
+        this.isCast = true;
+        this.isChannel = true;
+        this.channelTime = 2.0;
+        this.castTime = 1.5;
+
+        this.totalTime = 0;
+        this.hitCount = 0;
     },
 
     onCast: function(mob, target)
     {
         // For test: automatically grabs target
-        if(typeof target === "undefined")
-        {
-            target = game.units.getUnitList({
-                sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
-                isPlayer: mob.data.isPlayer,
-            })[0];
-        }
+        target = game.units.getUnitList({
+            sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
+            isPlayer: mob.data.isPlayer,
+        })[0];
 
         // Generate a spell dummy
         var spellDummy = new game.Spell.dummy({
@@ -185,7 +205,44 @@ game.dataBackend.Spell.FloraHeal = game.dataBackend.Spell.base.extend
             heal: Math.ceil(20 * game.helper.getRandomFloat(0.8, 1.2)),
             spell: spellDummy,
         });
+
+        this.totalTime = 0;
+        this.hitCount = 0;
     },
+
+    onChanneling: function(mob, target, dt)
+    {
+        this.totalTime += dt;
+        if(Math.ceil(this.totalTime / 1) > this.hitCount)
+        {
+            this.hitCount += 1;
+
+            targets = game.units.getUnitList({
+                sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
+                isPlayer: mob.data.isPlayer,
+            });
+
+            // Generate a spell dummy
+            var spellDummy = new game.Spell.dummy({
+                source: mob, 
+                name: "Flora heal",
+                flags: {
+                    isHeal: true,
+                    hasTarget: false,
+                    overTime: true,
+                },
+            });
+
+            // Heals the target
+            targets.forEach(target => {
+                target.receiveHeal({
+                    source: mob,
+                    heal: Math.ceil(3 * game.helper.getRandomFloat(0.8, 1.2)),
+                    spell: spellDummy,
+                });
+            });
+        }
+    }
 });
 
 // Test
@@ -205,9 +262,21 @@ game.dataBackend.Spell.NekoClawGrass = game.dataBackend.Spell.base.extend
         if(typeof target === "undefined")
         {
             target = game.units.getUnitList({
+                availableTest: 
+                    function(mob)
+                    {
+                        for(let localBuff of mob.data.buffList)
+                        {
+                            if(localBuff.name === "猫爪草")
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    },
                 sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
                 isPlayer: mob.data.isPlayer,
-            }).slice(0, 3);
+            }).slice(0, 1);
         }
 
         for(var i = 0; i < target.length; i++)
@@ -218,6 +287,7 @@ game.dataBackend.Spell.NekoClawGrass = game.dataBackend.Spell.base.extend
                     time: 12.0,
                     healTotal: 20,
                     healGap: 1.5,
+                    vitInc: 0,
                     
                     color: "#ffff00",
                     name: "猫爪草",

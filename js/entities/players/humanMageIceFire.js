@@ -1,14 +1,14 @@
-game.PlayerMobs.ForestElfGuardian = game.PlayerMobs.base.extend
+game.PlayerMobs.HumanMageIceFire = game.PlayerMobs.base.extend
 ({
     init: function(x, y, settings)
     {
-        settings.image = "tank_girl2";
+        settings.image = "magical_girl2";
         settings.width = 256;
         settings.height = 256;
         settings.framewidth = 32;
         settings.frameheight = 32;
 
-        settings.name = "Forest_Elf_Guardian";
+        settings.name = "Human_Mage_Ice_Fire";
 
         settings.shapes = [new me.Rect(0, 0, 20, 20)];
 
@@ -29,9 +29,6 @@ game.PlayerMobs.ForestElfGuardian = game.PlayerMobs.base.extend
         this.targetPos = this.getRenderPos(0.5, 0.8).clone();
 
         this.isMoving = false;
-
-        // Add a spell
-        this.data.spells.taunt = new game.dataBackend.Spell.Taunt({});
     },
 
     updatePlayer: function(dt)
@@ -50,20 +47,14 @@ game.PlayerMobs.ForestElfGuardian = game.PlayerMobs.base.extend
 
     onSwitchWeapon(mob, weapon)
     {
-        // If switched to shield,
-        // cast a ultimate taunt on close targets
-        if(weapon.weaponType === game.data.weaponType.shield)
-        {
-            this.data.spells.taunt.forceCast(mob);
-        }
     },
 
     onStatCalculation(mob)
     {
-        mob.data.battleStats.resist.physical = mob.data.baseStats.vit + mob.data.baseStats.str * 0.5;
-        mob.data.battleStats.resist.elemental = mob.data.baseStats.str + mob.data.baseStats.vit * 0.5;
-
-        mob.data.tauntMul = 5.0;
+        mob.data.battleStats.attackPower.elemental = mob.data.baseStats.int * 0.3;
+        
+        mob.data.battleStats.attackPower.ice = mob.data.baseStats.int;
+        mob.data.battleStats.attackPower.fire = mob.data.baseStats.int;
     },
 
     onStatCalculationFinish(mob)

@@ -66,6 +66,14 @@ game.Weapon.base = game.Equipable.extend
         return undefined;
     },
 
+    onBaseStatCalculation(mob)
+    {
+        for(let stat in this.stats)
+        {
+            mob.data.baseStats[stat] += this.stats[stat];
+        }
+    },
+
     onStatCalculation: function(mob)
     {
 
@@ -133,8 +141,8 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
             me.pool.register("testStarBomb", game.Spell.TestStarBomb, true);
         }
 
-        this.countMax = 5;
-        this.count = 5;
+        this.countMax = 2;
+        this.count = 2;
         this.type = "stand";
     },
 
@@ -469,6 +477,7 @@ game.Weapon.DPSHomingStaff = game.Weapon.base.extend
             settings.image = "crystalcoin3";
             settings.width = 32;
             settings.height = 48;
+            settings.name = "Ice Spick"
             mob.data.removeListener(buff);
         }
         else
@@ -504,6 +513,8 @@ game.Weapon.TestShield = game.Weapon.base.extend
         this.name = "test shield";
         this.weaponType = game.data.weaponType.shield;
 
+        this.stats.vit = 3;
+
         this.power = settings.power || 5;
 
         if(me.pool.exists("testFireball") === false)
@@ -534,10 +545,10 @@ game.Weapon.TestShield = game.Weapon.base.extend
 
     onReceiveDamage: function(damageInfo)
     {
-        for(var dmgType in damageInfo.damage)
-        {
-            damageInfo.damage[dmgType] *= 0.7;
-        }
+        // for(var dmgType in damageInfo.damage)
+        // {
+        //     damageInfo.damage[dmgType] *= 0.7;
+        // }
     },
 
     grabTargets: function(mob)

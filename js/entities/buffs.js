@@ -15,6 +15,13 @@ game.Buff.base = game.MobListener.extend
         //This listener is a buff
         this.isBuff = true;
         
+        //Is this buff counts time?
+        this.countTime = true;
+        if(settings.hasOwnProperty("countTime"))
+        {
+            this.countTime = settings.countTime;
+        }
+
         //time in seconds, indicates the durtion of buff
         this.timeMax = settings.time || 1.0;
 
@@ -27,6 +34,7 @@ game.Buff.base = game.MobListener.extend
         //stacks of the buff (if any)
         this.stacks = settings.stacks || 1;
         this.stackable = settings.stackable || false; 
+        this.multiply = settings.multiply || false;
 
         //cellIndex of this buff in the buffIcons image, might be shown under boss lifebar / player lifebar
         this.iconId = settings.iconId || 0;
@@ -66,13 +74,15 @@ game.Buff.base = game.MobListener.extend
     onUpdate: function(mob, deltaTime)
     {
         // unit of deltaTime now becomes ms. (instead of s)
+        this._super(game.MobListener, 'onUpdate', [mob, deltaTime]);
 
-        this._super(game.MobListener, 'init', [mob, deltaTime]);
-
-        this.timeRemain -= deltaTime * 0.001;
-        if(this.timeRemain < 0)
+        if(this.countTime == true)
         {
-            this.isOver = true;
+            this.timeRemain -= deltaTime * 0.001;
+            if(this.timeRemain < 0)
+            {
+                this.isOver = true;
+            }
         }
     },
 });
@@ -172,7 +182,7 @@ game.Buff.Bloodlust = game.Buff.base.extend
         this.toolTip = 
         {
             title: "嗜血术", 
-            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%",
+            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%" + "<br/>生命值上限提高" + Math.ceil((Math.pow(1.1, this.stacks) - 1.0) * 100) + "%",
         };
     },
 
@@ -183,12 +193,20 @@ game.Buff.Bloodlust = game.Buff.base.extend
         this.toolTip = 
         {
             title: "嗜血术", 
-            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%",
+            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%" + "<br/>生命值上限提高" + Math.ceil((Math.pow(1.5, this.stacks) - 1.0) * 100) + "%",
         };
+    },
+
+    onAdded: function(mob, source)
+    {
+        console.log("BloodLust added x" + this.stacks);
     },
 
     onStatCalculation: function(mob)
     {
+        mob.data.maxHealth *= Math.pow(1.5, this.stacks);
+        mob.data.currentMana = 100;
+
         if('modifiers' in mob.data)
         {
             mob.data.modifiers.attackSpeed = Math.pow(1.4, this.stacks) * mob.data.modifiers.attackSpeed;
@@ -203,6 +221,8 @@ game.Buff.IceSpikeTriggered = game.Buff.base.extend
     {
         settings.name = settings.name || "IceSpick!";
         // time to kick some ass
+        // wtf TKSS means that ??????
+        // omgg
         settings.popupName = settings.popupName || "TKSS!";
         settings.time = settings.time || 10.0;
         settings.stacks = settings.stacks || 1;
@@ -294,6 +314,8 @@ game.Buff.LifeRegen = game.Buff.base.extend
         this.healPower = Math.ceil(settings.healTotal / (settings.time / settings.healGap)) || 3;
         this.healGap = settings.healGap || 1.2;
         this.healCountTotal = Math.floor(settings.time / settings.healGap);
+
+        this.vitIncrease = settings.vitInc || 0;
         
         this.timer = 0.0;
         this.healCount = 0;
@@ -308,11 +330,27 @@ game.Buff.LifeRegen = game.Buff.base.extend
             }
         });
 
-        this.toolTip = 
+        if(this.vitIncrease > 0)
         {
-            title: this.name || "生命之种", 
-            text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值。"
-        };
+            this.toolTip = 
+            {
+                title: this.name || "生命之种", 
+                text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值，" + "<br/>并提高" + this.vitIncrease + "点体格。",
+            };
+        }
+        else
+        {
+            this.toolTip = 
+            {
+                title: this.name || "生命之种", 
+                text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值。",
+            };
+        }
+    },
+
+    onBaseStatCalculation(mob)
+    {
+        mob.data.baseStats.vit += this.vitIncrease;
     },
 
     onUpdate: function(mob, deltaTime)

@@ -98,138 +98,147 @@ game.PlayerAgent.Simple = game.PlayerAgent.base.extend
         this.autoMove = game.data.useAutomove;
         this.footPos = player.getRenderPos(0.5, 0.5);
 
-        if(typeof this.targetPos !== "undefined")
+        if(game.Mobs.checkAlive(player) === true)
         {
-            if(this.targetPos.distance(this.footPos) > 1.5)
+            if(typeof this.targetPos !== "undefined")
             {
-                player.body.vel = this.targetPos.clone().sub(this.footPos).normalize().scale(player.data.getMovingSpeed() * me.timer.tick);
-    
-                this.isMoving = true;
-
-                // Reset the anim counter
-                this.idleCount = this.idleFramePos;
-            }
-            else
-            {
-                this.targetPos = undefined;
-
-                this.isMoving = false;
-            }
-        }
-        else if(game.Mobs.checkAlive(this.targetMob) == true)
-        {
-            // we need move to goin the range of our current weapon
-            if(player.data.currentWeapon.isInRange(player, this.targetMob) == false)
-            {
-                player.body.vel = this.targetMob.getRenderPos(0.5, 0.5).clone().sub(this.footPos).normalize().scale(player.data.getMovingSpeed() * me.timer.tick);
-
-                this.isMoving = true;
-
-                // Reset the anim counter
-                this.idleCount = this.idleFrameMob;
-            }
-            // and then we don't move anymore.
-            else
-            {
-                this.targetMob = undefined;
-
-                this.isMoving = false;
-            }
-        }
-        else
-        {
-            // We lose the target.
-
-            this.targetPos = undefined;
-            this.targetMob = undefined;
-            this.isMoving = false;
-        }
-
-        if(this.isMoving === true)
-        {
-            // Fix our face direction when moving
-            if(player.body.vel.x > 0)
-            {
-                player.renderable.flipX(true);
-            }
-            else
-            {
-                player.renderable.flipX(false);
-            }
-
-            if(!player.renderable.isCurrentAnimation("move"))
-            {
-                player.renderable.setCurrentAnimation("move");
-            }
-        }
-        else
-        {
-            // Count the frames
-            if(this.idleCount > 0)
-            {
-                this.idleCount --;
-
-                // Also smooth the speed
-                player.body.vel.scale(this.speedFriction);
-            }
-            else
-            {
-                player.body.vel.set(0, 0);
-
-                if(!player.renderable.isCurrentAnimation("idle"))
+                if(this.targetPos.distance(this.footPos) > 1.5)
                 {
-                    player.renderable.setCurrentAnimation("idle");
+                    player.body.vel = this.targetPos.clone().sub(this.footPos).normalize().scale(player.data.getMovingSpeed() * me.timer.tick);
+        
+                    this.isMoving = true;
+
+                    // Reset the anim counter
+                    this.idleCount = this.idleFramePos;
+                }
+                else
+                {
+                    this.targetPos = undefined;
+
+                    this.isMoving = false;
                 }
             }
-
-            if(this.autoMove === true)
+            else if(game.Mobs.checkAlive(this.targetMob) == true)
             {
-                if(player.data.currentWeapon)
+                // we need move to goin the range of our current weapon
+                if(player.data.currentWeapon.isInRange(player, this.targetMob) == false)
                 {
-                    if(typeof (targetList = player.data.currentWeapon.grabTargets(player)) !== "undefined")
+                    player.body.vel = this.targetMob.getRenderPos(0.5, 0.5).clone().sub(this.footPos).normalize().scale(player.data.getMovingSpeed() * me.timer.tick);
+
+                    this.isMoving = true;
+
+                    // Reset the anim counter
+                    this.idleCount = this.idleFrameMob;
+                }
+                // and then we don't move anymore.
+                else
+                {
+                    this.targetMob = undefined;
+
+                    this.isMoving = false;
+                }
+            }
+            else
+            {
+                // We lose the target.
+
+                this.targetPos = undefined;
+                this.targetMob = undefined;
+                this.isMoving = false;
+            }
+
+            if(this.isMoving === true)
+            {
+                // Fix our face direction when moving
+                if(player.body.vel.x > 0)
+                {
+                    player.renderable.flipX(true);
+                }
+                else
+                {
+                    player.renderable.flipX(false);
+                }
+
+                if(!player.renderable.isCurrentAnimation("move"))
+                {
+                    player.renderable.setCurrentAnimation("move");
+                }
+            }
+            else
+            {
+                // Count the frames
+                if(this.idleCount > 0)
+                {
+                    this.idleCount --;
+
+                    // Also smooth the speed
+                    player.body.vel.scale(this.speedFriction);
+                }
+                else
+                {
+                    player.body.vel.set(0, 0);
+
+                    if(!player.renderable.isCurrentAnimation("idle"))
                     {
-                        this.setTargetMob(player, targetList[0]);
+                        player.renderable.setCurrentAnimation("idle");
+                    }
+                }
+
+                if(this.autoMove === true)
+                {
+                    if(player.data.currentWeapon)
+                    {
+                        if(typeof (targetList = player.data.currentWeapon.grabTargets(player)) !== "undefined")
+                        {
+                            this.setTargetMob(player, targetList[0]);
+                        }
                     }
                 }
             }
-        }
 
-        player.data.currentMana += dt * player.data.currentWeapon.manaRegen * 0.001;
-        if(player.data.currentMana > player.data.maxMana)
-        {
-            player.data.currentMana = player.data.maxMana
-        }
-
-        // Attack !
-        // Todo: attack single time for multi targets, they should add same amount of weapon gauge (basically)
-        if(player.doAttack(dt) === true)
-        {
-            if(typeof (targets = player.data.currentWeapon.grabTargets(player)) !== "undefined")
+            // Attack !
+            // Todo: attack single time for multi targets, they should add same amount of weapon gauge (basically)
+            if(player.doAttack(dt) === true)
             {
-                for(var target of targets.values())
+                if(typeof (targets = player.data.currentWeapon.grabTargets(player)) !== "undefined")
                 {
-                    if(player.data.currentWeapon.isInRange(player, target))
+                    for(var target of targets.values())
                     {
-                        if(player.data.currentMana > player.data.currentWeapon.manaCost)
+                        if(player.data.currentWeapon.isInRange(player, target))
                         {
-                            player.data.currentMana -= player.data.currentWeapon.manaCost;
-                            player.data.currentWeapon.attack(player, target);
+                            if(player.data.currentMana > player.data.currentWeapon.manaCost)
+                            {
+                                player.data.currentMana -= player.data.currentWeapon.manaCost;
+                                player.data.currentWeapon.attack(player, target);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Use any spells available
+            for(let spell in player.data.spells)
+            {
+                if(player.data.spells.hasOwnProperty(spell))
+                {
+                    if(this.isMoving == false)
+                    {
+                        if(player.data.spells[spell].available)
+                        {
+                            player.data.cast(player, null, player.data.spells[spell])
                         }
                     }
                 }
             }
         }
-
-        // Use any spells available
-        for(let spell in player.data.spells)
+        // YOU DIED !
+        else
         {
-            if(player.data.spells.hasOwnProperty(spell))
-            {
-                if(player.data.spells[spell].available)
-                {
-                    player.data.spells[spell].cast(player);
-                }
-            }
+            this.isMoving = false;
+            player.body.vel.set(0, 0);
+            player.renderable.flipX(false);
+
+            player.renderable.setCurrentAnimation("dead");
         }
     },
 
@@ -266,6 +275,7 @@ game.PlayerMobs.test = game.PlayerMobs.base.extend
         //Animations
         this.renderable.addAnimation("idle", [0, 1, 2, 3, 4]);
         this.renderable.addAnimation("move", [8, 9, 10, 11, 12, 13, 14, 15]);
+        this.renderable.addAnimation("dead", [5]);
 
         this.renderable.setCurrentAnimation("idle");
 

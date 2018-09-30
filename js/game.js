@@ -24,7 +24,7 @@ var game = {
         playerSparse: 12,
         playerSparseInc: 2,
         playerMax: 8,
-        useAutomove : true,
+        useAutomove : false,
         moveThreshold : 150,
 
         // How much heal will taunt? (multiplier)
@@ -60,12 +60,25 @@ var game = {
 
         damageTypeArray : ["slash", "knock", "pierce", "fire", "ice", "water", "nature", "wind", "thunder", "light"],
 
+        damageTypeString: {
+            slash: "斩击",  
+            knock: "打击",  
+            pierce: "突刺",  
+            fire: "火",
+            ice: "冰",
+            water: "水",
+            nature: "自然",
+            wind: "风",
+            thunder: "雷",
+            light: "光",
+        },
+
         critMultiplier: {
             slash: 2.0,  
             knock: 1.6,  
             pierce: 2.5,  
             fire: 2.0,
-            ice: 2.5,
+            ice: 2.0,
             water: 1.6,
             nature: 2.0,
             wind: 2.5,
@@ -150,6 +163,7 @@ var game = {
         // var playerType = [1, 1, 5];
         // var playerType = [2, 1, 4];
         var playerType = [2, 2, 4];
+        // var playerType = [0, 0, 1];
 
         // Tank
         for(var i = 0; i < playerType[0]; i++)
@@ -171,7 +185,7 @@ var game = {
                     targetCount: 1,
                     power: 2,
                     manaCost: 1,
-                }), isPlayer: true, health: 120, tauntMul: 5.0, mobPrototype: game.PlayerMobs.ForestElfGuardian, image: "tank_girl2",});
+                }), isPlayer: true, health: 120, str: 5, vit: 3, mobPrototype: game.PlayerMobs.ForestElfGuardian, image: "tank_girl2",});
 
             // give them a taunt skill
             tank.spells.taunt = new game.dataBackend.Spell.Taunt({});
@@ -203,14 +217,14 @@ var game = {
                             power: 15,
                             manaCost: 15,
                         }),
-                    isPlayer: true, health: 60, mag: 5, mobPrototype: game.PlayerMobs.FloraFairy}));
+                    isPlayer: true, health: 60, vit: 3, mag: 5, int: 2, mobPrototype: game.PlayerMobs.FloraFairy}));
         }
 
         // DPS
         for(var i = 0; i < playerType[2]; i++)
         {
             var choice = Math.random();
-            choice = 0; // force spawn ranged DPS
+            // choice = 0; // force spawn ranged DPS
             if(choice < 0.5)
             {
                 this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, 
@@ -223,18 +237,21 @@ var game = {
                             manaCost: 2,
                         }),
                     weaponRight: new game.Weapon.ChibiFairyLamp({}),
-                    isPlayer: true, health: 65, mag: 5, mobPrototype: game.PlayerMobs.test, image: "magical_girl2"}));
+                    isPlayer: true, health: 65, vit: 2, int: 5, mobPrototype: game.PlayerMobs.HumanMageIceFire, image: "magical_girl2"}));
             }
             else
             {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (M) " + i, weaponLeft: new game.Weapon.TestStaff(
-                    {
-                        baseAttackSpeed: game.helper.getRandomFloat(0.3, 0.5),
-                        activeRange: game.helper.getRandomInt(50, 70),
-                        targetCount: 1,
-                        power: 5,
-                        manaCost: 1,
-                    }), isPlayer: true, health: 100, mobPrototype: game.PlayerMobs.test, image: "magical_girl2"}));
+                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) elf girl (R) " + i, 
+                    weaponLeft: new game.Weapon.DPSHomingStaff(
+                        {
+                            baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
+                            activeRange: game.helper.getRandomInt(200, 240),
+                            targetCount: 3,
+                            power: 7,
+                            manaCost: 2,
+                        }),
+                    weaponRight: new game.Weapon.ChibiFairyLamp({}),
+                    isPlayer: true, health: 65, vit: 2, int: 5, mobPrototype: game.PlayerMobs.ForestElfAcademic, image: "magical_girl2"}));
             }
         }
 

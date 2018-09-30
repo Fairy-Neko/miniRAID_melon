@@ -430,6 +430,15 @@ game.Mobs.base = game.Moveable.extend(
 
     updateMoveable: function(dt)
     {
+        if(this.renderable.isCurrentAnimation("move") == true)
+        {
+            this.data.isMoving = true;
+        }
+        else
+        {
+            this.data.isMoving = false;
+        }
+
         // Tell data backend to update our data.
         // This does almost all the things with our backend data (status calculation, update listeners, etc.)
         this.data.updateMobBackend(this, dt);
@@ -463,6 +472,11 @@ game.Mobs.base = game.Moveable.extend(
 
         this.attackCounter += dt * 0.001;
 
+        if(this.data.canCastSpell() == false)
+        {
+            return false;
+        }
+
         if(this.attackCounter > (this.data.getAttackSpeed()))
         {
             // This will cause mutiple attacks if attackspeed increases.
@@ -474,7 +488,7 @@ game.Mobs.base = game.Moveable.extend(
 
         return false;
     },
-
+    
     // Will be called when a buff is going to affect the mob.
     // If anything some object with buff ability (e.g. fireball can fire sth up) hits has method receiveBuff(),
     // receiveBuff() will be called and the mob will be buffed.
@@ -704,8 +718,6 @@ game.Mobs.base = game.Moveable.extend(
     {
         this.data.die({source: source, damage: damage});
 
-        me.game.world.removeChild(this.HPBar);
-
         this.body.collisionType = me.collision.types.NO_OBJECT;
 
         if(this.data.isPlayer === true)
@@ -715,11 +727,25 @@ game.Mobs.base = game.Moveable.extend(
         }
         else
         {
+            me.game.world.removeChild(this.HPBar);
             game.units.removeEnemy(this);
+            me.game.world.removeChild(this);
         }
-        me.game.world.removeChild(this);
     },
+
+    // Listener interfaces
+    // When this listener was added to the mob by source
+    // Buffs will also be triggered when new stack comes.
+    onAdded: function(mob, source) {},
+
+    // When this listener was removed from the mob by source
+    onRemoved: function(mob, source) {},
 });
+
+game.Mobs.checkExist = function(target)
+{
+    return ((typeof target !== "undefined") && (typeof target.renderable !== "undefined") && (typeof target.body !== "undefined"));
+};
 
 game.Mobs.checkAlive = function(target)
 {
@@ -780,10 +806,10 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
 
         settings.weaponLeft = new game.Weapon.TestBossStaff
         ({
-            baseAttackSpeed: game.helper.getRandomFloat(1.4, 1.5),
-            activeRange: game.helper.getRandomInt(200, 201),
-            power: 32,
-            targetCount: 1,
+            baseAttackSpeed: 1.2,
+            activeRange: 200,
+            power: 45,
+            targetCount: 2,
         });
 
         settings.agent = game.MobAgent.TauntBased;
@@ -816,6 +842,12 @@ game.Mobs.TestBoss = game.Mobs.base.extend(
         // }
 
         me.collision.check(this);
+    },
+
+    onStatCalculation: function(mob)
+    {
+        // Horrible !!
+        mob.data.battleStats.crit = 0;
     },
 
     onCollision: function(response, other)
