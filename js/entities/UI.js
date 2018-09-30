@@ -441,7 +441,6 @@ game.UI.raidFrame = me.Renderable.extend
                 var sliceLength = 0;
 
                 // Health bar (Big & High green one)
-
                 context.setColor('#1B813E');
                 sliceLength = Math.floor((this.gridWidth - 1) * this.cacheHealth[i] / this.dataList[i].maxHealth);
                 context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + 1, sliceLength + 1, this.gridHeight - 9);
@@ -641,17 +640,7 @@ game.UI.raidFrame = me.Renderable.extend
             // need more great ways ?
             var buff = [...this.dataList[playerIdx].buffList][buffId];
 
-            var str = buff.toolTip.title + " (" + buff.stacks + ")";
-            if(buff.countTime == true)
-            {
-                str += " - " + Math.floor(buff.timeRemain) + "s";
-            }
-
-            game.UIManager.showToolTip({
-                titleColor: buff.color,
-                title: str,
-                bodyText: buff.toolTip.text,
-            });
+            buff.showToolTip();
         }
 
         return true;

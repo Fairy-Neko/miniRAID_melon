@@ -85,6 +85,32 @@ game.Buff.base = game.MobListener.extend
             }
         }
     },
+
+    showToolTip: function()
+    {
+        if(typeof game.UIManager == 'undefined' || typeof game.UIManager.showToolTip == 'undefined')
+        {
+            return;
+        }
+
+        var str = this.toolTip.title;
+        
+        if(this.stacks != 1)
+        {
+            str += " (" + this.stacks + ")";
+        }
+        
+        if(this.countTime == true)
+        {
+            str += " - " + Math.floor(this.timeRemain) + "s";
+        }
+
+        game.UIManager.showToolTip({
+            titleColor: this.color,
+            title: str,
+            bodyText: this.toolTip.text,
+        });
+    },
 });
 
 // Some buffes
