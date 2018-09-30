@@ -16,8 +16,12 @@ game.playerSpawnPoint = me.Entity.extend
             settings.backendData = game.data.backend.getPlayerList()[i];
             settings.isPlayer = true;
             settings.image = settings.backendData.image;
-            me.game.world.addChild(new settings.backendData.mobPrototype(spawnPos.x, spawnPos.y, settings), settings.z);
+
+            game.data.backend.getPlayerList()[i].parentMob = me.game.world.addChild(new settings.backendData.mobPrototype(spawnPos.x, spawnPos.y, settings), settings.z);
         }
+
+        // debug
+        // wakeupMenu();
     },
 
     update: function(dt)

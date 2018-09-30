@@ -3,6 +3,23 @@
     /* outline: 1px dotted skyblue; */
 }
 
+@font-face
+{
+    font-family: "pixel";
+    src: url("/04b03.ttf") format("truetype");
+}
+
+:root
+{
+    --main-color: 128, 128, 128;
+
+    --image-url: url('/data/img/healer_girl2.png');
+    --image-width: 32px;
+    --image-height: 32px;
+    --image-offsetX: -0px;
+    --image-offsetY: -0px;
+}
+
 body 
 {
     background-color: #ceebcd;
@@ -112,11 +129,6 @@ body
     transition: 0.3s;
 }
 
-:root
-{
-    --main-color: 20,20,100;
-}
-
 .navigation_tab button:hover
 {
     background-color: rgba(var(--main-color), 0.5);
@@ -218,6 +230,173 @@ body
     display: grid;
 
     flex: 1 0 100px;
+}
+
+.team_character_panel
+{
+    display: flex;
+    flex-direction: column;
+
+    padding: 10px;
+}
+
+#pm_Team p
+{
+    margin: 0px 0px; /* margin: top-bottom left-right */
+    font-size: 12px;
+    text-align: center;
+}
+
+#pm_Team h3
+{
+    margin: 0px 0px; /* margin: top-bottom left-right */
+    font-size: 12px;
+    color: gold;
+    text-align: center;
+    font-weight: normal;
+}
+
+#pm_Team ul
+{
+    display: table;
+    margin: 0 auto;
+    padding: 0;
+
+    white-space: nowrap;
+}
+
+.show_image
+{
+    list-style: none;
+    float: left;
+    margin-right: 10px;
+}
+
+.show_image:last-child
+{
+    margin-right: 0px;
+}
+
+.buff
+{
+    position: relative;
+    margin-right: 3px;
+    margin-bottom: 3px;
+
+    z-index: 1;
+}
+
+.buff .buff_timer
+{
+    position: absolute;
+    right: 0;
+    height: 100%;
+    background-color: rgba(var(--main-color), 0.5);
+    border-left: 1px groove white;
+
+    z-index: 2;
+}
+
+.buff p
+{
+    position: absolute;
+    text-align: left;
+    width: 100%;
+
+    z-index: 3;
+}
+
+#team_footer
+{
+    display: flex;
+    flex-direction: row;
+}
+
+.pm_Team_footer_content
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    flex: 0 0 50%;
+}
+
+/* ensure single line */
+#buff_list_team_tab_character li:nth-child(n+10)
+{
+    display: none;
+}
+
+.cp_content
+{
+    margin-bottom: 5px;
+}
+
+.cp_content:last-child
+{
+    margin-bottom: 0px;
+}
+
+.progress_bar
+{
+    background-color: darkgreen;
+    position: relative;
+
+    height: 20px;
+}
+
+.progress_bar_label
+{
+    position: absolute;
+
+    width: 100%;
+    height: 100%;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-size: 10px;
+    line-height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.bar_head
+{
+    position: absolute;
+
+    left: 10px;
+    top: 50%;
+    transform: translate(0%, -50%);
+}
+
+.bar_num
+{
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.progress_bar_fill
+{
+    position: absolute;
+
+    background-color: #4CAF50;
+    text-align: center;
+
+    border-right: 1px ridge white;
+
+    height: 100%;
+}
+
+.show_image
+{
+    width: var(--image-width);
+    height: var(--image-height);
+    background: var(--image-url) var(--image-offsetX) var(--image-offsetY);
 }
 
 /*

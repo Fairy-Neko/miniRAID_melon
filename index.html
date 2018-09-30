@@ -39,16 +39,89 @@
                                     </div>
                                     <div id = "team_member">
                                         <h1 id = "member_count">8 - </h1>
-                                        <p id = "member_content">2 Tanks<br/>2 Healers<br/>4 DPS</p>
+                                        <p id = "member_content" style = "font-size: 12px;">2 Tanks<br/>2 Healers<br/>4 DPS</p>
                                     </div>
                                 </div>
                                 <div id = "team_content" class = "panel">
                                     <div id = "character_0" class = "team_character_panel">
-                                        <p id = "character_name">Your character here.</p>
+                                        <div id = "character_name_panel" class = "cp_content">
+                                                <h3 id = "character_name">Your character here.</h3>
+                                        </div>
+                                        <div id = "character_image_panel" class = "cp_content" style = "margin-top: 0px; margin-bottom: 12px;">
+                                            <ul>
+                                                <li id = "character_avatar" class = "show_image"></li>
+                                            </ul>
+                                        </div>
+                                        <div id = "character_status_panel" class = "cp_content">
+                                            <div class = "progress_bar" id = "health" style = "background-color: #20604F; margin-bottom: 2px">
+                                                <div class = "progress_bar_fill" style = "width: 83.3%; background-color: #1B813E"></div>
+                                                <div class = "progress_bar_label">
+                                                    <p class = "bar_head">生命</p>
+                                                    <p class = "bar_num">100 / 120</p>
+                                                </div>
+                                            </div>
+                                            <div class = "progress_bar" id = "resource" style = "height: 14px; background-color: #20604F; margin-bottom: 4px">
+                                                <div class = "progress_bar_fill" style = "width: 45.83%; background-color: #33A6B8"></div>
+                                                <div class = "progress_bar_label">
+                                                    <p class = "bar_head">魔力</p>
+                                                    <p class = "bar_num">55 / 120</p>
+                                                </div>
+                                            </div>
+                                            <div id = "buffs">
+                                                <li id = "buff_base" class = "show_image buff" style = "
+                                                    --image-width: 16px; 
+                                                    --image-height: 16px; 
+                                                    outline: 1px solid lightslategrey;
+                                                    display: none">
+                                                    <div class = "buff_timer" style = "width: 20%;" ></div>
+                                                    <p>8</p>
+                                                </li>
+                                                <ul id = "buff_list_team_tab_character" class = "buff_list" style = "display: block; height: 18px;">
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div id = "character_equipment_panel" class = "cp_content">
+                                            <ul style = "margin-bottom: 5px;">
+                                                <li id = "character_weapon_main_title" class = "show_image" style = ""></li>
+                                                <li id = "character_weapon_sub_title" class = "show_image" style = "margin-right: 15px;"></li>
+                                                <li id = "character_armor_title" class = "show_image" style = ""></li>
+                                                <li id = "character_acc_title" class = "show_image" style = ""></li>
+                                            </ul>
+                                            <ul>
+                                                <li id = "character_weapon_main" class = "show_image" style = "outline: 1px solid lightslategrey;"></li>
+                                                <li id = "character_weapon_sub" class = "show_image" style = "outline: 1px solid lightslategrey; margin-right: 15px;"></li>
+                                                <li id = "character_armor" class = "show_image" style = "outline: 1px solid lightslategrey;"></li>
+                                                <li id = "character_acc" class = "show_image" style = "outline: 1px solid lightslategrey;"></li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id = "team_footer" class = "panel">
-                                    <p>This is some footer.</p>
+                                    <div id = "buff" class = "pm_Team_footer_content">
+                                        <p style = "margin-right: 10px; color:skyblue;">Team Buffs&nbsp;&nbsp;- </p>
+                                        <div id = "team_buff">
+                                            <li id = "buff_base" class = "show_image buff" style = "
+                                                --image-width: 32px;
+                                                --image-height: 32px;
+                                                outline: 1px solid lightslategrey;
+                                                display: none;">
+                                            </li>
+                                            <ul id = "buff_list_team" class = "buff_list" style = "display: block; height: 34px;">
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div id = "skill" class = "pm_Team_footer_content">
+                                        <p style = "margin-right: 10px; color: lightpink;">Team Skills&nbsp;&nbsp;- </p>
+                                        <div id = "team_skill">
+                                            <ul id = "skill_list_team" class = "skill_list" style = "display: block; height: 34px;">
+                                                <li id = "skill_0" class = "show_image skill" style = "
+                                                    --image-width: 32px; 
+                                                    --image-height: 32px; 
+                                                    outline: 1px solid lightslategrey">
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -68,10 +141,11 @@
                 <div id = "tooltip">
                     <script>
                         var _ui_tt = document.getElementById("tooltip");
+                        var _ui_parent = document.getElementById("UI");
                         document.getElementById("screen").addEventListener("pointermove", function(e)
                         {
-                            _ui_tt.style.left = e.layerX + 'px';
-                            _ui_tt.style.top = e.layerY + 'px';
+                            _ui_tt.style.left = e.clientX - _ui_parent.getBoundingClientRect().x + 'px';
+                            _ui_tt.style.top = e.clientY - _ui_parent.getBoundingClientRect().y + 'px';
                         }, true);
                     </script>
                     <h1 id = "title">测试</h1>

@@ -629,7 +629,7 @@ game.dataBackend.Mob = me.Object.extend
 
         // 5. Finish
         this.maxHealth = Math.ceil(this.maxHealth);
-        this.currentHealth = Math.ceil(this.healthRatio * this.maxHealth);
+        this.currentHealth = Math.max(0, Math.ceil(this.healthRatio * this.maxHealth));
     },
 
     receiveDamage: function(damageInfo)
