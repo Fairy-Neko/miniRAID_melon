@@ -12,6 +12,44 @@
         <link rel="apple-touch-icon" sizes="120x120" href="icons/touch-icon-iphone-retina-120x120.png">
         <link rel="apple-touch-icon" sizes="152x152" href="icons/touch-icon-ipad-retina-152x152.png">
         <link rel="manifest" href="manifest.json">
+
+        <!-- an optional ES5-Shim
+        <script type="text/javascript" src="lib/es5-shim.min.js"></script>
+        -->
+
+        <!-- melonJS Library -->
+        <!-- build:js js/app.min.js -->
+        <script type="text/javascript" src="lib/melonjs.js"></script>
+
+        <!-- Plugin(s) -->
+        <script type="text/javascript" src="lib/plugins/debug/debugPanel.js"></script>
+
+        <!-- Game Scripts -->
+        <script type="text/javascript" src="js/game.js"></script>
+        <script type="text/javascript" src="build/js/resources.js"></script>
+
+        <script type="text/javascript" src="js/lib/dataBackend.js"></script>
+        <script type="text/javascript" src="js/entities/buffs.js"></script>
+        <script type="text/javascript" src="js/entities/spells.js"></script>
+        <script type="text/javascript" src="js/entities/weapons.js"></script>
+        <script type="text/javascript" src="js/entities/mobs.js"></script>
+        <script type="text/javascript" src="js/entities/player.js"></script>
+        <script type="text/javascript" src="js/entities/entities.js"></script>
+        <script type="text/javascript" src="js/entities/UI.js"></script>
+
+        <!-- Player Characters -->
+        <script type="text/javascript" src="js/entities/players/floraFairy.js"></script>
+        <script type="text/javascript" src="js/entities/players/forestElfGuardian.js"></script>
+        <script type="text/javascript" src="js/entities/players/forestElfAcademic.js"></script>
+        <script type="text/javascript" src="js/entities/players/humanMageIceFire.js"></script>
+
+        <script type="text/javascript" src="js/screens/title.js"></script>
+        <script type="text/javascript" src="js/screens/play.js"></script>
+
+        <!-- Pause menu -->
+        <script type="text/javascript" src="js/UI/pauseMenu.js"></script>
+        <!-- /build -->
+
     </head>
     <body oncontextmenu="return false;">
         <script async></script>
@@ -21,13 +59,14 @@
             <div id = "UI">
 
                 <!-- Pause menu -->
+                <!-- TODO: Localization -->
                 <div id = "pause_menu">
                     <div class = "navigation_tab">
-                        <button class = "tab" onClick = "openMenuTab(event, 'pm_Team')" id = "btnTeam" style="--main-color: 59,121,175">Team</button>
-                        <button class = "tab" onClick = "openMenuTab(event, 'pm_Characters')" id = "btnCharacters" style="--main-color: 65,160,113">Characters</button>
-                        <button class = "tab" onClick = "openMenuTab(event, 'pm_Inventory')" id = "btnInventory" style="--main-color: 165,129,51">Inventory</button>
+                        <button class = "tab" onClick = "game.menu.openMenuTab('Team')" id = "btn_pm_Team" style="--main-color: 59,121,175">队伍</button>
+                        <button class = "tab" onClick = "game.menu.openMenuTab('Characters')" id = "btn_pm_Characters" style="--main-color: 65,160,113">角色</button>
+                        <button class = "tab" onClick = "game.menu.openMenuTab('Inventory')" id = "btn_pm_Inventory" style="--main-color: 165,129,51">物品</button>
                         <div class = "navigation_tab" id = "bottom">
-                            <button class = "tab" onClick = "openMenuTab(event, 'pm_Settings')" id = "btnSettings" style="--main-color: 165,51,83">Settings</button>
+                            <button class = "tab" onClick = "game.menu.openMenuTab('Settings')" id = "btnSettings" style="--main-color: 165,51,83">设置</button>
                         </div>
                     </div>
                     <div id = "menu_content">
@@ -39,7 +78,7 @@
                                     </div>
                                     <div id = "team_member">
                                         <h1 id = "member_count">8 - </h1>
-                                        <p id = "member_content" style = "font-size: 12px;">2 Tanks<br/>2 Healers<br/>4 DPS</p>
+                                        <p id = "member_content" style = "font-size: 12px; text-align: left;">2 坦克<br/>2 治疗<br/>2 伤害<br/>2 辅助</p>
                                     </div>
                                 </div>
                                 <div id = "team_content" class = "panel">
@@ -126,7 +165,165 @@
                             </div>
                         </div>
                         <div id="pm_Characters" class="tabcontent">
-                            Your character here.
+                            <div class = "flexFiller">
+                                <div id = "characterView">
+                                    <div id = "character_name_panel" class = "cp_content">
+                                            <h3 id = "character_name">Your character here.</h3>
+                                    </div>
+                                    <div id = "character_image_panel" class = "cp_content" style = "margin-top: 20px; margin-bottom: 32px;">
+                                        <ul>
+                                            <li id = "left_arrow" class = "show_image" style = "margin-right: 30px; --image-height: 64px;"></li>
+                                            <li id = "character_avatar" class = "show_image" style = "margin-top: 16px; margin-bottom: 16px;"></li>
+                                            <li id = "right_arrow" class = "show_image" style = "margin-left: 20px; --image-height: 64px;"></li>
+                                        </ul>
+                                    </div>
+                                    <div id = "character_status_panel" class = "cp_content">
+                                        <div class = "progress_bar" id = "health" style = "background-color: #20604F; margin-bottom: 2px">
+                                            <div class = "progress_bar_fill" style = "width: 83.3%; background-color: #1B813E"></div>
+                                            <div class = "progress_bar_label">
+                                                <p class = "bar_head">生命</p>
+                                                <p class = "bar_num">100 / 120</p>
+                                            </div>
+                                        </div>
+                                        <div class = "progress_bar" id = "resource" style = "height: 14px; background-color: #20604F; margin-bottom: 4px">
+                                            <div class = "progress_bar_fill" style = "width: 45.83%; background-color: #33A6B8"></div>
+                                            <div class = "progress_bar_label">
+                                                <p class = "bar_head">魔力</p>
+                                                <p class = "bar_num">55 / 120</p>
+                                            </div>
+                                        </div>
+                                        <div id = "buffs">
+                                            <li id = "buff_base" class = "show_image buff" style = "
+                                                --image-width: 16px; 
+                                                --image-height: 16px; 
+                                                outline: 1px solid lightslategrey;
+                                                display: none">
+                                                <div class = "buff_timer" style = "width: 20%;" ></div>
+                                                <p>8</p>
+                                            </li>
+                                            <ul id = "buff_list_character_tab_character" class = "buff_list">
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div id = "equipment_tabs" style = "height: 240px;">
+                                        <div id = "cT_character_equipment_panel" class = "cp_content tabcontent">
+                                            <ul id = "weapon_main" class = "equipment_row" style = "margin: 0; margin-bottom: 5px;">
+                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
+                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
+                                                    onclick = "game.menu.cT_tTab(true, 'weapon_main', 'main');"></li>
+                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'weapon_main', 'enchant');"></li>
+                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'weapon_main', 'slot1');"></li>
+                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'weapon_main', 'slot2');"></li>
+                                            </ul>
+                                            <ul id = "weapon_sub"  class = "equipment_row" style = "margin: 0; margin-bottom: 10px;">
+                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
+                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
+                                                    onclick = "game.menu.cT_tTab(true, 'weapon_sub', 'main');"></li>
+                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'weapon_sub', 'enchant');"></li>
+                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'weapon_sub', 'slot1');"></li>
+                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'weapon_sub', 'slot2');"></li>
+                                            </ul>
+                                            <ul id = "armor"       class = "equipment_row" style = "margin: 0; margin-bottom: 5px;">
+                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
+                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
+                                                    onclick = "game.menu.cT_tTab(true, 'armor', 'main');"></li>
+                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'armor', 'enchant');"></li>
+                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'armor', 'slot1');"></li>
+                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'armor', 'slot2');"></li>
+                                            </ul>
+                                            <ul id = "acc"         class = "equipment_row" style = "margin: 0; margin-bottom: 5px;">
+                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
+                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
+                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'main');"></li>
+                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'enchant');"></li>
+                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'slot1');"></li>
+                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'slot2');"></li>
+                                            </ul>
+                                        </div>
+                                        <div id = "cT_equipment_selector" class = "cp_content tabcontent">
+                                            <ul id = "show_equip"  class = "equipment_row" style = "margin: 0; margin-bottom: 10px;">
+                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
+                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
+                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'main');"></li>
+                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'enchant');"></li>
+                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'slot1');"></li>
+                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
+                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'slot2');"></li>
+                                            </ul>
+                                            <div class = "scrollable_inventory_list" style = "height: 200px;">
+                                                <p id = "title">Inventory</p>
+                                                <ul style = "margin: 0 0;">
+                                                    <li id = "back" class = "show_image inventory_block" onclick = "game.menu.cT_tTab(false, null, null);"></li>
+                                                    <!-- <li class = "show_image inventory_block"></li> -->
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id = "characterStats">
+                                    <div id = "page 1" class = "page">
+                                        <h2>人物属性</h2>
+                                        <h3>种族</h3>
+                                        <h3>职业</h3>
+                                        <h3>等级</h3>
+    
+                                        <h2>基本属性</h2>
+                                        <h3>体格</h3>
+                                        <h3>魔力</h3>
+                                        <h3>力量</h3>
+                                        <h3>智力</h3>
+                                        <h3>敏捷</h3>
+                                        <h3>技巧</h3>
+    
+                                        <h2>战斗属性</h2>
+                                        <h3>移动速度</h3>
+                                        <h3>攻击间隔</h3>
+                                        <h3>施法速度</h3>
+                                        <h3>资源消耗</h3>
+                                        <h3>仇恨系数</h3>
+                                        <br/>
+                                        <h3>命中</h3>
+                                        <h3>回避</h3>
+                                        <h3>暴击</h3>
+                                        <h3>暴击抵抗</h3>
+                                        <br/>
+                                        <h3>攻击距离</h3>
+                                        <h3>附加距离</h3>
+                                    </div>
+                                    <div id = "page 2" class = "page">
+                                        <h2>攻击强度 / 属性抗性</h2>
+                                        <h3>物理</h3>
+                                        <h3>魔法</h3>
+                                        <h3>治疗</h3>
+                                        <br/>
+                                        <h3>斩击</h3>
+                                        <h3>打击</h3>
+                                        <h3>突刺</h3>
+                                        <br/>
+                                        <h3>火</h3>
+                                        <h3>水</h3>
+                                        <h3>冰</h3>
+                                        <h3>自然</h3>
+                                        <h3>风</h3>
+                                        <h3>雷</h3>
+                                        <h3>光</h3>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div id="pm_Inventory" class="tabcontent">
                             Your inventory here.
@@ -154,48 +351,12 @@
             </div>
         </div>
 
-        <!-- an optional ES5-Shim
-        <script type="text/javascript" src="lib/es5-shim.min.js"></script>
-        -->
-
-        <!-- melonJS Library -->
-        <!-- build:js js/app.min.js -->
-        <script type="text/javascript" src="lib/melonjs.js"></script>
-
-        <!-- Plugin(s) -->
-        <script type="text/javascript" src="lib/plugins/debug/debugPanel.js"></script>
-
-        <!-- Game Scripts -->
-        <script type="text/javascript" src="js/game.js"></script>
-        <script type="text/javascript" src="build/js/resources.js"></script>
-
-        <script type="text/javascript" src="js/lib/dataBackend.js"></script>
-        <script type="text/javascript" src="js/entities/buffs.js"></script>
-        <script type="text/javascript" src="js/entities/spells.js"></script>
-        <script type="text/javascript" src="js/entities/weapons.js"></script>
-        <script type="text/javascript" src="js/entities/mobs.js"></script>
-        <script type="text/javascript" src="js/entities/player.js"></script>
-        <script type="text/javascript" src="js/entities/entities.js"></script>
-        <script type="text/javascript" src="js/entities/UI.js"></script>
-
-        <!-- Player Characters -->
-        <script type="text/javascript" src="js/entities/players/floraFairy.js"></script>
-        <script type="text/javascript" src="js/entities/players/forestElfGuardian.js"></script>
-        <script type="text/javascript" src="js/entities/players/forestElfAcademic.js"></script>
-        <script type="text/javascript" src="js/entities/players/humanMageIceFire.js"></script>
-
-        <script type="text/javascript" src="js/screens/title.js"></script>
-        <script type="text/javascript" src="js/screens/play.js"></script>
-        <!-- /build -->
-
         <!-- Bootstrap -->
         <script type="text/javascript">
             me.device.onReady(function onReady() {
                 game.onload();
             });
         </script>
-
-        <script type="text/javascript" src="js/UI/pauseMenu.js"></script>
 
         <p>Switched to melonjs. &gt;w&lt;~</p>
     </body>

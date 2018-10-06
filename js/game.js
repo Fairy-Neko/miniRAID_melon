@@ -74,9 +74,9 @@ var game = {
         },
 
         critMultiplier: {
-            slash: 2.0,  
-            knock: 1.6,  
-            pierce: 2.5,  
+            slash: 2.0,
+            knock: 1.6,
+            pierce: 2.5,
             fire: 2.0,
             ice: 2.0,
             water: 1.6,
@@ -254,6 +254,9 @@ var game = {
                     isPlayer: true, health: 65, vit: 2, int: 5, mobPrototype: game.PlayerMobs.ForestElfAcademic, image: "magical_girl2"}));
             }
         }
+
+        // Init the menu
+        game.menu.init();
 
         // Start the game.
         me.state.change(me.state.PLAY);

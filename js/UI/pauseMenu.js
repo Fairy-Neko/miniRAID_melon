@@ -1,11 +1,11 @@
-document.getElementById("btnTeam").click();
-
 game.menu = game.menu || {};
 game.menu.currentPlayerCount = 0;
 
-function openMenuTab(evt, menuName) 
+game.menu.openMenuTab = function(menuName) 
 {
     var i, tabcontent, tablinks;
+
+    menuName = "pm_" + menuName;
 
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) 
@@ -20,18 +20,82 @@ function openMenuTab(evt, menuName)
     }
 
     document.getElementById(menuName).style.display = "block";
-    evt.currentTarget.className += " active";
+
+    if(document.getElementById("btn_" + menuName))
+    {
+        document.getElementById("btn_" + menuName).className += " active";
+    }
+
+    if(menuName == "pm_Characters")
+    {
+        // init characters panel
+        game.menu.openCharactersTabSubTab("cT_character_equipment_panel");
+    }
 }
 
-function wakeupMenu()
+game.menu.cT_tTab = function(isEquip, equipPos, slot)
+{
+    // TODO: check if slot exists
+    if(isEquip === true)
+    {
+        game.menu.currentEquipPos = equipPos;
+        game.menu.currentEquipSlot = slot;
+
+        game.menu.openCharactersTabSubTab("cT_equipment_selector");
+    }
+    else
+    {
+        game.menu.openCharactersTabSubTab("cT_character_equipment_panel");
+    }
+}
+
+game.menu.openCharactersTabSubTab = function(tabName)
+{
+    document.getElementById("cT_equipment_selector").style.display = "none";
+    document.getElementById("cT_character_equipment_panel").style.display = "none";
+
+    document.getElementById(tabName).style.display = "block";
+}
+
+game.menu.init = function()
+{
+    document.getElementById("btn_pm_Team").click();
+    // document.getElementById("btn_pm_Characters").click();
+
+    // Set up a event listener for escape key -> close menu and resume game
+    document.body.addEventListener('keydown', function(e)
+    {
+        if(game.ignorePause === true)
+        {
+            return;
+        }
+        if(e.key === "Escape")
+        {
+            if(game.paused === true)
+            {
+                game.paused = false;
+                game.ignorePause = true;
+            }
+            me.state.resume(true);
+
+            document.getElementById("pause_menu").style.display = "none";
+        }
+    });
+
+    // Get DOM Elements
+    game.menu.teamTab = document.getElementById("pm_Team");
+    game.menu.teamContentPanel = document.getElementById("team_content");
+
+    game.menu.charactersTab = document.getElementById("pm_Characters");
+}
+
+game.menu.wakeupMenu = function()
 {
     game.paused = true;
 
     //
     // ─── TEAM PANEL ─────────────────────────────────────────────────────────────────
     //
-
-    var teamContentPanel = document.getElementById("team_content");
 
     if(game.data.backend.playerList.length !== game.menu.currentPlayerCount)
     {
@@ -50,22 +114,22 @@ function wakeupMenu()
                 tmpstr += "1fr ";
             }
 
-            teamContentPanel.style.gridTemplateRows = tmpstr;
+            game.menu.teamContentPanel.style.gridTemplateRows = tmpstr;
             tmpstr = "";
 
             for(var i = 0; i < columns; i ++)
             {
                 tmpstr += "1fr ";
             }
-            teamContentPanel.style.gridTemplateColumns = tmpstr;
+            game.menu.teamContentPanel.style.gridTemplateColumns = tmpstr;
         }
 
         // Clear and dulipcate character panels
         var characterPanel_base = document.getElementById("character_0").cloneNode(true);
 
-        while(teamContentPanel.firstChild)
+        while(game.menu.teamContentPanel.firstChild)
         {
-            teamContentPanel.removeChild(teamContentPanel.firstChild);
+            game.menu.teamContentPanel.removeChild(game.menu.teamContentPanel.firstChild);
         }
 
         var i = 0;
@@ -75,7 +139,7 @@ function wakeupMenu()
 
             playerPanel.id = "character_" + i;
 
-            teamContentPanel.appendChild(playerPanel);
+            game.menu.teamContentPanel.appendChild(playerPanel);
 
             i += 1;
         }
@@ -85,7 +149,15 @@ function wakeupMenu()
     var i = 0;
     for(var player of game.data.backend.playerList)
     {
-        var playerPanel = teamContentPanel.querySelector("#character_" + i);
+        var playerPanel = game.menu.teamContentPanel.querySelector("#character_" + i);
+
+        // Event to jump to character panel
+        playerPanel.index = i;
+        playerPanel.onclick = function()
+        { 
+            game.menu.setCurrentCharacter(this.index);
+            game.menu.openMenuTab('Characters');
+        }
 
         // Player name
         playerPanel.querySelector("#character_name").innerHTML = player.name;
@@ -149,23 +221,17 @@ function wakeupMenu()
 
         i += 1;
     }
+
+    //
+    // ─── CHARACTER PANEL ────────────────────────────────────────────────────────────
+    //
+
+    game.menu.setCurrentCharacter(game.menu.currentCharacterIdx || 0);
+    game.menu.openCharactersTabSubTab("cT_character_equipment_panel");
 }
 
-document.body.addEventListener('keydown', function(e)
+game.menu.setCurrentCharacter = function(index)
 {
-    if(game.ignorePause === true)
-    {
-        return;
-    }
-    if(e.key === "Escape")
-    {
-        if(game.paused === true)
-        {
-            game.paused = false;
-            game.ignorePause = true;
-        }
-        me.state.resume(true);
-
-        document.getElementById("pause_menu").style.display = "none";
-    }
-});
+    game.menu.currentCharacterIdx = index;
+    game.menu.charactersTab.querySelector("#character_name").innerHTML = game.data.backend.playerList[index].name;
+}

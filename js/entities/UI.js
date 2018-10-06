@@ -112,7 +112,7 @@ game.UI.Container = me.Container.extend
                 this.pauseMenu.style.display = "flex";
 
                 // Set a "higher priority" pause
-                wakeupMenu();
+                game.menu.wakeupMenu();
                 me.state.pause(true);
             }
         }
