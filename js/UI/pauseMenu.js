@@ -59,8 +59,8 @@ game.menu.openCharactersTabSubTab = function(tabName)
 
 game.menu.init = function()
 {
-    // document.getElementById("btn_pm_Team").click();
-    document.getElementById("btn_pm_Characters").click();
+    document.getElementById("btn_pm_Team").click();
+    // document.getElementById("btn_pm_Characters").click();
 
     // Set up a event listener for escape key -> close menu and resume game
     document.body.addEventListener('keydown', function(e)

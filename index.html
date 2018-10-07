@@ -80,11 +80,12 @@
                                 </div>
                                 <div id="team_member">
                                     <h1 id="member_count">8 - </h1>
-                                    <p id="member_content" style="font-size: 12px; text-align: left;">2 坦克&nbsp;&nbsp;&nbsp;2 治疗<br />4
+                                    <p id="member_content" style="font-size: 12px; text-align: left;">2
+                                        坦克&nbsp;&nbsp;&nbsp;2 治疗<br />4
                                         伤害&nbsp;&nbsp;&nbsp;0 辅助</p>
                                 </div>
                             </div>
-                            <div id="team_content" class="panel" style = "margin-bottom: 10px">
+                            <div id="team_content" class="panel" style="margin-bottom: 10px">
                                 <div id="character_0" class="team_character_panel">
                                     <div id="character_name_panel" class="cp_content">
                                         <h3 id="character_name">Your character here.</h3>
@@ -123,12 +124,6 @@
                                         </div>
                                     </div>
                                     <div id="character_equipment_panel" class="cp_content">
-                                        <ul style="margin-bottom: 5px;">
-                                            <li id="character_weapon_main_title" class="show_image" style=""></li>
-                                            <li id="character_weapon_sub_title" class="show_image" style="margin-right: 15px;"></li>
-                                            <li id="character_armor_title" class="show_image" style=""></li>
-                                            <li id="character_acc_title" class="show_image" style=""></li>
-                                        </ul>
                                         <ul>
                                             <li id="character_weapon_main" class="show_image" style="outline: 1px solid lightslategrey;"></li>
                                             <li id="character_weapon_sub" class="show_image" style="outline: 1px solid lightslategrey; margin-right: 15px;"></li>
@@ -139,28 +134,43 @@
                                 </div>
                             </div>
                             <div id="team_footer" class="panel">
-                                <div id="buff" class="pm_Team_footer_content">
-                                    <p style="margin-right: 10px; color:skyblue;">团队增益&nbsp;&nbsp;- </p>
-                                    <div id="team_buff">
-                                        <li id="buff_base" class="show_image buff" style="
-                                                --image-width: 32px;
-                                                --image-height: 32px;
-                                                outline: 1px solid lightslategrey;
-                                                display: none;">
-                                        </li>
-                                        <ul id="buff_list_team" class="buff_list" style="display: block; height: 34px;">
-                                        </ul>
+                                <div id="team_footer_left">
+                                    <div id="buff" class="pm_Team_footer_content">
+                                        <p style="margin-right: 10px; color:skyblue;">团队增益&nbsp;&nbsp;- </p>
+                                        <div id="team_buff">
+                                            <li id="buff_base" class="show_image buff" style="
+                                                            --image-width: 32px;
+                                                            --image-height: 32px;
+                                                            outline: 1px solid lightslategrey;
+                                                            display: none;">
+                                            </li>
+                                            <ul id="buff_list_team" class="buff_list" style="display: block; height: 34px;">
+                                                <li id="buff_0" class="show_image buff" style="
+                                                            --image-width: 32px; 
+                                                            --image-height: 32px; 
+                                                            outline: 1px solid lightslategrey">
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div id="skill" class="pm_Team_footer_content">
+                                        <p style="margin-right: 10px; color: lightpink;">团队技能&nbsp;&nbsp;- </p>
+                                        <div id="team_skill">
+                                            <ul id="skill_list_team" class="skill_list" style="display: block; height: 34px;">
+                                                <li id="skill_0" class="show_image skill" style="
+                                                                --image-width: 32px; 
+                                                                --image-height: 32px; 
+                                                                outline: 1px solid lightslategrey">
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
-                                <div id="skill" class="pm_Team_footer_content">
-                                    <p style="margin-right: 10px; color: lightpink;">团队技能&nbsp;&nbsp;- </p>
-                                    <div id="team_skill">
-                                        <ul id="skill_list_team" class="skill_list" style="display: block; height: 34px;">
-                                            <li id="skill_0" class="show_image skill" style="
-                                                    --image-width: 32px; 
-                                                    --image-height: 32px; 
-                                                    outline: 1px solid lightslategrey">
-                                            </li>
+                                <div id="team_footer_right">
+                                    <div class="scrollable_inventory_list" style="height: 100%;">
+                                        <p id="title">Equipments</p>
+                                        <ul style="margin: 0 0;">
+                                            <li class="show_image inventory_block"></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -268,7 +278,7 @@
                                                 onclick="game.menu.cT_tTab(true, 'acc', 'slot2');"></li>
                                         </ul>
                                         <div class="scrollable_inventory_list" style="height: 200px;">
-                                            <p id="title">Inventory</p>
+                                            <p id="title">Equipments</p>
                                             <ul style="margin: 0 0;">
                                                 <li id="back" class="show_image inventory_block" onclick="game.menu.cT_tTab(false, null, null);"></li>
                                                 <!-- <li class = "show_image inventory_block"></li> -->
@@ -288,7 +298,7 @@
                                                 <td class="title">
                                                     <h3>种族</h3>
                                                 </td>
-                                                <td id="value" style = "width: 180px;">星精灵</td>
+                                                <td id="value" style="width: 180px;">星精灵</td>
                                             </tr>
                                             <tr id="class">
                                                 <td class="title">
@@ -609,13 +619,23 @@
                                         </thead>
                                         <tbody id="avilableSkills">
                                             <tr>
-                                                <td><h3>魔力之环：星光</h3></td>
-                                                <td><h3>魔力掌握</h3></td>
-                                                <td><h3>魔力潮涌</h3></td>
+                                                <td>
+                                                    <h3>魔力之环：星光</h3>
+                                                </td>
+                                                <td>
+                                                    <h3>魔力掌握</h3>
+                                                </td>
+                                                <td>
+                                                    <h3>魔力潮涌</h3>
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td><h3>精灵召唤</h3></td>
-                                                <td><h3>魔力附加</h3></td>
+                                                <td>
+                                                    <h3>精灵召唤</h3>
+                                                </td>
+                                                <td>
+                                                    <h3>魔力附加</h3>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -632,7 +652,181 @@
                         </div>
                     </div>
                     <div id="pm_Inventory" class="tabcontent">
-                        Your inventory here.
+                        <div class="flexFiller">
+                            <div id="Inventories">
+                                <div id="Equipments" class="scrollable_inventory_list" style="height: 100%;">
+                                    <p id="title">Equipments</p>
+                                    <ul style="margin: 0 0;">
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                        <li class="show_image inventory_block"></li>
+                                    </ul>
+                                </div>
+                                <div id="Items" class="scrollable_inventory_list" style="height: 100%;">
+                                    <p id="title">Items</p>
+                                    <ul style="margin: 0 0;">
+                                        <li class="show_image inventory_block"></li>
+                                    </ul>
+                                </div>
+                                <div id="Key Items" class="scrollable_inventory_list" style="height: 100%;">
+                                    <p id="title">Key Items</p>
+                                    <ul style="margin: 0 0;">
+                                        <li class="show_image inventory_block"></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div id="pm_Settings" class="tabcontent">
                         Some settings here.

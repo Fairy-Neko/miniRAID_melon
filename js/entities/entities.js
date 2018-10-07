@@ -21,7 +21,12 @@ game.playerSpawnPoint = me.Entity.extend
         }
 
         // debug
-        // wakeupMenu();
+        // Display the menu
+        document.getElementById("pause_menu").style.display = "flex";
+
+        // Set a "higher priority" pause
+        game.menu.wakeupMenu();
+        me.state.pause(true);
     },
 
     update: function(dt)
@@ -130,5 +135,37 @@ game.testIcyZone = me.Entity.extend({
         }
 
         return false;
+    }
+});
+
+//
+// ─── SCENE OBJECTS ──────────────────────────────────────────────────────────────
+//
+
+game.sceneObject = game.sceneObject || {};
+
+// Spawn some collectable objects when clicked
+game.sceneObject.clickCollect = me.Entity.extend
+({
+    init: function(x, y, settings)
+    {
+        this._super(me.Entity, 'init', [x, y, settings]);
+
+        me.input.registerPointerEvent('pointerdown', this, this.pointerDown.bind(this));
+    },
+
+    pointerDown: function(pointer)
+    {
+        console.log("You clicked the scene object!");
+
+        return false;
+    },
+});
+
+game.sceneObject.loot = me.Entity.extend
+({
+    init: function(x, y, settings)
+    {
+        
     }
 });

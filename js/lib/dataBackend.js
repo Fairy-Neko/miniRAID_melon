@@ -572,7 +572,7 @@ game.dataBackend.Mob = me.Object.extend
 
             attackPower: {
                 physical: 0,
-                elemental: 10,
+                elemental: 0,
                 pure: 0, // It should always be 0
 
                 slash: 0,
