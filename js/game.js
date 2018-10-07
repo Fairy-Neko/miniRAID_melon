@@ -55,7 +55,12 @@ var game = {
             nature: "elemental",
             wind: "elemental",
             thunder: "elemental",
+
+            // Let them just add 0 (as themselves when calculating) for convinence
             light: "pure",
+            physical: "pure",
+            elemental: "pure",
+            heal: "pure",
         },
 
         damageTypeArray : ["slash", "knock", "pierce", "fire", "ice", "water", "nature", "wind", "thunder", "light"],
@@ -185,7 +190,9 @@ var game = {
                     targetCount: 1,
                     power: 2,
                     manaCost: 1,
-                }), isPlayer: true, health: 120, str: 5, vit: 3, mobPrototype: game.PlayerMobs.ForestElfGuardian, image: "tank_girl2",});
+                }), isPlayer: true, health: 120, str: 5, vit: 3, 
+                race: "精灵 / 湖精灵", class: "枪术卫士", 
+                mobPrototype: game.PlayerMobs.ForestElfGuardian, image: "tank_girl2",});
 
             // give them a taunt skill
             tank.spells.taunt = new game.dataBackend.Spell.Taunt({});
@@ -217,7 +224,9 @@ var game = {
                             power: 15,
                             manaCost: 15,
                         }),
-                    isPlayer: true, health: 60, vit: 3, mag: 5, int: 2, mobPrototype: game.PlayerMobs.FloraFairy}));
+                    isPlayer: true, health: 60, vit: 3, mag: 5, int: 2, 
+                    race: "精灵 / 妖精", class: "花香精灵", 
+                    mobPrototype: game.PlayerMobs.FloraFairy}));
         }
 
         // DPS
@@ -237,7 +246,9 @@ var game = {
                             manaCost: 2,
                         }),
                     weaponRight: new game.Weapon.ChibiFairyLamp({}),
-                    isPlayer: true, health: 65, vit: 2, int: 5, mobPrototype: game.PlayerMobs.HumanMageIceFire, image: "magical_girl2"}));
+                    isPlayer: true, health: 65, vit: 2, int: 5, 
+                    race: "人类 / 魔法师", class: "霜火术士", 
+                    mobPrototype: game.PlayerMobs.HumanMageIceFire, image: "magical_girl2"}));
             }
             else
             {
@@ -251,7 +262,9 @@ var game = {
                             manaCost: 2,
                         }),
                     weaponRight: new game.Weapon.ChibiFairyLamp({}),
-                    isPlayer: true, health: 65, vit: 2, int: 5, mobPrototype: game.PlayerMobs.ForestElfAcademic, image: "magical_girl2"}));
+                    isPlayer: true, health: 65, vit: 2, int: 5, 
+                    race: "精灵 / 星精灵", class: "学者", 
+                    mobPrototype: game.PlayerMobs.ForestElfAcademic, image: "magical_girl2"}));
             }
         }
 

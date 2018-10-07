@@ -9,11 +9,34 @@
     src: url("/04b03.ttf") format("truetype");
 }
 
+/* 宋体整体替换 */
+
+@font-face 
+{
+    font-family: 宋体;
+    src: local(YaHei Consolas Hybrid);
+}
+
+@font-face 
+{
+    font-family: SimSun;
+    src: local(YaHei Consolas Hybrid);
+}
+
+/* Arial的中文部分替换 */
+
+@font-face 
+{
+    font-family: Arial;
+    unicode-range: U+4E00-9FFF;
+    src: local(YaHei Consolas Hybrid);
+}
+
 :root
 {
     --main-color: 128, 128, 128;
 
-    --image-url: url('/data/img/healer_girl2.png');
+    --image-url: url('');
     --image-width: 32px;
     --image-height: 32px;
     --image-offsetX: -0px;
@@ -94,8 +117,8 @@ body
     padding: 20px;
     box-sizing: border-box;
 
-    /* display: flex; */
-    display: none;
+    display: flex;
+    /* display: none; */
 
     color: white;
     background-color: rgba(20, 20, 20, 0.9);
@@ -364,7 +387,8 @@ body
     left: 50%;
     transform: translate(-50%, -50%);
 
-    font-size: 10px;
+    font-size: 12px;
+    font-family: SimSun;
     line-height: 100%;
     padding: 0;
     margin: 0;
@@ -405,6 +429,21 @@ body
     width: var(--image-width);
     height: var(--image-height);
     background: var(--image-url) var(--image-offsetX) var(--image-offsetY);
+
+    position: relative;
+}
+
+.show_image span
+{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    font-size: 12px;
+    font-family: SimSun;
+    text-align: right;
+    line-height: 100%;
+    background-color: #000;
 }
 
 /*
@@ -428,18 +467,6 @@ body
     padding-top: 30px;
 }
 
-#characterStats
-{
-    flex: 1 0 0px;
-
-    display: flex;
-}
-
-#characterStats .page
-{
-    flex: 1 0 50%;
-}
-
 #pm_Characters p
 {
     margin: 0px 0px; /* margin: top-bottom left-right */
@@ -453,24 +480,6 @@ body
     font-size: 16px;
     color: gold;
     text-align: center;
-    font-weight: normal;
-}
-
-#characterStats h2
-{
-    margin: 8px 0px; /* margin: top-bottom left-right */
-    font-size: 14px;
-    color: gold;
-    text-align: left;
-    font-weight: normal;
-}
-
-#characterStats h3
-{
-    margin: 0px 0px; /* margin: top-bottom left-right */
-    font-size: 12px;
-    color: aquamarine;
-    text-align: left;
     font-weight: normal;
 }
 
@@ -508,6 +517,77 @@ body
 .equipment_row li
 {
     margin-right: 4px;
+}
+
+/*
+ * ─── CHARACTER STATS ────────────────────────────────────────────────────────────
+ */
+
+#characterStats
+{
+    flex: 1 0 0px;
+
+    display: flex;
+    padding-top: 30px;
+}
+
+#characterStats .page
+{
+    flex: 1 0 50%;
+}
+
+#characterStats th
+{
+    line-height: 100%;
+    margin: 0;
+}
+
+#characterStats td
+{
+    font-size: 12px;
+    font-family: SimSun;
+    line-height: 110%;
+
+    width: 60px;
+}
+
+#characterStats td.title
+{
+    width: 80px;
+}
+
+table#elements td.title,
+table#elements td
+{
+    width: 49px;
+}
+
+tbody#avilableSkills td
+{
+    width: 90px;
+}
+
+tr.space
+{
+    height: 7px;
+}
+
+#characterStats h2
+{
+    margin: 4px 0px; /* margin: top-bottom left-right */
+    font-size: 14px;
+    color: gold;
+    text-align: left;
+    font-weight: normal;
+}
+
+#characterStats h3
+{
+    margin: 0px 0px; /* margin: top-bottom left-right */
+    font-size: 12px;
+    color: aquamarine;
+    text-align: left;
+    font-weight: normal;
 }
 
 /*
@@ -568,6 +648,7 @@ body
     padding: 10px;
     padding-bottom: 6px;
     font-size: 12px;
+    font-family: SimSun;
 
     line-height: 80%;
 
@@ -585,4 +666,5 @@ body
     color: gold;
     font-size: 12px;
     margin-bottom: 15px;
+    font-weight: normal;
 }

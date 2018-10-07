@@ -54,7 +54,7 @@ game.Weapon.base = game.Equipable.extend
 
     isInRange: function(mob, target)
     {
-        if(mob.getRenderPos(0.5, 0.5).distance(target.getRenderPos(0.5, 0.5)) < this.activeRange)
+        if(mob.getRenderPos(0.5, 0.5).distance(target.getRenderPos(0.5, 0.5)) < (this.activeRange + mob.data.battleStats.attackRange))
         {
             return true;
         }

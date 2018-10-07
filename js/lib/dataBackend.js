@@ -59,6 +59,30 @@ game.dataBackend.Mob = me.Object.extend
         // this.position = {x: this.body.left, y: this.body.top};
         this.image = settings.image || "magical_girl";
 
+        // Stats
+        this.race = settings.race || "unknown";
+        this.class = settings.class || "unknown";
+        this.level = settings.level || 1;
+
+        this.availableBP = settings.availableBP || 0;
+        this.availableSP = settings.availableSP || 0;
+
+        this.baseStats = {
+            vit: settings.vit || 1,
+            str: settings.str || 1,
+            dex: settings.dex || 1,
+            tec: settings.tec || 1,
+            int: settings.int || 1,
+            mag: settings.mag || 1,
+        };
+
+        // Used to store the player base stats before any modifiers (but after lvlup, talent selections etc.)
+        this.baseStatsFundemental = {};
+        for(let stat in this.baseStats)
+        {
+            this.baseStatsFundemental[stat] = this.baseStats[stat];
+        }
+
         // health related
         this.maxHealth = settings.health || 100;
         this.currentHealth = this.maxHealth - settings.damage || settings.health || 100;
@@ -132,24 +156,6 @@ game.dataBackend.Mob = me.Object.extend
 
         this.currentSpell = undefined;
         this.currentSpellTarget = undefined;
-
-        // Stats
-        this.level = settings.level || 1;
-        this.baseStats = {
-            vit: settings.vit || 1,
-            str: settings.str || 1,
-            dex: settings.dex || 1,
-            tec: settings.tec || 1,
-            int: settings.int || 1,
-            mag: settings.mag || 1,
-        };
-
-        // Used to store the player base stats before any modifiers (but after lvlup, talent selections etc.)
-        this.baseStatsFundemental = {};
-        for(let stat in this.baseStats)
-        {
-            this.baseStatsFundemental[stat] = this.baseStats[stat];
-        }
 
         // Stats (cannot increase directly)
         this.battleStats = {
@@ -547,8 +553,8 @@ game.dataBackend.Mob = me.Object.extend
         this.battleStats = {
             resist: {
                 physical: 0,
-                elemental: 0,
-                pure: 0, // It should be 0
+                elemental: 10,
+                pure: 0, // It should always be 0
 
                 slash: 0,
                 knock: 0,
@@ -566,8 +572,8 @@ game.dataBackend.Mob = me.Object.extend
 
             attackPower: {
                 physical: 0,
-                elemental: 0,
-                pure: 0, // It should be 0
+                elemental: 10,
+                pure: 0, // It should always be 0
 
                 slash: 0,
                 knock: 0,
@@ -608,6 +614,7 @@ game.dataBackend.Mob = me.Object.extend
         this.modifiers.movingSpeed = 1.0;
         this.modifiers.attackSpeed = 1.0;
         this.modifiers.spellSpeed = 1.0;
+        this.modifiers.resourceCost = 1.0;
 
         // Calculate health from stats
         this.healthRatio = this.currentHealth / this.maxHealth;

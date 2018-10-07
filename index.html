@@ -1,363 +1,669 @@
 <!DOCTYPE HTML>
 <html>
-    <head>
-        <title>melonJS Boilerplate</title>
-        <link rel="stylesheet" type="text/css" media="screen" href="index.css">
-        <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <link rel="apple-touch-icon" href="icons/touch-icon-iphone-60x60.png">
-        <link rel="apple-touch-icon" sizes="76x76" href="icons/touch-icon-ipad-76x76.png">
-        <link rel="apple-touch-icon" sizes="120x120" href="icons/touch-icon-iphone-retina-120x120.png">
-        <link rel="apple-touch-icon" sizes="152x152" href="icons/touch-icon-ipad-retina-152x152.png">
-        <link rel="manifest" href="manifest.json">
 
-        <!-- an optional ES5-Shim
+<head>
+    <title>melonJS Boilerplate</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="index.css">
+    <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="icons/touch-icon-iphone-60x60.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="icons/touch-icon-ipad-76x76.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="icons/touch-icon-iphone-retina-120x120.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/touch-icon-ipad-retina-152x152.png">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- an optional ES5-Shim
         <script type="text/javascript" src="lib/es5-shim.min.js"></script>
         -->
 
-        <!-- melonJS Library -->
-        <!-- build:js js/app.min.js -->
-        <script type="text/javascript" src="lib/melonjs.js"></script>
+    <!-- melonJS Library -->
+    <!-- build:js js/app.min.js -->
+    <script type="text/javascript" src="lib/melonjs.js"></script>
 
-        <!-- Plugin(s) -->
-        <script type="text/javascript" src="lib/plugins/debug/debugPanel.js"></script>
+    <!-- Plugin(s) -->
+    <script type="text/javascript" src="lib/plugins/debug/debugPanel.js"></script>
 
-        <!-- Game Scripts -->
-        <script type="text/javascript" src="js/game.js"></script>
-        <script type="text/javascript" src="build/js/resources.js"></script>
+    <!-- Game Scripts -->
+    <script type="text/javascript" src="js/game.js"></script>
+    <script type="text/javascript" src="build/js/resources.js"></script>
 
-        <script type="text/javascript" src="js/lib/dataBackend.js"></script>
-        <script type="text/javascript" src="js/entities/buffs.js"></script>
-        <script type="text/javascript" src="js/entities/spells.js"></script>
-        <script type="text/javascript" src="js/entities/weapons.js"></script>
-        <script type="text/javascript" src="js/entities/mobs.js"></script>
-        <script type="text/javascript" src="js/entities/player.js"></script>
-        <script type="text/javascript" src="js/entities/entities.js"></script>
-        <script type="text/javascript" src="js/entities/UI.js"></script>
+    <script type="text/javascript" src="js/lib/dataBackend.js"></script>
+    <script type="text/javascript" src="js/entities/buffs.js"></script>
+    <script type="text/javascript" src="js/entities/spells.js"></script>
+    <script type="text/javascript" src="js/entities/weapons.js"></script>
+    <script type="text/javascript" src="js/entities/mobs.js"></script>
+    <script type="text/javascript" src="js/entities/player.js"></script>
+    <script type="text/javascript" src="js/entities/entities.js"></script>
+    <script type="text/javascript" src="js/entities/UI.js"></script>
 
-        <!-- Player Characters -->
-        <script type="text/javascript" src="js/entities/players/floraFairy.js"></script>
-        <script type="text/javascript" src="js/entities/players/forestElfGuardian.js"></script>
-        <script type="text/javascript" src="js/entities/players/forestElfAcademic.js"></script>
-        <script type="text/javascript" src="js/entities/players/humanMageIceFire.js"></script>
+    <!-- Player Characters -->
+    <script type="text/javascript" src="js/entities/players/floraFairy.js"></script>
+    <script type="text/javascript" src="js/entities/players/forestElfGuardian.js"></script>
+    <script type="text/javascript" src="js/entities/players/forestElfAcademic.js"></script>
+    <script type="text/javascript" src="js/entities/players/humanMageIceFire.js"></script>
 
-        <script type="text/javascript" src="js/screens/title.js"></script>
-        <script type="text/javascript" src="js/screens/play.js"></script>
+    <script type="text/javascript" src="js/screens/title.js"></script>
+    <script type="text/javascript" src="js/screens/play.js"></script>
 
-        <!-- Pause menu -->
-        <script type="text/javascript" src="js/UI/pauseMenu.js"></script>
-        <!-- /build -->
+    <!-- Pause menu -->
+    <script type="text/javascript" src="js/UI/pauseMenu.js"></script>
+    <!-- /build -->
 
-    </head>
-    <body oncontextmenu="return false;">
-        <script async></script>
-        <!-- Canvas placeholder -->
-        <div id = "screen">
-            <!-- canvas will be here -->
-            <div id = "UI">
+</head>
 
-                <!-- Pause menu -->
-                <!-- TODO: Localization -->
-                <div id = "pause_menu">
-                    <div class = "navigation_tab">
-                        <button class = "tab" onClick = "game.menu.openMenuTab('Team')" id = "btn_pm_Team" style="--main-color: 59,121,175">队伍</button>
-                        <button class = "tab" onClick = "game.menu.openMenuTab('Characters')" id = "btn_pm_Characters" style="--main-color: 65,160,113">角色</button>
-                        <button class = "tab" onClick = "game.menu.openMenuTab('Inventory')" id = "btn_pm_Inventory" style="--main-color: 165,129,51">物品</button>
-                        <div class = "navigation_tab" id = "bottom">
-                            <button class = "tab" onClick = "game.menu.openMenuTab('Settings')" id = "btnSettings" style="--main-color: 165,51,83">设置</button>
-                        </div>
+<body oncontextmenu="return false;">
+    <script async></script>
+    <!-- Canvas placeholder -->
+    <div id="screen">
+        <!-- canvas will be here -->
+        <div id="UI">
+
+            <!-- Pause menu -->
+            <!-- TODO: Localization -->
+            <div id="pause_menu">
+                <div class="navigation_tab">
+                    <button class="tab" onClick="game.menu.openMenuTab('Team')" id="btn_pm_Team" style="--main-color: 59,121,175">队伍</button>
+                    <button class="tab" onClick="game.menu.openMenuTab('Characters')" id="btn_pm_Characters" style="--main-color: 65,160,113">角色</button>
+                    <button class="tab" onClick="game.menu.openMenuTab('Inventory')" id="btn_pm_Inventory" style="--main-color: 165,129,51">物品</button>
+                    <div class="navigation_tab" id="bottom">
+                        <button class="tab" onClick="game.menu.openMenuTab('Settings')" id="btnSettings" style="--main-color: 165,51,83">设置</button>
                     </div>
-                    <div id = "menu_content">
-                        <div id="pm_Team" class="tabcontent">
-                            <div class = "flexFiller" style="flex-direction: column;">
-                                <div id = "team_header" class = "panel">
-                                    <div id = "team_name">
-                                        <h1>XXX's Fantastic Team</h1>
-                                    </div>
-                                    <div id = "team_member">
-                                        <h1 id = "member_count">8 - </h1>
-                                        <p id = "member_content" style = "font-size: 12px; text-align: left;">2 坦克<br/>2 治疗<br/>2 伤害<br/>2 辅助</p>
-                                    </div>
+                </div>
+                <div id="menu_content">
+                    <div id="pm_Team" class="tabcontent">
+                        <div class="flexFiller" style="flex-direction: column;">
+                            <div id="team_header" class="panel">
+                                <div id="team_name">
+                                    <h1>XXX's Fantastic Team</h1>
                                 </div>
-                                <div id = "team_content" class = "panel">
-                                    <div id = "character_0" class = "team_character_panel">
-                                        <div id = "character_name_panel" class = "cp_content">
-                                                <h3 id = "character_name">Your character here.</h3>
-                                        </div>
-                                        <div id = "character_image_panel" class = "cp_content" style = "margin-top: 0px; margin-bottom: 12px;">
-                                            <ul>
-                                                <li id = "character_avatar" class = "show_image"></li>
-                                            </ul>
-                                        </div>
-                                        <div id = "character_status_panel" class = "cp_content">
-                                            <div class = "progress_bar" id = "health" style = "background-color: #20604F; margin-bottom: 2px">
-                                                <div class = "progress_bar_fill" style = "width: 83.3%; background-color: #1B813E"></div>
-                                                <div class = "progress_bar_label">
-                                                    <p class = "bar_head">生命</p>
-                                                    <p class = "bar_num">100 / 120</p>
-                                                </div>
+                                <div id="team_member">
+                                    <h1 id="member_count">8 - </h1>
+                                    <p id="member_content" style="font-size: 12px; text-align: left;">2 坦克&nbsp;&nbsp;&nbsp;2 治疗<br />4
+                                        伤害&nbsp;&nbsp;&nbsp;0 辅助</p>
+                                </div>
+                            </div>
+                            <div id="team_content" class="panel" style = "margin-bottom: 10px">
+                                <div id="character_0" class="team_character_panel">
+                                    <div id="character_name_panel" class="cp_content">
+                                        <h3 id="character_name">Your character here.</h3>
+                                    </div>
+                                    <div id="character_image_panel" class="cp_content" style="margin-top: 0px; margin-bottom: 12px;">
+                                        <ul>
+                                            <li id="character_avatar" class="show_image"></li>
+                                        </ul>
+                                    </div>
+                                    <div id="character_status_panel" class="cp_content">
+                                        <div class="progress_bar" id="health" style="background-color: #20604F; margin-bottom: 2px">
+                                            <div class="progress_bar_fill" style="width: 83.3%; background-color: #1B813E"></div>
+                                            <div class="progress_bar_label">
+                                                <p class="bar_head">生命</p>
+                                                <p class="bar_num">100 / 120</p>
                                             </div>
-                                            <div class = "progress_bar" id = "resource" style = "height: 14px; background-color: #20604F; margin-bottom: 4px">
-                                                <div class = "progress_bar_fill" style = "width: 45.83%; background-color: #33A6B8"></div>
-                                                <div class = "progress_bar_label">
-                                                    <p class = "bar_head">魔力</p>
-                                                    <p class = "bar_num">55 / 120</p>
-                                                </div>
+                                        </div>
+                                        <div class="progress_bar" id="resource" style="height: 14px; background-color: #20604F; margin-bottom: 4px">
+                                            <div class="progress_bar_fill" style="width: 45.83%; background-color: #33A6B8"></div>
+                                            <div class="progress_bar_label">
+                                                <p class="bar_head">魔力</p>
+                                                <p class="bar_num">55 / 120</p>
                                             </div>
-                                            <div id = "buffs">
-                                                <li id = "buff_base" class = "show_image buff" style = "
+                                        </div>
+                                        <div id="buffs">
+                                            <li id="buff_base" class="show_image buff" style="
                                                     --image-width: 16px; 
                                                     --image-height: 16px; 
                                                     outline: 1px solid lightslategrey;
                                                     display: none">
-                                                    <div class = "buff_timer" style = "width: 20%;" ></div>
-                                                    <p>8</p>
-                                                </li>
-                                                <ul id = "buff_list_team_tab_character" class = "buff_list" style = "display: block; height: 18px;">
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div id = "character_equipment_panel" class = "cp_content">
-                                            <ul style = "margin-bottom: 5px;">
-                                                <li id = "character_weapon_main_title" class = "show_image" style = ""></li>
-                                                <li id = "character_weapon_sub_title" class = "show_image" style = "margin-right: 15px;"></li>
-                                                <li id = "character_armor_title" class = "show_image" style = ""></li>
-                                                <li id = "character_acc_title" class = "show_image" style = ""></li>
-                                            </ul>
-                                            <ul>
-                                                <li id = "character_weapon_main" class = "show_image" style = "outline: 1px solid lightslategrey;"></li>
-                                                <li id = "character_weapon_sub" class = "show_image" style = "outline: 1px solid lightslategrey; margin-right: 15px;"></li>
-                                                <li id = "character_armor" class = "show_image" style = "outline: 1px solid lightslategrey;"></li>
-                                                <li id = "character_acc" class = "show_image" style = "outline: 1px solid lightslategrey;"></li>
+                                                <div class="buff_timer" style="width: 20%;"></div>
+                                                <p>8</p>
+                                            </li>
+                                            <ul id="buff_list_team_tab_character" class="buff_list" style="display: block; height: 18px;">
                                             </ul>
                                         </div>
                                     </div>
+                                    <div id="character_equipment_panel" class="cp_content">
+                                        <ul style="margin-bottom: 5px;">
+                                            <li id="character_weapon_main_title" class="show_image" style=""></li>
+                                            <li id="character_weapon_sub_title" class="show_image" style="margin-right: 15px;"></li>
+                                            <li id="character_armor_title" class="show_image" style=""></li>
+                                            <li id="character_acc_title" class="show_image" style=""></li>
+                                        </ul>
+                                        <ul>
+                                            <li id="character_weapon_main" class="show_image" style="outline: 1px solid lightslategrey;"></li>
+                                            <li id="character_weapon_sub" class="show_image" style="outline: 1px solid lightslategrey; margin-right: 15px;"></li>
+                                            <li id="character_armor" class="show_image" style="outline: 1px solid lightslategrey;"></li>
+                                            <li id="character_acc" class="show_image" style="outline: 1px solid lightslategrey;"></li>
+                                        </ul>
+                                    </div>
                                 </div>
-                                <div id = "team_footer" class = "panel">
-                                    <div id = "buff" class = "pm_Team_footer_content">
-                                        <p style = "margin-right: 10px; color:skyblue;">Team Buffs&nbsp;&nbsp;- </p>
-                                        <div id = "team_buff">
-                                            <li id = "buff_base" class = "show_image buff" style = "
+                            </div>
+                            <div id="team_footer" class="panel">
+                                <div id="buff" class="pm_Team_footer_content">
+                                    <p style="margin-right: 10px; color:skyblue;">团队增益&nbsp;&nbsp;- </p>
+                                    <div id="team_buff">
+                                        <li id="buff_base" class="show_image buff" style="
                                                 --image-width: 32px;
                                                 --image-height: 32px;
                                                 outline: 1px solid lightslategrey;
                                                 display: none;">
-                                            </li>
-                                            <ul id = "buff_list_team" class = "buff_list" style = "display: block; height: 34px;">
-                                            </ul>
-                                        </div>
+                                        </li>
+                                        <ul id="buff_list_team" class="buff_list" style="display: block; height: 34px;">
+                                        </ul>
                                     </div>
-                                    <div id = "skill" class = "pm_Team_footer_content">
-                                        <p style = "margin-right: 10px; color: lightpink;">Team Skills&nbsp;&nbsp;- </p>
-                                        <div id = "team_skill">
-                                            <ul id = "skill_list_team" class = "skill_list" style = "display: block; height: 34px;">
-                                                <li id = "skill_0" class = "show_image skill" style = "
+                                </div>
+                                <div id="skill" class="pm_Team_footer_content">
+                                    <p style="margin-right: 10px; color: lightpink;">团队技能&nbsp;&nbsp;- </p>
+                                    <div id="team_skill">
+                                        <ul id="skill_list_team" class="skill_list" style="display: block; height: 34px;">
+                                            <li id="skill_0" class="show_image skill" style="
                                                     --image-width: 32px; 
                                                     --image-height: 32px; 
                                                     outline: 1px solid lightslategrey">
-                                                </li>
-                                            </ul>
-                                        </div>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div id="pm_Characters" class="tabcontent">
-                            <div class = "flexFiller">
-                                <div id = "characterView">
-                                    <div id = "character_name_panel" class = "cp_content">
-                                            <h3 id = "character_name">Your character here.</h3>
-                                    </div>
-                                    <div id = "character_image_panel" class = "cp_content" style = "margin-top: 20px; margin-bottom: 32px;">
-                                        <ul>
-                                            <li id = "left_arrow" class = "show_image" style = "margin-right: 30px; --image-height: 64px;"></li>
-                                            <li id = "character_avatar" class = "show_image" style = "margin-top: 16px; margin-bottom: 16px;"></li>
-                                            <li id = "right_arrow" class = "show_image" style = "margin-left: 20px; --image-height: 64px;"></li>
-                                        </ul>
-                                    </div>
-                                    <div id = "character_status_panel" class = "cp_content">
-                                        <div class = "progress_bar" id = "health" style = "background-color: #20604F; margin-bottom: 2px">
-                                            <div class = "progress_bar_fill" style = "width: 83.3%; background-color: #1B813E"></div>
-                                            <div class = "progress_bar_label">
-                                                <p class = "bar_head">生命</p>
-                                                <p class = "bar_num">100 / 120</p>
-                                            </div>
+                    </div>
+                    <div id="pm_Characters" class="tabcontent">
+                        <div class="flexFiller">
+                            <div id="characterView">
+                                <div id="character_name_panel" class="cp_content">
+                                    <h3 id="character_name">Your character here.</h3>
+                                </div>
+                                <div id="character_image_panel" class="cp_content" style="margin-top: 20px; margin-bottom: 32px;">
+                                    <ul>
+                                        <li id="left_arrow" class="show_image" style="margin-right: 30px; --image-height: 64px;"></li>
+                                        <li id="character_avatar" class="show_image" style="margin-top: 16px; margin-bottom: 16px;"></li>
+                                        <li id="right_arrow" class="show_image" style="margin-left: 20px; --image-height: 64px;"></li>
+                                    </ul>
+                                </div>
+                                <div id="character_status_panel" class="cp_content">
+                                    <div class="progress_bar" id="health" style="background-color: #20604F; margin-bottom: 2px">
+                                        <div class="progress_bar_fill" style="width: 83.3%; background-color: #1B813E"></div>
+                                        <div class="progress_bar_label">
+                                            <p class="bar_head">生命</p>
+                                            <p class="bar_num">100 / 120</p>
                                         </div>
-                                        <div class = "progress_bar" id = "resource" style = "height: 14px; background-color: #20604F; margin-bottom: 4px">
-                                            <div class = "progress_bar_fill" style = "width: 45.83%; background-color: #33A6B8"></div>
-                                            <div class = "progress_bar_label">
-                                                <p class = "bar_head">魔力</p>
-                                                <p class = "bar_num">55 / 120</p>
-                                            </div>
+                                    </div>
+                                    <div class="progress_bar" id="resource" style="height: 14px; background-color: #20604F; margin-bottom: 4px">
+                                        <div class="progress_bar_fill" style="width: 45.83%; background-color: #33A6B8"></div>
+                                        <div class="progress_bar_label">
+                                            <p class="bar_head">魔力</p>
+                                            <p class="bar_num">55 / 120</p>
                                         </div>
-                                        <div id = "buffs">
-                                            <li id = "buff_base" class = "show_image buff" style = "
+                                    </div>
+                                    <div id="buffs">
+                                        <li id="buff_base" class="show_image buff" style="
                                                 --image-width: 16px; 
                                                 --image-height: 16px; 
                                                 outline: 1px solid lightslategrey;
                                                 display: none">
-                                                <div class = "buff_timer" style = "width: 20%;" ></div>
-                                                <p>8</p>
-                                            </li>
-                                            <ul id = "buff_list_character_tab_character" class = "buff_list">
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div id = "equipment_tabs" style = "height: 240px;">
-                                        <div id = "cT_character_equipment_panel" class = "cp_content tabcontent">
-                                            <ul id = "weapon_main" class = "equipment_row" style = "margin: 0; margin-bottom: 5px;">
-                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
-                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
-                                                    onclick = "game.menu.cT_tTab(true, 'weapon_main', 'main');"></li>
-                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'weapon_main', 'enchant');"></li>
-                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'weapon_main', 'slot1');"></li>
-                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'weapon_main', 'slot2');"></li>
-                                            </ul>
-                                            <ul id = "weapon_sub"  class = "equipment_row" style = "margin: 0; margin-bottom: 10px;">
-                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
-                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
-                                                    onclick = "game.menu.cT_tTab(true, 'weapon_sub', 'main');"></li>
-                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'weapon_sub', 'enchant');"></li>
-                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'weapon_sub', 'slot1');"></li>
-                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'weapon_sub', 'slot2');"></li>
-                                            </ul>
-                                            <ul id = "armor"       class = "equipment_row" style = "margin: 0; margin-bottom: 5px;">
-                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
-                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
-                                                    onclick = "game.menu.cT_tTab(true, 'armor', 'main');"></li>
-                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'armor', 'enchant');"></li>
-                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'armor', 'slot1');"></li>
-                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'armor', 'slot2');"></li>
-                                            </ul>
-                                            <ul id = "acc"         class = "equipment_row" style = "margin: 0; margin-bottom: 5px;">
-                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
-                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
-                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'main');"></li>
-                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'enchant');"></li>
-                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'slot1');"></li>
-                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'slot2');"></li>
-                                            </ul>
-                                        </div>
-                                        <div id = "cT_equipment_selector" class = "cp_content tabcontent">
-                                            <ul id = "show_equip"  class = "equipment_row" style = "margin: 0; margin-bottom: 10px;">
-                                                <li id = "title"   class = "show_image"    style = "margin: 0 4px;"></li>
-                                                <li id = "main"    class = "show_image"    style = "outline: 1px solid lightslategrey;" 
-                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'main');"></li>
-                                                <li id = "enchant" class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'enchant');"></li>
-                                                <li id = "slot1"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'slot1');"></li>
-                                                <li id = "slot2"   class = "show_image"    style = "outline: 1px solid lightslategrey;"
-                                                    onclick = "game.menu.cT_tTab(true, 'acc', 'slot2');"></li>
-                                            </ul>
-                                            <div class = "scrollable_inventory_list" style = "height: 200px;">
-                                                <p id = "title">Inventory</p>
-                                                <ul style = "margin: 0 0;">
-                                                    <li id = "back" class = "show_image inventory_block" onclick = "game.menu.cT_tTab(false, null, null);"></li>
-                                                    <!-- <li class = "show_image inventory_block"></li> -->
-                                                </ul>
-                                            </div>
-                                        </div>
+                                            <div class="buff_timer" style="width: 20%;"></div>
+                                            <p>8</p>
+                                        </li>
+                                        <ul id="buff_list_character_tab_character" class="buff_list">
+                                        </ul>
                                     </div>
                                 </div>
-                                <div id = "characterStats">
-                                    <div id = "page 1" class = "page">
-                                        <h2>人物属性</h2>
-                                        <h3>种族</h3>
-                                        <h3>职业</h3>
-                                        <h3>等级</h3>
-    
-                                        <h2>基本属性</h2>
-                                        <h3>体格</h3>
-                                        <h3>魔力</h3>
-                                        <h3>力量</h3>
-                                        <h3>智力</h3>
-                                        <h3>敏捷</h3>
-                                        <h3>技巧</h3>
-    
-                                        <h2>战斗属性</h2>
-                                        <h3>移动速度</h3>
-                                        <h3>攻击间隔</h3>
-                                        <h3>施法速度</h3>
-                                        <h3>资源消耗</h3>
-                                        <h3>仇恨系数</h3>
-                                        <br/>
-                                        <h3>命中</h3>
-                                        <h3>回避</h3>
-                                        <h3>暴击</h3>
-                                        <h3>暴击抵抗</h3>
-                                        <br/>
-                                        <h3>攻击距离</h3>
-                                        <h3>附加距离</h3>
+                                <div id="equipment_tabs" style="height: 240px;">
+                                    <div id="cT_character_equipment_panel" class="cp_content tabcontent">
+                                        <ul id="weapon_main" class="equipment_row" style="margin: 0; margin-bottom: 5px;">
+                                            <li id="title" class="show_image" style="margin: 0 4px;"></li>
+                                            <li id="main" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'weapon_main', 'main');"></li>
+                                            <li id="enchant" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'weapon_main', 'enchant');"></li>
+                                            <li id="slot1" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'weapon_main', 'slot1');"></li>
+                                            <li id="slot2" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'weapon_main', 'slot2');"></li>
+                                        </ul>
+                                        <ul id="weapon_sub" class="equipment_row" style="margin: 0; margin-bottom: 10px;">
+                                            <li id="title" class="show_image" style="margin: 0 4px;"></li>
+                                            <li id="main" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'weapon_sub', 'main');"></li>
+                                            <li id="enchant" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'weapon_sub', 'enchant');"></li>
+                                            <li id="slot1" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'weapon_sub', 'slot1');"></li>
+                                            <li id="slot2" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'weapon_sub', 'slot2');"></li>
+                                        </ul>
+                                        <ul id="armor" class="equipment_row" style="margin: 0; margin-bottom: 5px;">
+                                            <li id="title" class="show_image" style="margin: 0 4px;"></li>
+                                            <li id="main" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'armor', 'main');"></li>
+                                            <li id="enchant" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'armor', 'enchant');"></li>
+                                            <li id="slot1" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'armor', 'slot1');"></li>
+                                            <li id="slot2" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'armor', 'slot2');"></li>
+                                        </ul>
+                                        <ul id="acc" class="equipment_row" style="margin: 0; margin-bottom: 5px;">
+                                            <li id="title" class="show_image" style="margin: 0 4px;"></li>
+                                            <li id="main" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'acc', 'main');"></li>
+                                            <li id="enchant" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'acc', 'enchant');"></li>
+                                            <li id="slot1" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'acc', 'slot1');"></li>
+                                            <li id="slot2" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'acc', 'slot2');"></li>
+                                        </ul>
                                     </div>
-                                    <div id = "page 2" class = "page">
-                                        <h2>攻击强度 / 属性抗性</h2>
-                                        <h3>物理</h3>
-                                        <h3>魔法</h3>
-                                        <h3>治疗</h3>
-                                        <br/>
-                                        <h3>斩击</h3>
-                                        <h3>打击</h3>
-                                        <h3>突刺</h3>
-                                        <br/>
-                                        <h3>火</h3>
-                                        <h3>水</h3>
-                                        <h3>冰</h3>
-                                        <h3>自然</h3>
-                                        <h3>风</h3>
-                                        <h3>雷</h3>
-                                        <h3>光</h3>
+                                    <div id="cT_equipment_selector" class="cp_content tabcontent">
+                                        <ul id="show_equip" class="equipment_row" style="margin: 0; margin-bottom: 10px;">
+                                            <li id="title" class="show_image" style="margin: 0 4px;"></li>
+                                            <li id="main" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'acc', 'main');"></li>
+                                            <li id="enchant" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'acc', 'enchant');"></li>
+                                            <li id="slot1" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'acc', 'slot1');"></li>
+                                            <li id="slot2" class="show_image" style="outline: 1px solid lightslategrey;"
+                                                onclick="game.menu.cT_tTab(true, 'acc', 'slot2');"></li>
+                                        </ul>
+                                        <div class="scrollable_inventory_list" style="height: 200px;">
+                                            <p id="title">Inventory</p>
+                                            <ul style="margin: 0 0;">
+                                                <li id="back" class="show_image inventory_block" onclick="game.menu.cT_tTab(false, null, null);"></li>
+                                                <!-- <li class = "show_image inventory_block"></li> -->
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div id="pm_Inventory" class="tabcontent">
-                            Your inventory here.
-                        </div>
-                        <div id="pm_Settings" class="tabcontent">
-                            Some settings here.
+                            <div id="characterStats">
+                                <div id="page 1" class="page">
+                                    <table>
+                                        <thead>
+                                            <h2>人物属性</h2>
+                                        </thead>
+                                        <tbody>
+                                            <tr id="race">
+                                                <td class="title">
+                                                    <h3>种族</h3>
+                                                </td>
+                                                <td id="value" style = "width: 180px;">星精灵</td>
+                                            </tr>
+                                            <tr id="class">
+                                                <td class="title">
+                                                    <h3>职业</h3>
+                                                </td>
+                                                <td id="value">学者</td>
+                                            </tr>
+                                            <tr id="level">
+                                                <td class="title">
+                                                    <h3>等级</h3>
+                                                </td>
+                                                <td id="value">12</td>
+                                            </tr>
+                                            <tr id="availableBP">
+                                                <td class="title">
+                                                    <h3>可用能力点</h3>
+                                                </td>
+                                                <td id="value">8</td>
+                                            </tr>
+                                            <tr id="availableSP">
+                                                <td class="title">
+                                                    <h3>可用技能点</h3>
+                                                </td>
+                                                <td id="value">3</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <table>
+                                        <thead>
+                                            <h2>基本属性</h2>
+                                        </thead>
+                                        <tbody>
+                                            <tr id="VIT">
+                                                <td class="title">
+                                                    <h3>体格</h3>
+                                                </td>
+                                                <td id="value">5</td>
+                                                <td id="value2">(+ 0)</td>
+                                            </tr>
+                                            <tr id="MAG">
+                                                <td class="title">
+                                                    <h3>魔力</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">(+ 0)</td>
+                                            </tr>
+                                            <tr id="STR">
+                                                <td class="title">
+                                                    <h3>力量</h3>
+                                                </td>
+                                                <td id="value">3</td>
+                                                <td id="value2">(+ 0)</td>
+                                            </tr>
+                                            <tr id="INT">
+                                                <td class="title">
+                                                    <h3>智力</h3>
+                                                </td>
+                                                <td id="value">9</td>
+                                                <td id="value2">(+ 0)</td>
+                                            </tr>
+                                            <tr id="DEX">
+                                                <td class="title">
+                                                    <h3>敏捷</h3>
+                                                </td>
+                                                <td id="value">7</td>
+                                                <td id="value2">(+ 0)</td>
+                                            </tr>
+                                            <tr id="TEC">
+                                                <td class="title">
+                                                    <h3>技巧</h3>
+                                                </td>
+                                                <td id="value">9</td>
+                                                <td id="value2">(+ 0)</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <table>
+                                        <thead>
+                                            <h2>战斗属性</h2>
+                                        </thead>
+                                        <tbody>
+                                            <tr id="movingSpeed">
+                                                <td class="title">
+                                                    <h3>移动速度</h3>
+                                                </td>
+                                                <td id="value">2.0</td>
+                                            </tr>
+                                            <tr id="attackGap">
+                                                <td class="title">
+                                                    <h3>攻击间隔</h3>
+                                                </td>
+                                                <td id="value">1.76秒</td>
+                                            </tr>
+                                            <tr id="castingSpeed">
+                                                <td class="title">
+                                                    <h3>施法速度</h3>
+                                                </td>
+                                                <td id="value">1.22x</td>
+                                            </tr>
+                                            <tr id="resourceCost">
+                                                <td class="title">
+                                                    <h3>资源消耗</h3>
+                                                </td>
+                                                <td id="value">0.97x</td>
+                                            </tr>
+                                            <tr id="tauntMul">
+                                                <td class="title">
+                                                    <h3>仇恨系数</h3>
+                                                </td>
+                                                <td id="value">1.00x</td>
+                                            </tr>
+                                            <tr class="space"></tr>
+                                            <tr id="hitAcc">
+                                                <td class="title">
+                                                    <h3>命中</h3>
+                                                </td>
+                                                <td id="value">6</td>
+                                                <td id="value2">104.5%</td>
+                                            </tr>
+                                            <tr id="avoid">
+                                                <td class="title">
+                                                    <h3>回避</h3>
+                                                </td>
+                                                <td id="value">2</td>
+                                                <td id="value2">6.8%</td>
+                                            </tr>
+                                            <tr id="crit">
+                                                <td class="title">
+                                                    <h3>暴击</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">12.7%</td>
+                                            </tr>
+                                            <tr id="antiCrit">
+                                                <td class="title">
+                                                    <h3>暴击抵抗</h3>
+                                                </td>
+                                                <td id="value">6</td>
+                                                <td id="value2">4.3%</td>
+                                            </tr>
+                                            <tr class="space"></tr>
+                                            <tr id="attackRange">
+                                                <td class="title">
+                                                    <h3>攻击距离</h3>
+                                                </td>
+                                                <td id="value">122</td>
+                                                <td id="value2">(+ 22)</td>
+                                            </tr>
+                                            <tr id="extraRange">
+                                                <td class="title">
+                                                    <h3>附加距离</h3>
+                                                </td>
+                                                <td id="value">29</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <!-- Maybe move this to hover equipment icon -->
+                                    <!-- <table>
+                                        <thead>
+                                            <h2>可用装备</h2>
+                                        </thead>
+                                        <tbody id="equipableWeaponBody">
+                                        </tbody>
+                                    </table> -->
+                                </div>
+                                <div id="page 2" class="page">
+                                    <table id="elements">
+                                        <thead>
+                                            <h2>攻击强度 / 属性抗性</h2>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="title">
+                                                    <h3 style="color:pink;">属性</h3>
+                                                </td>
+                                                <td>
+                                                    <h3 style="color:pink;">强度</h3>
+                                                </td>
+                                                <td>
+                                                    <h3 style="color:pink;">倍率</h3>
+                                                </td>
+                                                <td>
+                                                    <h3 style="color:pink;">抗性</h3>
+                                                </td>
+                                                <td>
+                                                    <h3 style="color:pink;">倍率</h3>
+                                                </td>
+                                            </tr>
+                                            <tr class="space"></tr>
+                                            <tr id="physical">
+                                                <td class="title">
+                                                    <h3>物理</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="elemental">
+                                                <td class="title">
+                                                    <h3>魔法</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="heal">
+                                                <td class="title">
+                                                    <h3>治疗</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr class="space"></tr>
+                                            <tr id="slash">
+                                                <td class="title">
+                                                    <h3>斩击</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="knock">
+                                                <td class="title">
+                                                    <h3>打击</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="pierce">
+                                                <td class="title">
+                                                    <h3>突刺</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr class="space"></tr>
+                                            <tr id="fire">
+                                                <td class="title">
+                                                    <h3>火</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="water">
+                                                <td class="title">
+                                                    <h3>水</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="ice">
+                                                <td class="title">
+                                                    <h3>冰</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="nature">
+                                                <td class="title">
+                                                    <h3>自然</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="wind">
+                                                <td class="title">
+                                                    <h3>风</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="thunder">
+                                                <td class="title">
+                                                    <h3>雷</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                            <tr id="light">
+                                                <td class="title">
+                                                    <h3>光</h3>
+                                                </td>
+                                                <td id="value">17</td>
+                                                <td id="value2">1.22x</td>
+                                                <td id="value3">12</td>
+                                                <td id="value4">0.67x</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <table>
+                                        <thead>
+                                            <h2>掌握技能</h2>
+                                        </thead>
+                                        <tbody id="avilableSkills">
+                                            <tr>
+                                                <td><h3>魔力之环：星光</h3></td>
+                                                <td><h3>魔力掌握</h3></td>
+                                                <td><h3>魔力潮涌</h3></td>
+                                            </tr>
+                                            <tr>
+                                                <td><h3>精灵召唤</h3></td>
+                                                <td><h3>魔力附加</h3></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <table>
+                                        <thead>
+                                            <h2>额外属性</h2>
+                                        </thead>
+                                        <tbody id="extraStats">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Tool tip -->
-                <div id = "tooltip">
-                    <script>
-                        var _ui_tt = document.getElementById("tooltip");
-                        var _ui_parent = document.getElementById("UI");
-                        document.getElementById("screen").addEventListener("pointermove", function(e)
-                        {
-                            _ui_tt.style.left = e.clientX - _ui_parent.getBoundingClientRect().x + 'px';
-                            _ui_tt.style.top = e.clientY - _ui_parent.getBoundingClientRect().y + 'px';
-                        }, true);
-                    </script>
-                    <h1 id = "title">测试</h1>
-                    <p id = "body">测试</p>
+                    <div id="pm_Inventory" class="tabcontent">
+                        Your inventory here.
+                    </div>
+                    <div id="pm_Settings" class="tabcontent">
+                        Some settings here.
+                    </div>
                 </div>
             </div>
+
+            <!-- Tool tip -->
+            <div id="tooltip">
+                <script>
+                    var _ui_tt = document.getElementById("tooltip");
+                    var _ui_parent = document.getElementById("UI");
+                    document.getElementById("screen").addEventListener("pointermove", function (e) {
+                        _ui_tt.style.left = e.clientX - _ui_parent.getBoundingClientRect().x + 'px';
+                        _ui_tt.style.top = e.clientY - _ui_parent.getBoundingClientRect().y + 'px';
+                    }, true);
+                </script>
+                <h1 id="title">测试</h1>
+                <p id="body">测试</p>
+            </div>
         </div>
+    </div>
 
-        <!-- Bootstrap -->
-        <script type="text/javascript">
-            me.device.onReady(function onReady() {
-                game.onload();
-            });
-        </script>
+    <!-- Bootstrap -->
+    <script type="text/javascript">
+        me.device.onReady(function onReady() {
+            game.onload();
+        });
+    </script>
 
-        <p>Switched to melonjs. &gt;w&lt;~</p>
-    </body>
+    <p>Switched to melonjs. &gt;w&lt;~</p>
+</body>
+
 </html>
