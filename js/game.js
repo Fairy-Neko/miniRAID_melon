@@ -161,6 +161,7 @@ var game = {
         me.pool.register("testIcyZone", game.testIcyZone);
         me.pool.register("playerSpawnPoint", game.playerSpawnPoint);
         me.pool.register("clickCollect", game.sceneObject.clickCollect);
+        me.pool.register("loot", game.sceneObject.loot);
         // me.pool.register("playerSpawnPoint", game.PlayerMobs.test);
 
         this.data.backend = new game.dataBackend();

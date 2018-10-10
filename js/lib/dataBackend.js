@@ -933,7 +933,18 @@ game.dataBackend.Spell.base = me.Object.extend
     },
 });
 
-game.MobListener = me.Object.extend
+// TODO: Make this useful.
+game.ToolTipObject = me.Object.extend
+({
+    init: function(){},
+
+    getToolTip: function()
+    {
+        return {title: "NoName", text: "Nothing.", color: "#ffffff"};
+    },
+})
+
+game.MobListener = game.ToolTipObject.extend
 ({
     init: function(settings)
     {
@@ -1029,6 +1040,28 @@ game.MobListener = me.Object.extend
     onFocusKill: function(damageInfo) { return false; },
     onFocusDeath: function(damageInfo) { return false; },
 })
+
+game.Item = game.ToolTipObject.extend
+({
+    init: function(settings)
+    {
+        this.idName = settings.idName || "unknown";
+        this.showName = settings.showName || "Unknown Object";
+        this.toolTipText = settings.toolTipText || "It means nothing but some error occured when you saw this.";
+        this.color = settings.color || "#ffffff";
+        
+        this.level = settings.level || 1;
+        this.stackable = settings.stackable || true;
+        this.linkedClass = settings.linkedClass || undefined;
+        this.tags = settings.tags || [];
+        
+        this.image = settings.image || "";
+        this.width = settings.framewidth || settings.width || 32;
+        this.height = settings.frameheight || settings.height || 32;
+        this.rowCount = settings.rowCount || 8;
+        this.iconIdx = settings.iconIdx || 0;
+    },
+});
 
 game.Equipable = game.MobListener.extend
 ({

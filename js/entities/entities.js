@@ -157,6 +157,7 @@ game.sceneObject.clickCollect = me.Entity.extend
     pointerDown: function(pointer)
     {
         console.log("You clicked the scene object!");
+        //TODO: generate some entities to collect
 
         return false;
     },
@@ -166,6 +167,24 @@ game.sceneObject.loot = me.Entity.extend
 ({
     init: function(x, y, settings)
     {
-        
-    }
+        settings.width = settings.item.width;
+        settings.height = settings.item.height;
+        settings.image = settings.item.image;
+
+        this._super(me.Entity, 'init', [x, y, settings]);
+
+        this.item = settings.item;
+
+        me.input.registerPointerEvent('pointerdown', this, this.pointerDown.bind(this));
+
+        //TODO: Hover to show toolTip.
+    },
+
+    pointerDown: function(pointer)
+    {
+        console.log(this.item);
+
+        //TODO: Add self to player inventory.
+        return false;
+    },
 });
