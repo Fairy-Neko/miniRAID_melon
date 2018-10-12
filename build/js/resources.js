@@ -110,6 +110,11 @@ game.resources = [
         "src": "data/img/iced_fx.png"
     },
     {
+        "name": "item_herb",
+        "type": "image",
+        "src": "data/img/item_herb.png"
+    },
+    {
         "name": "Magic_Hit_32x32px",
         "type": "image",
         "src": "data/img/Magic_Hit_32x32px.png"
@@ -188,6 +193,21 @@ game.resources = [
         "name": "SmallFont",
         "type": "image",
         "src": "data/fnt/SmallFont.png"
+    },
+    {
+        "name": "filename",
+        "type": "json",
+        "src": "data/json/filename.json"
+    },
+    {
+        "name": "imageSize",
+        "type": "json",
+        "src": "data/json/imageSize.json"
+    },
+    {
+        "name": "Items",
+        "type": "json",
+        "src": "data/json/Items.json"
     },
     {
         "name": "playground",

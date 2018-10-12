@@ -270,6 +270,21 @@ var game = {
             }
         }
 
+        // Load image sizes
+        game.data.imageSize = me.loader.getJSON("imageSize");
+
+        // Load item list
+        game.data.itemList = me.loader.getJSON("Items");
+
+        // Init item list with image sizes
+        for(var item in game.data.itemList)
+        {
+            game.data.itemList[item].width = game.data.imageSize[game.data.itemList[item].image].width || 32;
+            game.data.itemList[item].height = game.data.imageSize[game.data.itemList[item].image].height || 32;
+            game.data.itemList[item].framewidth = game.data.imageSize[game.data.itemList[item].image].framewidth || 32;
+            game.data.itemList[item].frameheight = game.data.imageSize[game.data.itemList[item].image].frameheight || 32;
+        }
+
         // Init the menu
         game.menu.init();
 

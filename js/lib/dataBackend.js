@@ -8,7 +8,7 @@ game.dataBackend = me.Object.extend
         this.playerList = [];
 
         // Array saving Inventory(bag) data.
-        this.inventory = [];
+        this.inventory = new game.dataBackend.Inventory();
 
         // Used to generate ID for mobs.
         this.mobCount = -1;
@@ -942,6 +942,15 @@ game.ToolTipObject = me.Object.extend
     {
         return {title: "NoName", text: "Nothing.", color: "#ffffff"};
     },
+
+    showToolTip: function()
+    {
+        game.UIManager.showToolTip({
+            title: this.title,
+            bodyText: this.text,
+            titleColor: this.color,
+        });
+    },
 })
 
 game.MobListener = game.ToolTipObject.extend
@@ -1039,6 +1048,19 @@ game.MobListener = game.ToolTipObject.extend
 
     onFocusKill: function(damageInfo) { return false; },
     onFocusDeath: function(damageInfo) { return false; },
+})
+
+game.dataBackend.Inventory = me.Object.extend
+({
+    init: function()
+    {
+        this.data = [];
+    },
+
+    addItem: function(item)
+    {
+        this.data.push(item);
+    },
 })
 
 game.Item = game.ToolTipObject.extend

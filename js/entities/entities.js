@@ -151,13 +151,65 @@ game.sceneObject.clickCollect = me.Entity.extend
     {
         this._super(me.Entity, 'init', [x, y, settings]);
 
+        this.isLocked = settings.isLocked || false;
+        this.keyType = settings.keyType || "None";
+        this.maxAmount = settings.maxAmount || 1;
+        this.minAmount = settings.minAmount || 0;
+        this.typeCount = settings.typeCount || 0;
+
+        this.types = [];
+        this.totalWeight = 0.0;
+
+        // no types in settings
+        if(this.typeCount == 0)
+        {
+            this.types.push({name: "unknown", weight: 1.0});
+            this.totalWeight = 1.0;
+        }
+        // else read from settings
+        else
+        {
+            for(var i = 0; i < this.typeCount; i++)
+            {
+                this.types.push({
+                    name: settings['type' + i] || "unknown",
+                    weight: settings['weight' + i] || 1.0
+                });
+
+                this.totalWeight += settings['weight' + i] || 1.0;
+            }
+        }
+
         me.input.registerPointerEvent('pointerdown', this, this.pointerDown.bind(this));
     },
 
     pointerDown: function(pointer)
     {
         console.log("You clicked the scene object!");
-        //TODO: generate some entities to collect
+
+        var totalNum = Math.floor(Math.random() * (this.maxAmount - this.minAmount + 1)) + this.minAmount;
+
+        for(var i = 0; i < totalNum; i++)
+        {
+            var randomSeed = Math.random();
+            var randomSum = 0.0;
+            for(var type of this.types)
+            {
+                if(randomSeed < randomSum + (type.weight / this.totalWeight))
+                {
+                    // This type!
+                    console.log(game.data.itemList[type.name]);
+                    var loot = me.pool.pull("loot", this.pos.x, this.pos.y, {item: type.name});
+                    me.game.world.addChild(loot, 100);
+                    break;
+                }
+                else
+                {
+                    // Not this type.
+                    randomSum += type.weight / this.totalWeight;
+                }
+            }
+        }
 
         return false;
     },
@@ -167,13 +219,16 @@ game.sceneObject.loot = me.Entity.extend
 ({
     init: function(x, y, settings)
     {
-        settings.width = settings.item.width;
-        settings.height = settings.item.height;
-        settings.image = settings.item.image;
+        settings.width = game.data.itemList[settings.item].framewidth;
+        settings.height = game.data.itemList[settings.item].frameheight;
+        settings.image = game.data.itemList[settings.item].image;
 
         this._super(me.Entity, 'init', [x, y, settings]);
 
         this.item = settings.item;
+
+        this.renderable.addAnimation("idle", [game.data.itemList[this.item].iconIdx]);
+        this.renderable.setCurrentAnimation("idle");
 
         me.input.registerPointerEvent('pointerdown', this, this.pointerDown.bind(this));
 
@@ -182,9 +237,15 @@ game.sceneObject.loot = me.Entity.extend
 
     pointerDown: function(pointer)
     {
-        console.log(this.item);
+        console.log(game.data.itemList[this.item]);
 
-        //TODO: Add self to player inventory.
+        game.data.backend.inventory.addItem(this.item);
+        
+        if(me.game.world.hasChild(this))
+        {
+            me.game.world.removeChild(this);
+        }
+
         return false;
     },
 });
