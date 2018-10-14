@@ -280,15 +280,19 @@ game.menu.fillInventoryPanel = function(panel, filters)
         itemIcon.classList.add("show_image");
         itemIcon.classList.add("inventory_block");
 
-        // TODO: add stacks count
-        // itemIcon.innerHTML = "<span>" + item.stacks + "</span>";
-
-        var r_item = game.data.itemList[item];
+        var r_item = item.getData();
         itemIcon.style.setProperty('--image-url', 'url(' + me.loader.getImage(r_item.image).src + ')');
         itemIcon.style.setProperty('--image-offsetX', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
             Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).x);
         itemIcon.style.setProperty('--image-offsetY', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
             Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).y);
+
+        
+        // TODO: add stacks count
+        if(r_item.stackable === true)
+        {
+            itemIcon.innerHTML = "<span>" + item.stacks + "</span>";
+        }
         
         itemIcon.item = r_item;
         

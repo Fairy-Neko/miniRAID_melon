@@ -149,6 +149,10 @@ game.sceneObject.clickCollect = me.Entity.extend
 ({
     init: function(x, y, settings)
     {
+        settings.image = "SO_shinePoint";
+        settings.framewidth = 32;
+        settings.frameheight = 32;
+
         this._super(me.Entity, 'init', [x, y, settings]);
 
         this.isLocked = settings.isLocked || false;
@@ -156,6 +160,8 @@ game.sceneObject.clickCollect = me.Entity.extend
         this.maxAmount = settings.maxAmount || 1;
         this.minAmount = settings.minAmount || 0;
         this.typeCount = settings.typeCount || 0;
+
+        this.spawnRange = settings.spawnRange || 30;
 
         this.types = [];
         this.totalWeight = 0.0;
@@ -180,6 +186,9 @@ game.sceneObject.clickCollect = me.Entity.extend
             }
         }
 
+        this.renderable.addAnimation("idle", game.helper.genAnimFrames(0, 60), 16);
+        this.renderable.setCurrentAnimation("idle");
+
         me.input.registerPointerEvent('pointerdown', this, this.pointerDown.bind(this));
     },
 
@@ -188,6 +197,7 @@ game.sceneObject.clickCollect = me.Entity.extend
         console.log("You clicked the scene object!");
 
         var totalNum = Math.floor(Math.random() * (this.maxAmount - this.minAmount + 1)) + this.minAmount;
+        var spawnAngle = 0.0;
 
         for(var i = 0; i < totalNum; i++)
         {
@@ -199,7 +209,7 @@ game.sceneObject.clickCollect = me.Entity.extend
                 {
                     // This type!
                     console.log(game.data.itemList[type.name]);
-                    var loot = me.pool.pull("loot", this.pos.x, this.pos.y, {item: type.name});
+                    var loot = me.pool.pull("loot", this.pos.x + Math.cos(spawnAngle) * this.spawnRange, this.pos.y + Math.sin(spawnAngle) * this.spawnRange, {item: type.name});
                     me.game.world.addChild(loot, 100);
                     break;
                 }
@@ -209,30 +219,88 @@ game.sceneObject.clickCollect = me.Entity.extend
                     randomSum += type.weight / this.totalWeight;
                 }
             }
+
+            spawnAngle += 2 * Math.PI / totalNum;
+        }
+
+        if(me.game.world.hasChild(this))
+        {
+            me.game.world.removeChild(this);
         }
 
         return false;
     },
 });
 
+game.sceneObject.lootRenderable = me.Renderable.extend
+({
+    init: function(x, y, settings)
+    {
+        this.image = game.data.itemList[settings.item].image;
+        this.imagewidth = game.data.itemList[settings.item].width;
+        this.imageheight = game.data.itemList[settings.item].height;
+        this.framewidth = game.data.itemList[settings.item].framewidth;
+        this.frameheight = game.data.itemList[settings.item].frameheight;
+        this.imageGridCount = Math.floor(this.imagewidth / this.framewidth);
+        this.item = settings.item;
+
+        this._super(me.Renderable, 'init', [x, y, this.framewidth, this.frameheight]);
+    },
+
+    draw: function(context)
+    {
+        var color = context.getColor();
+
+        if(game.data.itemList[this.item].tint === true)
+        {
+            context.setColor(game.data.itemList[this.item].color);
+        }
+        else
+        {
+            context.setColor("#ffffff");
+        }
+
+        context.drawImage(
+            me.loader.getImage(this.image), 
+            game.data.itemList[this.item].iconIdx % this.imageGridCount * this.framewidth, //sx
+            Math.floor(game.data.itemList[this.item].iconIdx / this.imageGridCount) * this.frameheight, //sy
+            this.framewidth, //sw
+            this.frameheight, //sh
+            this.pos.x, this.pos.y, this.framewidth, this.frameheight // dx, dy, dw, dh
+        );
+
+        context.setColor(color);
+    },
+})
+
 game.sceneObject.loot = me.Entity.extend
 ({
     init: function(x, y, settings)
     {
-        settings.width = game.data.itemList[settings.item].framewidth;
-        settings.height = game.data.itemList[settings.item].frameheight;
-        settings.image = game.data.itemList[settings.item].image;
+        this.image = game.data.itemList[settings.item].image;
+        this.imagewidth = game.data.itemList[settings.item].width;
+        this.imageheight = game.data.itemList[settings.item].height;
+        this.framewidth = game.data.itemList[settings.item].framewidth;
+        this.frameheight = game.data.itemList[settings.item].frameheight;
+        this.imageGridCount = Math.floor(this.imagewidth / this.framewidth);
+
+        settings.image = this.image;
+        settings.width = this.framewidth;
+        settings.height = this.frameheight;
 
         this._super(me.Entity, 'init', [x, y, settings]);
 
         this.item = settings.item;
+        this.renderable.item = this.item;
 
-        this.renderable.addAnimation("idle", [game.data.itemList[this.item].iconIdx]);
-        this.renderable.setCurrentAnimation("idle");
+        // this.renderable.addAnimation("idle", [game.data.itemList[this.item].iconIdx]);
+        // this.renderable.setCurrentAnimation("idle");
 
         me.input.registerPointerEvent('pointerdown', this, this.pointerDown.bind(this));
 
         //TODO: Hover to show toolTip.
+
+        this.renderable = new game.sceneObject.lootRenderable(0, 0, settings);
     },
 
     pointerDown: function(pointer)

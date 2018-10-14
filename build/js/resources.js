@@ -135,6 +135,11 @@ game.resources = [
         "src": "data/img/object- layer.png"
     },
     {
+        "name": "SO_shinePoint",
+        "type": "image",
+        "src": "data/img/SO_shinePoint.png"
+    },
+    {
         "name": "Star_fall_64x64px",
         "type": "image",
         "src": "data/img/Star_fall_64x64px.png"

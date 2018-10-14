@@ -1059,7 +1059,40 @@ game.dataBackend.Inventory = me.Object.extend
 
     addItem: function(item)
     {
-        this.data.push(item);
+        if(game.data.itemList[item].stackable)
+        {
+            var idx = this.findItem(item);
+            if(idx >= 0)
+            {
+                this.data[idx].stacks += 1;
+            }
+            else
+            {
+                this.data.push({item: item, stacks: 1, getData: function(){ return game.data.itemList[item]; }});
+            }
+        }
+        else
+        {
+            this.data.push({item: item, stacks: 1, getData: function(){ return game.data.itemList[item]; }});
+        }
+    },
+
+    findItem: function(item)
+    {
+        for(var i = 0; i < this.data.length; i++)
+        {
+            if(this.checkItemEqual(item, this.data[i]))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    },
+
+    checkItemEqual: function(a, b)
+    {
+        return (a == b.item);
     },
 })
 

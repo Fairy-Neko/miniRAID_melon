@@ -812,8 +812,8 @@ game.UI.WeaponIcons = me.Renderable.extend
 
         this.image = settings.image || "Weapon_icon_32x32";
         settings.image = this.image;
-        settings.width = this.imageSize;
-        settings.height = this.imageSize;
+        settings.width = this.imageGrid;
+        settings.height = this.imageGrid;
 
         this.id = settings.id;
 

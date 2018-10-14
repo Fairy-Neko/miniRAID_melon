@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="162">
+<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="32" tileheight="32" infinite="0" nextobjectid="165">
  <tileset firstgid="1" name="ground_tiles" tilewidth="32" tileheight="32" tilecount="441" columns="21">
   <image source="../img/ground_tiles.png" width="672" height="701"/>
  </tileset>
@@ -275,6 +275,49 @@
    </properties>
   </object>
   <object id="159" name="clickCollect" x="576" y="31.5" width="31.5" height="31.5">
+   <properties>
+    <property name="isLocked" type="bool" value="false"/>
+    <property name="keyType" value="None"/>
+    <property name="maxAmount" type="int" value="4"/>
+    <property name="minAmount" type="int" value="2"/>
+    <property name="type0" value="flowerDice"/>
+    <property name="type1" value="dewHerb"/>
+    <property name="typeCount" type="int" value="2"/>
+    <property name="weight0" type="float" value="1"/>
+    <property name="weight1" type="float" value="1"/>
+   </properties>
+  </object>
+  <object id="162" name="clickCollect" x="414.667" y="62.8333" width="31.5" height="31.5">
+   <properties>
+    <property name="isLocked" type="bool" value="false"/>
+    <property name="keyType" value="None"/>
+    <property name="maxAmount" type="int" value="10"/>
+    <property name="minAmount" type="int" value="6"/>
+    <property name="type0" value="flowerDice"/>
+    <property name="type1" value="dewHerb"/>
+    <property name="type2" value="testIceStaff"/>
+    <property name="type3" value="testShield"/>
+    <property name="typeCount" type="int" value="4"/>
+    <property name="weight0" type="float" value="1"/>
+    <property name="weight1" type="float" value="1"/>
+    <property name="weight2" type="float" value="0.7"/>
+    <property name="weight3" type="float" value="0.7"/>
+   </properties>
+  </object>
+  <object id="163" name="clickCollect" x="448" y="480.167" width="31.5" height="31.5">
+   <properties>
+    <property name="isLocked" type="bool" value="false"/>
+    <property name="keyType" value="None"/>
+    <property name="maxAmount" type="int" value="4"/>
+    <property name="minAmount" type="int" value="2"/>
+    <property name="type0" value="flowerDice"/>
+    <property name="type1" value="dewHerb"/>
+    <property name="typeCount" type="int" value="2"/>
+    <property name="weight0" type="float" value="1"/>
+    <property name="weight1" type="float" value="1"/>
+   </properties>
+  </object>
+  <object id="164" name="clickCollect" x="928.667" y="319.5" width="31.5" height="31.5">
    <properties>
     <property name="isLocked" type="bool" value="false"/>
     <property name="keyType" value="None"/>
