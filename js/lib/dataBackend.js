@@ -1094,6 +1094,29 @@ game.dataBackend.Inventory = me.Object.extend
     {
         return (a == b.item);
     },
+
+    getData: function(filters)
+    {
+        if(!(typeof filters !== 'undefined' && filters.length > 0))
+        {
+            return this.data;
+        }
+
+        var result = []
+
+        for(var i = 0; i < this.data.length; i++)
+        {
+            for(var filter of filters)
+            {
+                if(this.data[i].getData().tags.includes(filter))
+                {
+                    result.push(this.data[i])
+                }
+            }
+        }
+
+        return result;
+    }
 })
 
 game.Item = game.ToolTipObject.extend
