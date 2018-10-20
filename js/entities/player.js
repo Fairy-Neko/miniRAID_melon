@@ -17,7 +17,7 @@ game.PlayerMobs.base = game.Mobs.base.extend
             anchorPoint: new me.Vector2d(0.5, 0.5),
         });
 
-        me.game.world.addChild(this.targetTriangle, 10);
+        me.game.world.addChild(this.targetTriangle, 100);
 
         this.data.inControl = false;
     },

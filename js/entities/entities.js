@@ -207,10 +207,18 @@ game.sceneObject.clickCollect = me.Entity.extend
             {
                 if(randomSeed < randomSum + (type.weight / this.totalWeight))
                 {
+                    // WHY IT (loot objects) CANNOT SHOW (RENDER) PROPERLY AFTER UPDATING CHROME 70.0????????????????????????????????????????????????????????????????
+                    // If we change mobs.js:425 from:
+                    // this.HPBar = me.game.world.addChild(new game.Utils.TestHPBar(0, -10, this), 100);
+                    // to
+                    // this.HPBar = me.game.world.addChild(new game.Utils.TestHPBar(0, -10, this));
+                    // Then the loot object would not show properly.
+                    // WHY?????
+
                     // This type!
                     console.log(game.data.itemList[type.name]);
                     var loot = me.pool.pull("loot", this.pos.x + Math.cos(spawnAngle) * this.spawnRange, this.pos.y + Math.sin(spawnAngle) * this.spawnRange, {item: type.name});
-                    me.game.world.addChild(loot)//, 100);
+                    me.game.world.addChild(loot, 100);
                     break;
                 }
                 else
