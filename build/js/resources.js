@@ -200,6 +200,11 @@ game.resources = [
         "src": "data/fnt/SmallFont.png"
     },
     {
+        "name": "filename",
+        "type": "json",
+        "src": "data/json/filename.json"
+    },
+    {
         "name": "imageSize",
         "type": "json",
         "src": "data/json/imageSize.json"
