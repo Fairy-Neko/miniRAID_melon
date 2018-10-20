@@ -210,7 +210,7 @@ game.sceneObject.clickCollect = me.Entity.extend
                     // This type!
                     console.log(game.data.itemList[type.name]);
                     var loot = me.pool.pull("loot", this.pos.x + Math.cos(spawnAngle) * this.spawnRange, this.pos.y + Math.sin(spawnAngle) * this.spawnRange, {item: type.name});
-                    me.game.world.addChild(loot, 100);
+                    me.game.world.addChild(loot)//, 100);
                     break;
                 }
                 else

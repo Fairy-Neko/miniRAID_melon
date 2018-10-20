@@ -126,7 +126,7 @@ var game = {
         // Initialize the video.
         if (!me.video.init(game.data.width, game.data.height, 
             {wrapper : "screen", scale : 'auto'/*window.devicePixelRatio*/, 
-            scaleMethod: "fit", useParentDOMSize: false, doubleBuffering: true, renderer: me.video.WEBGL })) {
+            scaleMethod: "fit", useParentDOMSize: false, doubleBuffering: true, /*renderer: me.video.WEBGL*/ })) {
             alert("Your browser does not support HTML5 canvas.");
             return;
         }
@@ -161,6 +161,7 @@ var game = {
         me.pool.register("testIcyZone", game.testIcyZone);
         me.pool.register("playerSpawnPoint", game.playerSpawnPoint);
         me.pool.register("clickCollect", game.sceneObject.clickCollect);
+        // me.pool.register("loot", game.sceneObject.clickCollect);
         me.pool.register("loot", game.sceneObject.loot);
         // me.pool.register("playerSpawnPoint", game.PlayerMobs.test);
 
