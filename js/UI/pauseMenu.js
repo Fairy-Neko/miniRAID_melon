@@ -41,7 +41,7 @@ game.menu.cT_tTab = function(isEquip, equipPos, slot)
         game.menu.currentEquipPos = equipPos;
         game.menu.currentEquipSlot = slot;
 
-        game.menu.fillInventoryPanel(document.querySelector("#cT_equipment_selector .scrollable_inventory_list ul"), []);
+        game.menu.fillInventoryPanel(document.querySelector("#cT_equipment_selector .scrollable_inventory_list ul"), ["equipment"] /* + [] Character filters*/);
 
         game.menu.openCharactersTabSubTab("cT_equipment_selector");
     }
@@ -243,6 +243,8 @@ game.menu.wakeupMenu = function()
         i += 1;
     }
 
+    game.menu.fillInventoryPanel(document.querySelector("#pm_Team .scrollable_inventory_list ul"), ["equipment"]);
+
     //
     // ─── CHARACTER PANEL ────────────────────────────────────────────────────────────
     //
@@ -254,7 +256,9 @@ game.menu.wakeupMenu = function()
     // ─── INVENTORY PANEL ────────────────────────────────────────────────────────────
     //
 
-    game.menu.fillInventoryPanel(document.querySelector("#Items.scrollable_inventory_list ul"), []);
+    game.menu.fillInventoryPanel(document.querySelector("#Equipments.scrollable_inventory_list ul"), ["equipment"]);
+    game.menu.fillInventoryPanel(document.querySelector("#Items.scrollable_inventory_list ul"), ["item"]);
+    game.menu.fillInventoryPanel(document.querySelector("#Key_Items.scrollable_inventory_list ul"), ["keyitem"]);
 }
 
 game.menu.fillInventoryPanel = function(panel, filters)
@@ -273,7 +277,7 @@ game.menu.fillInventoryPanel = function(panel, filters)
     }
 
     // TODO: FIXME: change .data to methods
-    for(var item of game.data.backend.inventory.data)
+    for(var item of game.data.backend.inventory.getData(filters))
     {
         // TODO: FIXME: filters
         var itemIcon = document.createElement("li");
@@ -286,7 +290,6 @@ game.menu.fillInventoryPanel = function(panel, filters)
             Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).x);
         itemIcon.style.setProperty('--image-offsetY', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
             Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).y);
-
         
         // TODO: add stacks count
         if(r_item.stackable === true)
