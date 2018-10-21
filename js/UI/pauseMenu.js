@@ -251,7 +251,7 @@ game.menu.wakeupMenu = function()
         i += 1;
     }
 
-    game.menu.fillInventoryPanel(document.querySelector("#pm_Team .scrollable_inventory_list ul"), ["equipment"]);
+    game.menu.fillInventoryPanel(document.querySelector("#pm_Team .scrollable_inventory_list ul"), ["equipment"], 154);
 
     //
     // ─── CHARACTER PANEL ────────────────────────────────────────────────────────────
@@ -264,12 +264,12 @@ game.menu.wakeupMenu = function()
     // ─── INVENTORY PANEL ────────────────────────────────────────────────────────────
     //
 
-    game.menu.fillInventoryPanel(document.querySelector("#Equipments.scrollable_inventory_list ul"), ["equipment"]);
-    game.menu.fillInventoryPanel(document.querySelector("#Items.scrollable_inventory_list ul"), ["item"]);
-    game.menu.fillInventoryPanel(document.querySelector("#Key_Items.scrollable_inventory_list ul"), ["keyitem"]);
+    game.menu.fillInventoryPanel(document.querySelector("#Equipments.scrollable_inventory_list ul"), ["equipment"], 154);
+    game.menu.fillInventoryPanel(document.querySelector("#Items.scrollable_inventory_list ul"), ["item"], 140);
+    // game.menu.fillInventoryPanel(document.querySelector("#Key_Items.scrollable_inventory_list ul"), ["keyitem"], 98);
 }
 
-game.menu.fillInventoryPanel = function(panel, filters)
+game.menu.fillInventoryPanel = function(panel, filters, minimumCount = 0)
 {
     var idx = 0;
     while(panel.childNodes.length > idx)
@@ -284,12 +284,22 @@ game.menu.fillInventoryPanel = function(panel, filters)
         }
     }
 
+    var itemList = game.data.backend.inventory.getData(filters);
+
     // TODO: FIXME: change .data to methods
-    for(var item of game.data.backend.inventory.getData(filters))
+    for(var item of itemList)
     {
         // TODO: FIXME: filters
         var itemIcon = document.createElement("li");
         this.fillInventoryBlock(itemIcon, item);
+        
+        panel.appendChild(itemIcon);
+    }
+
+    for(var i = itemList.length; i < minimumCount; i++)
+    {
+        var itemIcon = document.createElement("li");
+        this.fillInventoryBlock(itemIcon, undefined);
         
         panel.appendChild(itemIcon);
     }
@@ -300,35 +310,43 @@ game.menu.fillInventoryBlock = function(itemIcon, item)
     itemIcon.classList.add("show_image");
     itemIcon.classList.add("inventory_block");
 
-    var r_item = item.getData();
-    itemIcon.style.setProperty('--image-url', 'url(' + me.loader.getImage(r_item.image).src + ')');
-    itemIcon.style.setProperty('--image-offsetX', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
-        Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).x);
-    itemIcon.style.setProperty('--image-offsetY', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
-        Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).y);
-    
-    // TODO: add stacks count
-    if(r_item.stackable === true)
+    if(typeof item === "undefined")
     {
-        itemIcon.innerHTML = "<span>" + item.stacks + "</span>";
+        // Nothing to do with a empty slot
+        // TODO: pointer click events etc.
     }
-    
-    itemIcon.item = r_item;
-    
-    // Show tool tip when hover
-    itemIcon.onmouseover = function() 
+    else
     {
-        game.UIManager.showToolTip({
-            title: this.item.showName,
-            bodyText: this.item.toolTipText,
-            titleColor: this.item.color,
-        });
-    };
+        var r_item = item.getData();
+        itemIcon.style.setProperty('--image-url', 'url(' + me.loader.getImage(r_item.image).src + ')');
+        itemIcon.style.setProperty('--image-offsetX', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
+            Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).x);
+        itemIcon.style.setProperty('--image-offsetY', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
+            Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).y);
+        
+        // TODO: add stacks count
+        if(r_item.stackable === true)
+        {
+            itemIcon.innerHTML = "<span>" + item.stacks + "</span>";
+        }
+        
+        itemIcon.item = r_item;
+        
+        // Show tool tip when hover
+        itemIcon.onmouseover = function() 
+        {
+            game.UIManager.showToolTip({
+                title: this.item.showName,
+                bodyText: this.item.toolTipText,
+                titleColor: this.item.color,
+            });
+        };
 
-    itemIcon.onmouseout = function()
-    {
-        game.UIManager.hideToolTip();
-    };
+        itemIcon.onmouseout = function()
+        {
+            game.UIManager.hideToolTip();
+        };
+    }
 }
 
 game.menu.setCurrentCharacter = function(index)

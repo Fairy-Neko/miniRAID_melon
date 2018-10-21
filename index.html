@@ -654,24 +654,24 @@
                     <div id="pm_Inventory" class="tabcontent">
                         <div class="flexFiller">
                             <div id="Inventories">
-                                <div id="Equipments" class="scrollable_inventory_list" style="height: 100%;">
+                                <div id="Equipments" class="scrollable_inventory_list" style="height: 100%; flex: 0 0 402px; margin-right: 18px;">
                                     <p id="title">Equipments</p>
                                     <ul style="margin: 0 0;">
                                         <li class="show_image inventory_block"></li>
                                     </ul>
                                 </div>
-                                <div id="Items" class="scrollable_inventory_list" style="height: 100%;">
+                                <div id="Items" class="scrollable_inventory_list" style="height: 100%; flex: 1 0 0px;">
                                     <p id="title">Items</p>
                                     <ul style="margin: 0 0;">
                                         <li class="show_image inventory_block"></li>
                                     </ul>
                                 </div>
-                                <div id="Key_Items" class="scrollable_inventory_list" style="height: 100%;">
+                                <!-- <div id="Key_Items" class="scrollable_inventory_list" style="height: 100%;">
                                     <p id="title">Key Items</p>
                                     <ul style="margin: 0 0;">
                                         <li class="show_image inventory_block"></li>
                                     </ul>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -681,19 +681,29 @@
                 </div>
             </div>
 
+            <!-- draggable items -->
+            <div id="draggableItem" class="followmouse">
+                <li class="show_image inventory_block"></li>
+            </div>
+
             <!-- Tool tip -->
-            <div id="tooltip">
-                <script>
-                    var _ui_tt = document.getElementById("tooltip");
-                    var _ui_parent = document.getElementById("UI");
-                    document.getElementById("screen").addEventListener("pointermove", function (e) {
-                        _ui_tt.style.left = e.clientX - _ui_parent.getBoundingClientRect().x + 'px';
-                        _ui_tt.style.top = e.clientY - _ui_parent.getBoundingClientRect().y + 'px';
-                    }, true);
-                </script>
+            <div id="tooltip" class="followmouse">
                 <h1 id="title">测试</h1>
                 <p id="body">测试</p>
             </div>
+
+            <!-- pointermove events -->
+            <script>
+                var _ui_tt = document.getElementById("tooltip");
+                var _ui_di = document.getElementById("draggableItem");
+                var _ui_parent = document.getElementById("UI");
+                document.getElementById("screen").addEventListener("pointermove", function (e) {
+                    _ui_tt.style.left = e.clientX - _ui_parent.getBoundingClientRect().x + 'px';
+                    _ui_tt.style.top = e.clientY - _ui_parent.getBoundingClientRect().y + 'px';
+                    _ui_di.style.left = e.clientX - _ui_parent.getBoundingClientRect().x + 'px';
+                    _ui_di.style.top = e.clientY - _ui_parent.getBoundingClientRect().y + 'px';
+                }, true);
+            </script>
         </div>
     </div>
 

@@ -137,12 +137,18 @@ game.UI.Container = me.Container.extend
 
         // set it visible
         this.toolTip.toolTip.style.display = "inherit";
+
+        // hide cursor
+        // document.body.style.cursor = 'none';
     },
 
     hideToolTip()
     {
         // set it invisible
         this.toolTip.toolTip.style.display = "none";
+
+        // show cursor
+        // document.body.style.cursor = 'default';
     },
 });
 

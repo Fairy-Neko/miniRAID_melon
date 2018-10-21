@@ -704,10 +704,14 @@ tr.space
 /*
  * ─── TOOLTIP ────────────────────────────────────────────────────────────────────
  */
-#tooltip
+.followmouse
 {
     position: absolute;
+    pointer-events: none;
+}
 
+#tooltip
+{
     background-color: #222;
     color: white;
     padding: 10px;
@@ -718,7 +722,6 @@ tr.space
     line-height: 80%;
 
     display: none;
-    pointer-events: none;
 }
 
 #tooltip p
