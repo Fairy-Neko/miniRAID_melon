@@ -185,6 +185,11 @@ game.resources = [
         "src": "data/img/Weapon_icon_32x32.png"
     },
     {
+        "name": "weapons_1",
+        "type": "image",
+        "src": "data/img/weapons_1.png"
+    },
+    {
         "name": "FixedSys",
         "type": "image",
         "src": "data/fnt/FixedSys.png"

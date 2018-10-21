@@ -228,17 +228,25 @@ game.menu.wakeupMenu = function()
 
         // Equipments
         // Main weapon
-        wMain_main = playerPanel.querySelector("#character_equipment_panel li#character_weapon_main");
-        wMain_main.style.setProperty('--image-url', 'url(' + 'data/img/Weapon_icon_32x32.png' + ')');
-        wMain_main.style.setProperty('--image-offsetX', game.menu.getOffset(32, 32, 8, player.currentWeapon.iconIdx).x);
-        wMain_main.style.setProperty('--image-offsetY', game.menu.getOffset(32, 32, 8, player.currentWeapon.iconIdx).y);
+        if(typeof player.currentWeapon !== "undefined")
+        {
+            wMain_main = playerPanel.querySelector("#character_equipment_panel li#character_weapon_main");
+            game.menu.fillInventoryBlock(wMain_main, player.currentWeapon.linkedItem);
+            // wMain_main.style.setProperty('--image-url', 'url(' + 'data/img/Weapon_icon_32x32.png' + ')');
+            // wMain_main.style.setProperty('--image-offsetX', game.menu.getOffset(32, 32, 8, player.currentWeapon.iconIdx).x);
+            // wMain_main.style.setProperty('--image-offsetY', game.menu.getOffset(32, 32, 8, player.currentWeapon.iconIdx).y);
+        }
         // TODO: slots
 
         // Sub weapon
-        wSub_main = playerPanel.querySelector("#character_equipment_panel li#character_weapon_sub");
-        wSub_main.style.setProperty('--image-url', 'url(' + 'data/img/Weapon_icon_32x32.png' + ')');
-        wSub_main.style.setProperty('--image-offsetX', game.menu.getOffset(32, 32, 8, player.anotherWeapon.iconIdx).x);
-        wSub_main.style.setProperty('--image-offsetY', game.menu.getOffset(32, 32, 8, player.anotherWeapon.iconIdx).y);
+        if(typeof player.anotherWeapon !== "undefined")
+        {
+            wSub_main = playerPanel.querySelector("#character_equipment_panel li#character_weapon_sub");
+            game.menu.fillInventoryBlock(wSub_main, player.anotherWeapon.linkedItem);
+            // wSub_main.style.setProperty('--image-url', 'url(' + 'data/img/Weapon_icon_32x32.png' + ')');
+            // wSub_main.style.setProperty('--image-offsetX', game.menu.getOffset(32, 32, 8, player.anotherWeapon.iconIdx).x);
+            // wSub_main.style.setProperty('--image-offsetY', game.menu.getOffset(32, 32, 8, player.anotherWeapon.iconIdx).y);
+        }
 
         i += 1;
     }
@@ -263,7 +271,7 @@ game.menu.wakeupMenu = function()
 
 game.menu.fillInventoryPanel = function(panel, filters)
 {
-    var idx = 0
+    var idx = 0;
     while(panel.childNodes.length > idx)
     {
         if(panel.childNodes[idx].id != "back" && panel.childNodes[idx].id != "title")
@@ -281,41 +289,46 @@ game.menu.fillInventoryPanel = function(panel, filters)
     {
         // TODO: FIXME: filters
         var itemIcon = document.createElement("li");
-        itemIcon.classList.add("show_image");
-        itemIcon.classList.add("inventory_block");
-
-        var r_item = item.getData();
-        itemIcon.style.setProperty('--image-url', 'url(' + me.loader.getImage(r_item.image).src + ')');
-        itemIcon.style.setProperty('--image-offsetX', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
-            Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).x);
-        itemIcon.style.setProperty('--image-offsetY', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
-            Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).y);
-        
-        // TODO: add stacks count
-        if(r_item.stackable === true)
-        {
-            itemIcon.innerHTML = "<span>" + item.stacks + "</span>";
-        }
-        
-        itemIcon.item = r_item;
-        
-        // Show tool tip when hover
-        itemIcon.onmouseover = function() 
-        {
-            game.UIManager.showToolTip({
-                title: this.item.showName,
-                bodyText: this.item.toolTipText,
-                titleColor: this.item.color,
-            });
-        };
-
-        itemIcon.onmouseout = function()
-        {
-            game.UIManager.hideToolTip();
-        };
+        this.fillInventoryBlock(itemIcon, item);
         
         panel.appendChild(itemIcon);
     }
+}
+
+game.menu.fillInventoryBlock = function(itemIcon, item)
+{
+    itemIcon.classList.add("show_image");
+    itemIcon.classList.add("inventory_block");
+
+    var r_item = item.getData();
+    itemIcon.style.setProperty('--image-url', 'url(' + me.loader.getImage(r_item.image).src + ')');
+    itemIcon.style.setProperty('--image-offsetX', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
+        Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).x);
+    itemIcon.style.setProperty('--image-offsetY', game.menu.getOffset(r_item.framewidth, r_item.frameheight, 
+        Math.round(r_item.width / r_item.framewidth), r_item.iconIdx).y);
+    
+    // TODO: add stacks count
+    if(r_item.stackable === true)
+    {
+        itemIcon.innerHTML = "<span>" + item.stacks + "</span>";
+    }
+    
+    itemIcon.item = r_item;
+    
+    // Show tool tip when hover
+    itemIcon.onmouseover = function() 
+    {
+        game.UIManager.showToolTip({
+            title: this.item.showName,
+            bodyText: this.item.toolTipText,
+            titleColor: this.item.color,
+        });
+    };
+
+    itemIcon.onmouseout = function()
+    {
+        game.UIManager.hideToolTip();
+    };
 }
 
 game.menu.setCurrentCharacter = function(index)
@@ -400,17 +413,33 @@ game.menu.setCurrentCharacter = function(index)
     //
 
     // Main weapon
-    wMain_main = game.menu.charactersTab.querySelector("ul#weapon_main li#main");
-    wMain_main.style.setProperty('--image-url', 'url(' + 'data/img/Weapon_icon_32x32.png' + ')');
-    wMain_main.style.setProperty('--image-offsetX', game.menu.getOffset(32, 32, 8, player.currentWeapon.iconIdx).x);
-    wMain_main.style.setProperty('--image-offsetY', game.menu.getOffset(32, 32, 8, player.currentWeapon.iconIdx).y);
+    if(typeof player.currentWeapon !== "undefined")
+    {
+        wMain_main = game.menu.charactersTab.querySelector("ul#weapon_main li#main");
+        game.menu.fillInventoryBlock(wMain_main, player.currentWeapon.linkedItem);
+    }
     // TODO: slots
 
     // Sub weapon
-    wMain_main = game.menu.charactersTab.querySelector("ul#weapon_sub li#main");
-    wMain_main.style.setProperty('--image-url', 'url(' + 'data/img/Weapon_icon_32x32.png' + ')');
-    wMain_main.style.setProperty('--image-offsetX', game.menu.getOffset(32, 32, 8, player.anotherWeapon.iconIdx).x);
-    wMain_main.style.setProperty('--image-offsetY', game.menu.getOffset(32, 32, 8, player.anotherWeapon.iconIdx).y);
+    if(typeof player.anotherWeapon !== "undefined")
+    {
+        wSub_main = game.menu.charactersTab.querySelector("ul#weapon_sub li#main");
+        game.menu.fillInventoryBlock(wSub_main, player.anotherWeapon.linkedItem);
+    }
+
+    // Armor
+    if(typeof player.armor !== "undefined")
+    {
+        armor_main = game.menu.charactersTab.querySelector("ul#armor li#main");
+        game.menu.fillInventoryBlock(armor_main, player.anotherWeapon.linkedItem);
+    }
+
+    // Accessory
+    if(typeof player.accessory !== "undefined")
+    {
+        acc_main = game.menu.charactersTab.querySelector("ul#acc li#main");
+        game.menu.fillInventoryBlock(acc_main, player.anotherWeapon.linkedItem);
+    }
 
     // TODO: armor & acc
     // TODO: if nothing equipped

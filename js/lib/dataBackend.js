@@ -1068,12 +1068,12 @@ game.dataBackend.Inventory = me.Object.extend
             }
             else
             {
-                this.data.push({item: item, stacks: 1, getData: function(){ return game.data.itemList[item]; }});
+                this.data.push(new game.Item({item: item, stacks: 1}));
             }
         }
         else
         {
-            this.data.push({item: item, stacks: 1, getData: function(){ return game.data.itemList[item]; }});
+            this.data.push(new game.Item({item: item, stacks: 1}));
         }
     },
 
@@ -1123,21 +1123,58 @@ game.Item = game.ToolTipObject.extend
 ({
     init: function(settings)
     {
-        this.idName = settings.idName || "unknown";
-        this.showName = settings.showName || "Unknown Object";
-        this.toolTipText = settings.toolTipText || "It means nothing but some error occured when you saw this.";
-        this.color = settings.color || "#ffffff";
+        this.item = settings.item;
+
+        // No need for those rubbish !
+        // this.idName = settings.idName || this.item || "unknown";
+        // this.showName = settings.showName || game.data.itemList[this.item].showName || "Unknown Object";
+        // this.toolTipText = settings.toolTipText || game.data.itemList[this.item].toolTipText || "It means nothing but some error occured when you saw this.";
+        // this.color = settings.color || game.data.itemList[this.item].color || "#ffffff";
         
-        this.level = settings.level || 1;
-        this.stackable = settings.stackable || true;
-        this.linkedClass = settings.linkedClass || undefined;
-        this.tags = settings.tags || [];
+        // this.level = settings.level || game.data.itemList[this.item].level || 1;
+        // this.stackable = settings.stackable || game.data.itemList[this.item].stackable || true;
+        // this.linkedClass = settings.linkedClass || game.data.itemList[this.item].linkedClass || undefined;
+        // this.tags = settings.tags || game.data.itemList[this.item].tags || [];
         
-        this.image = settings.image || "";
-        this.width = settings.framewidth || settings.width || 32;
-        this.height = settings.frameheight || settings.height || 32;
-        this.rowCount = settings.rowCount || 8;
-        this.iconIdx = settings.iconIdx || 0;
+        // this.image = settings.image || game.data.itemList[this.item].image || "";
+        // this.width = settings.framewidth || settings.width || game.data.itemList[this.item].framewidth || 32;
+        // this.height = settings.frameheight || settings.height || game.data.itemList[this.item].frameheight || 32;
+        // this.rowCount = settings.rowCount || Math.floor(game.data.itemList[this.item].width / this.width) || 8;
+        // this.iconIdx = settings.iconIdx || game.data.itemList[this.item].iconIdx;
+
+        this.stacks = settings.stacks || 1;
+
+        this.linkedObject = undefined;
+        this.equipper = undefined;
+
+        // If this item has a linked class
+        if(typeof this.linkedClass !== "undefined")
+        {
+            this.linkedObject = new this.funcFromString(this.linkedClass)({linkedItem: this});
+        } 
+    },
+
+    funcFromString: function(str)
+    {
+        var arr = str.split(".");
+
+        var fn = (window || this);
+        for (var i = 0, len = arr.length; i < len; i++) 
+        {
+            fn = fn[arr[i]];
+        }
+
+        if (typeof fn !== "function") 
+        {
+            throw new Error("function not found");
+        }
+
+        return fn.bind(fn.prototype);
+    },
+
+    getData: function()
+    {
+        return game.data.itemList[this.item];
     },
 });
 
@@ -1148,6 +1185,7 @@ game.Equipable = game.MobListener.extend
         this._super(game.MobListener, 'init', [settings])
 
         this.name = "undefined weapon";
+        this.linkedItem = settings.item || new game.Item({item: "unknown"});
 
         this.baseAttackSpeed = settings.baseAttackSpeed || 1.0;
         this.statRequirements = {
