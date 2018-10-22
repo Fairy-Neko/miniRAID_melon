@@ -39,7 +39,7 @@ game.Weapon.base = game.Equipable.extend
     specialAttack: function(mob, target) {},
 
     // Can mob equip this weapon ?
-    isEquipable: function(mob)
+    checkSelfEquipable: function(mob)
     {
         for(stat in this.statRequirements)
         {

@@ -274,7 +274,23 @@ game.dataBackend.Mob = me.Object.extend
 
     getAttackSpeed: function()
     {
-        return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed) * this.currentWeapon.baseAttackSpeed;
+        if(this.currentWeapon)
+        {
+            return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed) * this.currentWeapon.baseAttackSpeed;
+        }
+        else
+        {
+            return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed);
+        }
+    },
+
+    getEquipableTags: function(equipmentType)
+    {
+        if(this.parentMob)
+        {
+            return this.parentMob.getEquipableTags(equipmentType);
+        }
+        return ["equipment"];
     },
 
     updateMobBackend: function(mob, dt)
@@ -317,7 +333,7 @@ game.dataBackend.Mob = me.Object.extend
         }
 
         // Mana Regen
-        if(typeof this.currentWeapon !== undefined)
+        if(typeof this.currentWeapon !== "undefined")
         {
             this.currentMana += dt * this.currentWeapon.manaRegen * 0.001;
         }
@@ -482,6 +498,11 @@ game.dataBackend.Mob = me.Object.extend
 
     removeListener: function(listener)
     {
+        if(!listener)
+        {
+            return;
+        }
+
         // TODO: Who removed this listener ?
         listener.onRemoved(this.parentMob, null);
 
@@ -1050,6 +1071,9 @@ game.MobListener = game.ToolTipObject.extend
     onFocusDeath: function(damageInfo) { return false; },
 })
 
+// TODO:
+// Sort inventory & keep positionId
+// Don't show equipped items as an avilable equipment (if not multi-equippable, such as flowers for florafairies)
 game.dataBackend.Inventory = me.Object.extend
 ({
     init: function()
@@ -1143,15 +1167,15 @@ game.Item = game.ToolTipObject.extend
         // this.iconIdx = settings.iconIdx || game.data.itemList[this.item].iconIdx;
 
         this.stacks = settings.stacks || 1;
-        this.position = {x: settings.x || 0, y: settings.y || 0};
+        this.positionId = settings.positionId || 0;
 
         this.linkedObject = undefined;
         this.equipper = undefined;
 
         // If this item has a linked class
-        if(typeof this.linkedClass !== "undefined")
+        if(game.data.itemList[this.item].linkedClass !== "")
         {
-            this.linkedObject = new this.funcFromString(this.linkedClass)({linkedItem: this});
+            this.linkedObject = new this.funcFromString(game.data.itemList[this.item].linkedClass)({linkedItem: this});
         } 
     },
 
@@ -1186,7 +1210,9 @@ game.Equipable = game.MobListener.extend
         this._super(game.MobListener, 'init', [settings])
 
         this.name = "undefined weapon";
-        this.linkedItem = settings.item || new game.Item({item: "unknown"});
+        this.linkedItem = settings.linkedItem || new game.Item({item: "unknownEquipment"});
+
+        this.slots = [undefined, undefined, undefined];
 
         this.baseAttackSpeed = settings.baseAttackSpeed || 1.0;
         this.statRequirements = {
@@ -1246,6 +1272,30 @@ game.Equipable = game.MobListener.extend
     onStatCalculation: function(mob)
     {
 
+    },
+
+    isEquipable: function(mob)
+    {
+        var flag = true;
+        for(var i = 0; i < 3; i++)
+        {
+            if(this.slots[i])
+            {
+                flag = flag | this.slots[i].isEquipable(mob);
+            }
+        }
+        flag = flag | this.checkSelfEquipable(mob);
+        return flag;
+    },
+
+    checkSelfEquipable: function(mob)
+    {
+        return true;
+    },
+
+    getSlotType: function(slotId)
+    {
+        return "equipment";
     },
 });
 

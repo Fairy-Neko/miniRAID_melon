@@ -168,6 +168,21 @@ var game = {
         me.pool.register("loot", game.sceneObject.loot);
         // me.pool.register("playerSpawnPoint", game.PlayerMobs.test);
 
+        // Load image sizes
+        game.data.imageSize = me.loader.getJSON("imageSize");
+
+        // Load item list
+        game.data.itemList = me.loader.getJSON("Items");
+
+        // Init item list with image sizes
+        for(var item in game.data.itemList)
+        {
+            game.data.itemList[item].width = game.data.imageSize[game.data.itemList[item].image].width || 32;
+            game.data.itemList[item].height = game.data.imageSize[game.data.itemList[item].image].height || 32;
+            game.data.itemList[item].framewidth = game.data.imageSize[game.data.itemList[item].image].framewidth || 32;
+            game.data.itemList[item].frameheight = game.data.imageSize[game.data.itemList[item].image].frameheight || 32;
+        }
+
         this.data.backend = new game.dataBackend();
         this.data.monitor = new game.dataBackend.BattleMonitor();
 
@@ -272,21 +287,6 @@ var game = {
                     race: "精灵 / 星精灵", class: "学者", 
                     mobPrototype: game.PlayerMobs.ForestElfAcademic, image: "magical_girl2"}));
             }
-        }
-
-        // Load image sizes
-        game.data.imageSize = me.loader.getJSON("imageSize");
-
-        // Load item list
-        game.data.itemList = me.loader.getJSON("Items");
-
-        // Init item list with image sizes
-        for(var item in game.data.itemList)
-        {
-            game.data.itemList[item].width = game.data.imageSize[game.data.itemList[item].image].width || 32;
-            game.data.itemList[item].height = game.data.imageSize[game.data.itemList[item].image].height || 32;
-            game.data.itemList[item].framewidth = game.data.imageSize[game.data.itemList[item].image].framewidth || 32;
-            game.data.itemList[item].frameheight = game.data.imageSize[game.data.itemList[item].image].frameheight || 32;
         }
 
         // Init the menu

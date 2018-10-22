@@ -870,16 +870,19 @@ game.UI.WeaponIcons = me.Renderable.extend
 
         var color = context.getColor();
 
-        context.setColor(this.weaponFront.color);
-        context.drawImage(
-            me.loader.getImage(this.image), 
-            // this.image, 
-            this.weaponFront.iconIdx % this.imageGridCount * this.imageGrid, //sx
-            Math.floor(this.weaponFront.iconIdx / this.imageGridCount) * this.imageGrid, //sy
-            this.imageGrid, //sw
-            this.imageGrid, //sh
-            this.pos.x, this.pos.y, this.imageGrid, this.imageGrid // dx, dy, dw, dh
-        );
+        if(typeof this.weaponFront !== "undefined")
+        {
+            context.setColor(this.weaponFront.color);
+            context.drawImage(
+                me.loader.getImage(this.image), 
+                // this.image, 
+                this.weaponFront.iconIdx % this.imageGridCount * this.imageGrid, //sx
+                Math.floor(this.weaponFront.iconIdx / this.imageGridCount) * this.imageGrid, //sy
+                this.imageGrid, //sw
+                this.imageGrid, //sh
+                this.pos.x, this.pos.y, this.imageGrid, this.imageGrid // dx, dy, dw, dh
+            );
+        }
 
         if(typeof this.weaponBack !== "undefined")
         {

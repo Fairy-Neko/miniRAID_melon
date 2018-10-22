@@ -41,56 +41,7 @@ game.menu.cT_tTab = function(isEquip, equipPos, slot)
         game.menu.currentEquipPos = equipPos;
         game.menu.currentEquipSlot = slot;
 
-        var sIcon = document.querySelector("#cT_equipment_selector ul.equipment_row #title");
-        var sMain = document.querySelector("#cT_equipment_selector ul.equipment_row #main");
-        var s1 = document.querySelector("#cT_equipment_selector ul.equipment_row #enchant");
-        var s2 = document.querySelector("#cT_equipment_selector ul.equipment_row #slot1");
-        var s3 = document.querySelector("#cT_equipment_selector ul.equipment_row #slot2");
-
-        game.menu.fillInventoryBlock(sMain, undefined);
-        game.menu.fillInventoryBlock(s1, undefined);
-        game.menu.fillInventoryBlock(s2, undefined);
-        game.menu.fillInventoryBlock(s3, undefined);
-
-        var player = game.data.backend.playerList[game.menu.currentCharacterIdx];
-
-        switch(equipPos)
-        {
-            case "weapon_main":
-                sIcon.style.setProperty('--image-url', "url('data/img/weapons_1.png')");
-                sIcon.style.setProperty('--image-offsetX', "0px");
-                if(typeof player.currentWeapon !== "undefined")
-                {
-                    game.menu.fillInventoryBlock(sMain, player.currentWeapon.linkedItem);
-                }
-            break;
-            case "weapon_sub":
-                sIcon.style.setProperty('--image-url', "url('data/img/weapons_1.png')");
-                sIcon.style.setProperty('--image-offsetX', "-32px");
-                if(typeof player.anotherWeapon !== "undefined")
-                {
-                    game.menu.fillInventoryBlock(sMain, player.anotherWeapon.linkedItem);
-                }
-            break;
-            case "armor":
-                sIcon.style.setProperty('--image-url', "url('data/img/weapons_1.png')");
-                sIcon.style.setProperty('--image-offsetX', "-64px");
-                if(typeof player.armor !== "undefined")
-                {
-                    game.menu.fillInventoryBlock(sMain, player.armor.linkedItem);
-                }
-            break;
-            case "acc":
-                sIcon.style.setProperty('--image-url', "url('data/img/weapons_1.png')");
-                sIcon.style.setProperty('--image-offsetX', "-96px");
-                if(typeof player.accessory !== "undefined")
-                {
-                    game.menu.fillInventoryBlock(sMain, player.accessory.linkedItem);
-                }
-            break;
-        }
-
-        game.menu.fillInventoryPanel(document.querySelector("#cT_equipment_selector .scrollable_inventory_list ul"), ["equipment"] /* + [] Character filters*/);
+        game.menu.refreshEveryInventoryList();
 
         game.menu.openCharactersTabSubTab("cT_equipment_selector");
     }
@@ -280,32 +231,9 @@ game.menu.wakeupMenu = function()
             playerBuffList.appendChild(buffIcon);
         }
 
-        // Equipments
-        // Main weapon
-        if(typeof player.currentWeapon !== "undefined")
-        {
-            wMain_main = playerPanel.querySelector("#character_equipment_panel li#character_weapon_main");
-            game.menu.fillInventoryBlock(wMain_main, player.currentWeapon.linkedItem, 'p' + i + '-wMain-main');
-            // wMain_main.style.setProperty('--image-url', 'url(' + 'data/img/Weapon_icon_32x32.png' + ')');
-            // wMain_main.style.setProperty('--image-offsetX', game.menu.getOffset(32, 32, 8, player.currentWeapon.iconIdx).x);
-            // wMain_main.style.setProperty('--image-offsetY', game.menu.getOffset(32, 32, 8, player.currentWeapon.iconIdx).y);
-        }
-        // TODO: slots
-
-        // Sub weapon
-        if(typeof player.anotherWeapon !== "undefined")
-        {
-            wSub_main = playerPanel.querySelector("#character_equipment_panel li#character_weapon_sub");
-            game.menu.fillInventoryBlock(wSub_main, player.anotherWeapon.linkedItem, 'p' + i + '-wSub-main');
-            // wSub_main.style.setProperty('--image-url', 'url(' + 'data/img/Weapon_icon_32x32.png' + ')');
-            // wSub_main.style.setProperty('--image-offsetX', game.menu.getOffset(32, 32, 8, player.anotherWeapon.iconIdx).x);
-            // wSub_main.style.setProperty('--image-offsetY', game.menu.getOffset(32, 32, 8, player.anotherWeapon.iconIdx).y);
-        }
-
         i += 1;
     }
 
-    game.menu.fillInventoryPanel(document.querySelector("#pm_Team .scrollable_inventory_list ul"), ["equipment"], "eq", false, 11, 154);
 
     //
     // ─── CHARACTER PANEL ────────────────────────────────────────────────────────────
@@ -318,9 +246,145 @@ game.menu.wakeupMenu = function()
     // ─── INVENTORY PANEL ────────────────────────────────────────────────────────────
     //
 
-    game.menu.fillInventoryPanel(document.querySelector("#Equipments.scrollable_inventory_list ul"), ["equipment"], "eq", false, 11, 154);
-    game.menu.fillInventoryPanel(document.querySelector("#Items.scrollable_inventory_list ul"), ["item"], "it", false, 10, 140);
-    // game.menu.fillInventoryPanel(document.querySelector("#Key_Items.scrollable_inventory_list ul"), ["keyitem"], 98);
+    game.menu.refreshEveryInventoryList();
+}
+
+game.menu.refreshEveryInventoryList = function()
+{
+    // Team tab, character equipments
+    var i = 0;
+    for(var player of game.data.backend.playerList)
+    {
+        var playerPanel = game.menu.teamContentPanel.querySelector("#character_" + i);
+
+        var wMain_main = playerPanel.querySelector("#character_equipment_panel li#character_weapon_main");
+        var wSub_main = playerPanel.querySelector("#character_equipment_panel li#character_weapon_sub");
+        var armor_main = playerPanel.querySelector("#character_equipment_panel li#character_armor");
+        var acc_main = playerPanel.querySelector("#character_equipment_panel li#character_acc");
+
+        // Reset them
+        game.menu.fillInventoryBlock(wMain_main, undefined, 'p-' + i + '-wMain-0');
+        game.menu.fillInventoryBlock(wSub_main, undefined, 'p-' + i + '-wSub-0');
+        game.menu.fillInventoryBlock(armor_main, undefined, 'p-' + i + '-armor-0');
+        game.menu.fillInventoryBlock(acc_main, undefined, 'p-' + i + '-acc-0');
+
+        // Equipments
+        // Main weapon
+        if(typeof player.currentWeapon !== "undefined")
+        {
+            game.menu.fillInventoryBlock(wMain_main, player.currentWeapon.linkedItem, 'p-' + i + '-wMain-0');
+        }
+        // TODO: slots
+
+        // Sub weapon
+        if(typeof player.anotherWeapon !== "undefined")
+        {
+            game.menu.fillInventoryBlock(wSub_main, player.anotherWeapon.linkedItem, 'p-' + i + '-wSub-0');
+        }
+
+        i += 1;
+    }
+
+    // Team tab, Inventory shortcut for equipments
+    game.menu.fillInventoryPanel(document.querySelector("#pm_Team .scrollable_inventory_list ul"), ["equipment"], "eq", false, 154);
+
+    // Character tab, character equipments
+    // TODO: slots
+
+    var player = game.data.backend.playerList[game.menu.currentCharacterIdx];
+
+    wMain_main = game.menu.charactersTab.querySelector("ul#weapon_main li#main");
+    wSub_main = game.menu.charactersTab.querySelector("ul#weapon_sub li#main");
+    armor_main = game.menu.charactersTab.querySelector("ul#armor li#main");
+    acc_main = game.menu.charactersTab.querySelector("ul#acc li#main");
+
+    game.menu.fillInventoryBlock(wMain_main, undefined, 'p');
+    game.menu.fillInventoryBlock(wSub_main, undefined, 'p');
+    game.menu.fillInventoryBlock(armor_main, undefined, 'p');
+    game.menu.fillInventoryBlock(acc_main, undefined, 'p');
+
+    // Main weapon
+    if(typeof player.currentWeapon !== "undefined")
+    {
+        game.menu.fillInventoryBlock(wMain_main, player.currentWeapon.linkedItem, 'p');
+    }
+
+    // Sub weapon
+    if(typeof player.anotherWeapon !== "undefined")
+    {
+        game.menu.fillInventoryBlock(wSub_main, player.anotherWeapon.linkedItem, 'p');
+    }
+
+    // Armor
+    if(typeof player.armor !== "undefined")
+    {
+        game.menu.fillInventoryBlock(armor_main, player.anotherWeapon.linkedItem, 'p');
+    }
+
+    // Accessory
+    if(typeof player.accessory !== "undefined")
+    {
+        game.menu.fillInventoryBlock(acc_main, player.anotherWeapon.linkedItem, 'p');
+    }
+
+    // Character tab, temporal inventory
+    game.menu.fillInventoryPanel(document.querySelector("#cT_equipment_selector .scrollable_inventory_list ul"), 
+            ["equipment"] /* + [] Character filters*/, "all", true);
+
+    // Temporal inventory header (current equipment) in characters panel when selecting equipment
+    var equipPos = game.menu.currentEquipPos;
+    var slot = game.menu.currentEquipSlot;
+
+    var sIcon = document.querySelector("#cT_equipment_selector ul.equipment_row #title");
+    var sMain = document.querySelector("#cT_equipment_selector ul.equipment_row #main");
+    var s1 = document.querySelector("#cT_equipment_selector ul.equipment_row #enchant");
+    var s2 = document.querySelector("#cT_equipment_selector ul.equipment_row #slot1");
+    var s3 = document.querySelector("#cT_equipment_selector ul.equipment_row #slot2");
+
+    game.menu.fillInventoryBlock(sMain, undefined, 'p-' + game.menu.currentCharacterIdx + '-' + equipPos + '-0');
+    game.menu.fillInventoryBlock(s1, undefined, 'p-' + game.menu.currentCharacterIdx + '-' + equipPos + '-1');
+    game.menu.fillInventoryBlock(s2, undefined, 'p-' + game.menu.currentCharacterIdx + '-' + equipPos + '-2');
+    game.menu.fillInventoryBlock(s3, undefined, 'p-' + game.menu.currentCharacterIdx + '-' + equipPos + '-3');
+
+    switch(equipPos)
+    {
+        case "wMain":
+            sIcon.style.setProperty('--image-url', "url('data/img/weapons_1.png')");
+            sIcon.style.setProperty('--image-offsetX', "0px");
+            if(typeof player.currentWeapon !== "undefined")
+            {
+                game.menu.fillInventoryBlock(sMain, player.currentWeapon.linkedItem, 'p-' + game.menu.currentCharacterIdx + '-' + equipPos + '-0');
+            }
+        break;
+        case "wSub":
+            sIcon.style.setProperty('--image-url', "url('data/img/weapons_1.png')");
+            sIcon.style.setProperty('--image-offsetX', "-32px");
+            if(typeof player.anotherWeapon !== "undefined")
+            {
+                game.menu.fillInventoryBlock(sMain, player.anotherWeapon.linkedItem, 'p-' + game.menu.currentCharacterIdx + '-' + equipPos + '-0');
+            }
+        break;
+        case "armor":
+            sIcon.style.setProperty('--image-url', "url('data/img/weapons_1.png')");
+            sIcon.style.setProperty('--image-offsetX', "-64px");
+            if(typeof player.armor !== "undefined")
+            {
+                game.menu.fillInventoryBlock(sMain, player.armor.linkedItem, 'p-' + game.menu.currentCharacterIdx + '-' + equipPos + '-0');
+            }
+        break;
+        case "acc":
+            sIcon.style.setProperty('--image-url', "url('data/img/weapons_1.png')");
+            sIcon.style.setProperty('--image-offsetX', "-96px");
+            if(typeof player.accessory !== "undefined")
+            {
+                game.menu.fillInventoryBlock(sMain, player.accessory.linkedItem, 'p-' + game.menu.currentCharacterIdx + '-' + equipPos + '-0');
+            }
+        break;
+    }
+
+    // Inventory tab
+    game.menu.fillInventoryPanel(document.querySelector("#Equipments.scrollable_inventory_list ul"), ["equipment"], "eq", false, 154);
+    game.menu.fillInventoryPanel(document.querySelector("#Items.scrollable_inventory_list ul"), ["item"], "it", false, 140);
 }
 
 // TODO: logic when pick and drop items (check is equipable, equip, dismount, replace items etc.)
@@ -329,6 +393,25 @@ game.menu.onClickInventoryBlock = function(icon)
     console.log(icon.idString);
     if(game.menu.hasItemSelected === true)
     {
+        var srcArray = game.menu.floatingBlock.idString.split('-');
+        var dstArray = icon.idString.split('-');
+
+        var srcItem = game.menu.floatingBlock.item;
+        var dstItem = icon.item;
+
+        if(this.copyItemToTarget(dstArray, srcArray, srcItem, true) && this.copyItemToTarget(srcArray, dstArray, dstItem, true))
+        {
+            this.copyItemToTarget(srcArray, dstArray, dstItem);
+            this.copyItemToTarget(dstArray, srcArray, srcItem);
+        }
+        else
+        {
+            return;
+        }
+
+        game.menu.refreshEveryInventoryList();
+        game.menu.setCurrentCharacter(game.menu.currentCharacterIdx);
+
         game.menu.floatingBlock.style.display = "none";
         game.menu.hasItemSelected = false;
 
@@ -340,6 +423,7 @@ game.menu.onClickInventoryBlock = function(icon)
         if(icon.item)
         {
             game.menu.floatingBlock.idString = icon.idString;
+            game.menu.floatingBlock.item = icon.item;
 
             game.menu.floatingBlock.style.setProperty('--image-url', icon.style.getPropertyValue('--image-url'));
             game.menu.floatingBlock.style.setProperty('--image-offsetX', icon.style.getPropertyValue('--image-offsetX'));
@@ -356,7 +440,147 @@ game.menu.onClickInventoryBlock = function(icon)
     }
 }
 
-game.menu.fillInventoryPanel = function(panel, filters, prefix = "", relative = false, row = 10, minimumCount = 0)
+game.menu.copyItemToTarget = function(targetIdArray, srcIdArray, item, isCheck = false)
+{
+    var typeDict = {wMain: "weapon", wSub: "weapon", armor: "armor", acc: "accessory"};
+    var propDict = {wMain: "currentWeapon", wSub: "anotherWeapon", armor: "armor", acc: "accessory"};
+
+    // You are going to equip a player!
+    if(targetIdArray[0] == 'p')
+    {
+        if(!item)
+        {
+            // TODO: unequip, since you assigned a empty grid to equip = unequip current equipment.
+            return false;
+        }
+
+        if(!item.linkedObject)
+        {
+            return false;
+        }
+
+        var playerId = parseInt(targetIdArray[1]);
+        if(playerId < 0 || playerId >= game.data.backend.playerList.length)
+        {
+            return false;
+        }
+
+        var player = game.data.backend.playerList[playerId];
+        var type = typeDict[targetIdArray[2]];
+        var prop = propDict[targetIdArray[2]];
+
+        var equipableTags = [];
+        var equipable = false;
+
+        // Slots
+        if(targetIdArray[3] > 0)
+        {
+            if(player[prop])
+            {
+                equipableTags = player[prop].getSlotType(targetIdArray[3]);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        // Equipment itself
+        else
+        {
+            equipableTags = player.getEquipableTags(type);
+        }
+
+        // Check if item contains any of the tag = equipable
+        for(let tag of equipableTags)
+        {
+            if(item.getData().tags.includes(tag))
+            {
+                equipable = true;
+            }
+        }
+
+        if(equipable === true && item.linkedObject.isEquipable(player.parentMob))
+        {
+            // Only check if we can do this so return
+            if(isCheck === true)
+            {
+                return true;
+            }
+
+            // Or edit the contents carefully.
+            // First unequip it from the original player
+            game.menu.unequipFromIdArray(srcIdArray);
+            // Then equip to the target player
+            player[prop] = item.linkedObject;
+            item.equipper = player;
+
+            return true;
+        }
+
+        return false;
+    }
+    else
+    {
+        // You are going to unequip a player!
+        if(srcIdArray[0] == 'p')
+        {
+            if(isCheck === false)
+            {
+                game.menu.unequipFromIdArray(srcIdArray);
+            }
+        }
+
+        // Check equipment or item
+        if((!item) ||
+           (targetIdArray[0] === 'eq' && item.getData().tags.includes("equipment")) || 
+           (targetIdArray[0] === 'it' && item.getData().tags.includes("item")) || 
+           (targetIdArray[0] === 'all'))
+        {
+            if(isCheck === true)
+            {
+                return true;
+            }
+            
+            // Place it to the new place
+            // Note: for temporal inventory selector in characters tab, it is gruanteed that src and dst are same type (both equipment or items).
+            // Even if you selecting a flower to florafairy's armor-main slot, cuz it cannot pass the first part of the big if-else statement.
+            // ( A flower cannot equipped to the armor-main slot so nothing happens. )
+            if(item)
+            {
+                item.positionId = targetIdArray[1];
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+}
+
+// TODO: move (part of) this to databackend.js ?
+game.menu.unequipFromIdArray = function(idArray)
+{
+    var typeDict = {wMain: "weapon", wSub: "weapon", armor: "armor", acc: "accessory"};
+    var propDict = {wMain: "currentWeapon", wSub: "anotherWeapon", armor: "armor", acc: "accessory"};
+
+    if(idArray[0] == 'p')
+    {
+        // Slots
+        if(idArray[3] > 0)
+        {
+            // Unequip it
+            game.data.backend.playerList[idArray[1]][propDict[idArray[2]]].slots[idArray[3]] = undefined;
+        }
+        // Equipment itself
+        else
+        {
+            // Unequip it
+            game.data.backend.playerList[idArray[1]][propDict[idArray[2]]] = undefined;
+        }
+    }
+}
+
+game.menu.fillInventoryPanel = function(panel, filters, prefix = "", relative = false, minimumCount = 0)
 {
     var idx = 0;
     while(panel.childNodes.length > idx)
@@ -383,12 +607,14 @@ game.menu.fillInventoryPanel = function(panel, filters, prefix = "", relative = 
         var idstr = prefix + "-";
         if(relative === false)
         {
-            idstr += Math.floor(idx / row) + "-" + (idx % row);
+            idstr += idx;
         }
         else
         {
-            idstr += item.position.y + "-" + item.position.x;
+            idstr += item.positionId;
         }
+
+        idx += 1;
 
         this.fillInventoryBlock(itemIcon, item, idstr);
         
@@ -400,7 +626,7 @@ game.menu.fillInventoryPanel = function(panel, filters, prefix = "", relative = 
         for(idx = itemList.length; idx < minimumCount; idx++)
         {
             var itemIcon = document.createElement("li");
-            var idstr = prefix + "-" + Math.floor(idx / row) + "-" + (idx % row);
+            var idstr = prefix + "-" + idx;
             this.fillInventoryBlock(itemIcon, undefined, idstr);
             
             panel.appendChild(itemIcon);
@@ -416,6 +642,17 @@ game.menu.fillInventoryBlock = function(itemIcon, item, id)
 
     if(typeof item === "undefined")
     {
+        // Set it to empty
+        itemIcon.style.setProperty('--image-url', '');
+        itemIcon.style.setProperty('--image-offsetX', '0px');
+        itemIcon.style.setProperty('--image-offsetY', '0px');
+
+        itemIcon.innerHTML = "";
+
+        itemIcon.item = null;
+        itemIcon.onmouseover = null;
+        itemIcon.onmouseout = null;
+
         // Nothing to do with a empty slot
         // TODO: pointer click events etc.
     }
@@ -433,16 +670,21 @@ game.menu.fillInventoryBlock = function(itemIcon, item, id)
         {
             itemIcon.innerHTML = "<span>" + item.stacks + "</span>";
         }
+
+        if(id.split('-')[0] !== 'p' && item.equipper)
+        {
+            itemIcon.innerHTML = "<span>E</span>";
+        }
         
-        itemIcon.item = r_item;
+        itemIcon.item = item;
         
         // Show tool tip when hover
         itemIcon.onmouseover = function() 
         {
             game.UIManager.showToolTip({
-                title: this.item.showName,
-                bodyText: this.item.toolTipText,
-                titleColor: this.item.color,
+                title: this.item.getData().showName,
+                bodyText: this.item.getData().toolTipText,
+                titleColor: this.item.getData().color,
             });
         };
 
@@ -468,16 +710,19 @@ game.menu.setCurrentCharacter = function(index)
     game.menu.currentCharacterIdx = index;
     
     var player = game.data.backend.playerList[index];
+    player.calcStats(player.parentMob);
 
     // Left & Right arrows
     game.menu.charactersTab.querySelector("#left_arrow").onclick = function()
     {
         game.menu.setCurrentCharacter((8 + index - 1) % game.data.backend.playerList.length)
+        game.menu.refreshEveryInventoryList();
     };
 
     game.menu.charactersTab.querySelector("#right_arrow").onclick = function()
     {
         game.menu.setCurrentCharacter((index + 1) % game.data.backend.playerList.length)
+        game.menu.refreshEveryInventoryList();
     };
 
     // Player name
@@ -544,35 +789,6 @@ game.menu.setCurrentCharacter = function(index)
     // ─── EQUIPMENT ──────────────────────────────────────────────────────────────────
     //
 
-    // Main weapon
-    if(typeof player.currentWeapon !== "undefined")
-    {
-        wMain_main = game.menu.charactersTab.querySelector("ul#weapon_main li#main");
-        game.menu.fillInventoryBlock(wMain_main, player.currentWeapon.linkedItem);
-    }
-    // TODO: slots
-
-    // Sub weapon
-    if(typeof player.anotherWeapon !== "undefined")
-    {
-        wSub_main = game.menu.charactersTab.querySelector("ul#weapon_sub li#main");
-        game.menu.fillInventoryBlock(wSub_main, player.anotherWeapon.linkedItem);
-    }
-
-    // Armor
-    if(typeof player.armor !== "undefined")
-    {
-        armor_main = game.menu.charactersTab.querySelector("ul#armor li#main");
-        game.menu.fillInventoryBlock(armor_main, player.anotherWeapon.linkedItem);
-    }
-
-    // Accessory
-    if(typeof player.accessory !== "undefined")
-    {
-        acc_main = game.menu.charactersTab.querySelector("ul#acc li#main");
-        game.menu.fillInventoryBlock(acc_main, player.anotherWeapon.linkedItem);
-    }
-
     // TODO: armor & acc
     // TODO: if nothing equipped
 
@@ -624,7 +840,15 @@ game.menu.setCurrentCharacter = function(index)
     statsPanel.querySelector("tr#antiCrit #value").innerHTML = "-";
     statsPanel.querySelector("tr#antiCrit #value2").innerHTML = player.battleStats.antiCrit + "%";
     
-    statsPanel.querySelector("tr#attackRange #value").innerHTML = Math.ceil(player.battleStats.attackRange + player.currentWeapon.activeRange);
+    if(player.currentWeapon)
+    {
+        statsPanel.querySelector("tr#attackRange #value").innerHTML = Math.ceil(player.battleStats.attackRange + player.currentWeapon.activeRange);
+    }
+    else
+    {
+        statsPanel.querySelector("tr#attackRange #value").innerHTML = Math.ceil(player.battleStats.attackRange);
+    }
+
     statsPanel.querySelector("tr#attackRange #value2").innerHTML = "(+ " + Math.ceil(player.battleStats.attackRange) + ")";
     statsPanel.querySelector("tr#extraRange #value").innerHTML = Math.ceil(player.battleStats.extraRange);
 

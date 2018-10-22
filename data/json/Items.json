@@ -2,6 +2,7 @@
 "unknown":{"showName":"未知道具","color":"#ffffff","tint":false,"level":0,"stackable":true,"tags":["item"],"image":"item_herb","iconIdx":0,"toolTipText":"来自于混沌的虚空。<br/>（这是一个错误！）","linkedClass":""},
 "dewHerb":{"showName":"晨露草","color":"#68ffd1","tint":false,"level":1,"stackable":true,"tags":["item", "plant"],"image":"item_herb","iconIdx":0,"toolTipText":"一种常见的药草，因叶片表面极易凝结露珠而得名。","linkedClass":""},
 "flowerDice":{"showName":"花瓣骰子","color":"#f44289","tint":false,"level":1,"stackable":true,"tags":["item", "misc"],"image":"item_herb","iconIdx":1,"toolTipText":"花朵制成的骰子。","linkedClass":""},
+"unknownEquipment":{"showName":"未知装备","color":"#ffffff","tint":true,"level":0,"stackable":false,"tags":["equipment"],"image":"Weapon_icon_32x32","iconIdx":0,"toolTipText":"来自于混沌的虚空。<br/>（这是一个错误！）","linkedClass":""},
 "testFireStaff":{"showName":"扭曲火焰魔杖","color":"#ff7700","tint":true,"level":0,"stackable":false,"tags":["equipment", "weapon", "staff"],"image":"Weapon_icon_32x32","iconIdx":3,"toolTipText":"来自于混沌的虚空。<br/>（这是一个错误！）","linkedClass":"game.Weapon.TestStaff"},
 "testShield":{"showName":"扭曲木盾","color":"#ffcccc","tint":true,"level":0,"stackable":false,"tags":["equipment", "weapon", "shield"],"image":"Weapon_icon_32x32","iconIdx":2,"toolTipText":"来自于混沌的虚空。<br/>（这是一个错误！）","linkedClass":"game.Weapon.TestShield"},
 "testIceStaff":{"showName":"扭曲冰霜魔杖","color":"#00ccff","tint":true,"level":0,"stackable":false,"tags":["equipment", "weapon", "staff"],"image":"Weapon_icon_32x32","iconIdx":3,"toolTipText":"来自于混沌的虚空。<br/>（这是一个错误！）","linkedClass":"game.Weapon.DPSHomingStaff"},
