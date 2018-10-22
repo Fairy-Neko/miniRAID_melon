@@ -1143,6 +1143,7 @@ game.Item = game.ToolTipObject.extend
         // this.iconIdx = settings.iconIdx || game.data.itemList[this.item].iconIdx;
 
         this.stacks = settings.stacks || 1;
+        this.position = {x: settings.x || 0, y: settings.y || 0};
 
         this.linkedObject = undefined;
         this.equipper = undefined;

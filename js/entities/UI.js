@@ -117,6 +117,16 @@ game.UI.Container = me.Container.extend
             }
         }
 
+        if(game.disableCursor)
+        {
+            // hide cursor
+            document.body.style.cursor = 'none';
+        }
+        else
+        {
+            document.body.style.cursor = 'default';
+        }
+
         game.data.monitor.update(dt);
     },
 
@@ -128,6 +138,11 @@ game.UI.Container = me.Container.extend
         bodyText = "toolTip",
     })
     {
+        if(game.disableToolTip)
+        {
+            this.toolTip.toolTip.style.display = "none";
+            return;
+        }
         // change text
         this.toolTip.title.innerHTML = title;
         this.toolTip.body.innerHTML = bodyText;
@@ -137,18 +152,35 @@ game.UI.Container = me.Container.extend
 
         // set it visible
         this.toolTip.toolTip.style.display = "inherit";
-
-        // hide cursor
-        // document.body.style.cursor = 'none';
     },
 
     hideToolTip()
     {
         // set it invisible
         this.toolTip.toolTip.style.display = "none";
+    },
 
-        // show cursor
-        // document.body.style.cursor = 'default';
+    disableToolTip()
+    {
+        this.hideToolTip();
+        game.disableToolTip = true;
+    },
+
+    enableToolTip()
+    {
+        game.disableToolTip = false;
+    },
+
+    disableCursor()
+    {
+        document.body.style.cursor = 'none';
+        game.disableCursor = true;
+    },
+
+    enableCursor()
+    {
+        document.body.style.cursor = 'default';
+        game.disableCursor = false;
     },
 });
 

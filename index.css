@@ -466,6 +466,7 @@ body
     text-align: right;
     line-height: 100%;
     background-color: #000;
+    color: white;
 }
 
 /*
@@ -692,6 +693,9 @@ tr.space
     margin-right: 4px;
     margin-bottom: 4px;
     outline: 1px solid lightslategrey;
+    background-color: #333;
+
+    z-index: 100;
 }
 
 .scrollable_inventory_list > #title

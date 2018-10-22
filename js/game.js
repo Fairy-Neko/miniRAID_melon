@@ -112,6 +112,9 @@ var game = {
         },
     },
 
+    disableToolTip: false,
+    disableCursor: false,
+
     collisionTypes:
     {
         AREA_EFFECT : me.collision.types.USER << 0,
