@@ -110,6 +110,11 @@ game.resources = [
         "src": "data/img/iced_fx.png"
     },
     {
+        "name": "item_herb",
+        "type": "image",
+        "src": "data/img/item_herb.png"
+    },
+    {
         "name": "Magic_Hit_32x32px",
         "type": "image",
         "src": "data/img/Magic_Hit_32x32px.png"
@@ -128,6 +133,11 @@ game.resources = [
         "name": "object- layer",
         "type": "image",
         "src": "data/img/object- layer.png"
+    },
+    {
+        "name": "SO_shinePoint",
+        "type": "image",
+        "src": "data/img/SO_shinePoint.png"
     },
     {
         "name": "Star_fall_64x64px",
@@ -175,6 +185,11 @@ game.resources = [
         "src": "data/img/Weapon_icon_32x32.png"
     },
     {
+        "name": "weapons_1",
+        "type": "image",
+        "src": "data/img/weapons_1.png"
+    },
+    {
         "name": "FixedSys",
         "type": "image",
         "src": "data/fnt/FixedSys.png"
@@ -188,6 +203,16 @@ game.resources = [
         "name": "SmallFont",
         "type": "image",
         "src": "data/fnt/SmallFont.png"
+    },
+    {
+        "name": "imageSize",
+        "type": "json",
+        "src": "data/json/imageSize.json"
+    },
+    {
+        "name": "Items",
+        "type": "json",
+        "src": "data/json/Items.json"
     },
     {
         "name": "playground",

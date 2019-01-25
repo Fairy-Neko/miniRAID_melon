@@ -9,11 +9,34 @@
     src: url("/04b03.ttf") format("truetype");
 }
 
+/* 宋体整体替换 */
+
+@font-face 
+{
+    font-family: 宋体;
+    src: local(YaHei Consolas Hybrid);
+}
+
+@font-face 
+{
+    font-family: SimSun;
+    src: local(YaHei Consolas Hybrid);
+}
+
+/* Arial的中文部分替换 */
+
+@font-face 
+{
+    font-family: Arial;
+    unicode-range: U+4E00-9FFF;
+    src: local(YaHei Consolas Hybrid);
+}
+
 :root
 {
     --main-color: 128, 128, 128;
 
-    --image-url: url('/data/img/healer_girl2.png');
+    --image-url: url('');
     --image-width: 32px;
     --image-height: 32px;
     --image-offsetX: -0px;
@@ -94,6 +117,7 @@ body
     padding: 20px;
     box-sizing: border-box;
 
+    /* display: flex; */
     display: none;
 
     color: white;
@@ -151,7 +175,7 @@ body
     display: none;
     border: none;
 
-    /* animation: fadeEffect 0.5s; */
+    /* animation: fadeEffect 0.3s; */
 }
 
 @keyframes fadeEffect 
@@ -225,6 +249,11 @@ body
     align-items: center;
 }
 
+#team_tab_inventory
+{
+    flex: 1 0 100px;
+}
+
 #team_content
 {
     display: grid;
@@ -238,6 +267,13 @@ body
     flex-direction: column;
 
     padding: 10px;
+
+    transition: 0.3s;
+}
+
+.team_character_panel:hover
+{
+    background-color: rgba(100, 100, 100, 0.4);
 }
 
 #pm_Team p
@@ -308,8 +344,23 @@ body
 
 #team_footer
 {
+    flex: 1 0 100px;
+
     display: flex;
     flex-direction: row;
+}
+
+#team_footer_left
+{
+    flex: 1 0 0px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+#team_footer_right
+{
+    flex: 0 0 407px;
 }
 
 .pm_Team_footer_content
@@ -317,6 +368,8 @@ body
     display: flex;
     flex-direction: row;
     align-items: center;
+
+    margin-bottom: 5px;
 
     flex: 0 0 50%;
 }
@@ -356,7 +409,8 @@ body
     left: 50%;
     transform: translate(-50%, -50%);
 
-    font-size: 10px;
+    font-size: 12px;
+    font-family: SimSun;
     line-height: 100%;
     padding: 0;
     margin: 0;
@@ -397,25 +451,281 @@ body
     width: var(--image-width);
     height: var(--image-height);
     background: var(--image-url) var(--image-offsetX) var(--image-offsetY);
+
+    position: relative;
+}
+
+.show_image span
+{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    font-size: 12px;
+    font-family: SimSun;
+    text-align: right;
+    line-height: 100%;
+    background-color: #000;
+    color: white;
+}
+
+/*
+ * ─── CHARACTERS TAB ─────────────────────────────────────────────────────────────
+ */
+
+#pm_Characters
+{
+    flex: 1 0 0px;
+    width: 100%;
+    height: 100%;
+    
+    padding: 0;
+}
+
+#characterView
+{
+    flex: 0 0 190px;
+    margin-right: 30px;
+
+    padding-top: 30px;
+}
+
+#pm_Characters p
+{
+    margin: 0px 0px; /* margin: top-bottom left-right */
+    font-size: 12px;
+    text-align: center;
+}
+
+#pm_Characters h3
+{
+    margin: 0px 0px; /* margin: top-bottom left-right */
+    font-size: 16px;
+    color: gold;
+    text-align: center;
+    font-weight: normal;
+}
+
+#pm_Characters ul
+{
+    display: table;
+    margin: 0 auto;
+    padding: 0;
+}
+
+#pm_Characters ul#buff_list_character_tab_character
+{
+    /*9 buffs in a row*/
+    width: 170px; 
+
+    /* fixed 4 rows */
+    height: 72px;
+}
+
+#pm_Characters .cp_content
+{
+    margin-bottom: 16px;
+}
+
+#buff_list_character_tab_character li:nth-child(9n)
+{
+    margin-right: 0px;
+}
+
+.equipment_row
+{
+    margin-bottom: 5px;
+}
+
+.equipment_row li
+{
+    margin-right: 4px;
+}
+
+/*
+ * ─── CHARACTER STATS ────────────────────────────────────────────────────────────
+ */
+
+#characterStats
+{
+    flex: 1 0 0px;
+
+    display: flex;
+    padding-top: 30px;
+}
+
+#characterStats .page
+{
+    flex: 1 0 50%;
+}
+
+#characterStats th
+{
+    line-height: 100%;
+    margin: 0;
+}
+
+#characterStats td
+{
+    font-size: 12px;
+    font-family: SimSun;
+    line-height: 110%;
+
+    width: 60px;
+}
+
+#characterStats td.title
+{
+    width: 80px;
+}
+
+table#elements td.title,
+table#elements td
+{
+    width: 49px;
+}
+
+tbody#avilableSkills td
+{
+    width: 90px;
+}
+
+tr.space
+{
+    height: 7px;
+}
+
+#characterStats h2
+{
+    margin: 4px 0px; /* margin: top-bottom left-right */
+    font-size: 14px;
+    color: gold;
+    text-align: left;
+    font-weight: normal;
+}
+
+#characterStats h3
+{
+    margin: 0px 0px; /* margin: top-bottom left-right */
+    font-size: 12px;
+    color: aquamarine;
+    text-align: left;
+    font-weight: normal;
+}
+
+/*
+ * ─── INVENTORIES ────────────────────────────────────────────────────────────────
+ */
+
+#pm_Inventory
+{
+    flex: 1 0 0px;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    
+    padding: 0;
+}
+
+#Inventories
+{
+    display: flex;
+    width: 100%;
+}
+
+#Inventories .scrollable_inventory_list
+{
+    flex: 1 0 0px;
+    margin-right: 2px;
+}
+
+#Inventories .scrollable_inventory_list:last-child
+{
+    margin-right: 0;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #696969; 
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: rgb(177, 243, 255); 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(255, 255, 255); 
+}
+
+.scrollable_inventory_list
+{
+    padding: 4px;
+    padding-right: 0;
+    background-color: rgba(100, 100, 100, 0.5);
+    overflow-y: scroll;
+}
+
+.scrollable_inventory_list p
+{
+    margin: 0px 0px; /* margin: top-bottom left-right */
+    font-size: 12px;
+    text-align: center;
+}
+
+.scrollable_inventory_list ul
+{
+    display: table;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.inventory_block
+{
+    margin-right: 4px;
+    margin-bottom: 4px;
+    outline: 1px solid lightslategrey;
+    background-color: #333;
+
+    z-index: 100;
+}
+
+.scrollable_inventory_list > #title
+{
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 170%;
+    margin-bottom: 3px;
 }
 
 /*
  * ─── TOOLTIP ────────────────────────────────────────────────────────────────────
  */
-#tooltip
+.followmouse
 {
     position: absolute;
+    pointer-events: none;
+}
 
+#tooltip
+{
     background-color: #222;
     color: white;
     padding: 10px;
     padding-bottom: 6px;
     font-size: 12px;
+    font-family: SimSun;
 
     line-height: 80%;
 
     display: none;
-    pointer-events: none;
 }
 
 #tooltip p
@@ -428,4 +738,5 @@ body
     color: gold;
     font-size: 12px;
     margin-bottom: 15px;
+    font-weight: normal;
 }

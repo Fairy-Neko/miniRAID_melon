@@ -112,9 +112,19 @@ game.UI.Container = me.Container.extend
                 this.pauseMenu.style.display = "flex";
 
                 // Set a "higher priority" pause
-                wakeupMenu();
+                game.menu.wakeupMenu();
                 me.state.pause(true);
             }
+        }
+
+        if(game.disableCursor)
+        {
+            // hide cursor
+            document.body.style.cursor = 'none';
+        }
+        else
+        {
+            document.body.style.cursor = 'default';
         }
 
         game.data.monitor.update(dt);
@@ -128,6 +138,11 @@ game.UI.Container = me.Container.extend
         bodyText = "toolTip",
     })
     {
+        if(game.disableToolTip)
+        {
+            this.toolTip.toolTip.style.display = "none";
+            return;
+        }
         // change text
         this.toolTip.title.innerHTML = title;
         this.toolTip.body.innerHTML = bodyText;
@@ -143,6 +158,29 @@ game.UI.Container = me.Container.extend
     {
         // set it invisible
         this.toolTip.toolTip.style.display = "none";
+    },
+
+    disableToolTip()
+    {
+        this.hideToolTip();
+        game.disableToolTip = true;
+    },
+
+    enableToolTip()
+    {
+        game.disableToolTip = false;
+    },
+
+    disableCursor()
+    {
+        document.body.style.cursor = 'none';
+        game.disableCursor = true;
+    },
+
+    enableCursor()
+    {
+        document.body.style.cursor = 'default';
+        game.disableCursor = false;
     },
 });
 
@@ -810,10 +848,10 @@ game.UI.WeaponIcons = me.Renderable.extend
         this.imageGrid = settings.imageGrid || 32;
         this.imageGridCount = this.imageSize / this.imageGrid;
 
-        this.image = settings.image || "Weapon_icon_32x32";
+        this.image = settings.image || "weapons_1";
         settings.image = this.image;
-        settings.width = this.imageSize;
-        settings.height = this.imageSize;
+        settings.width = this.imageGrid;
+        settings.height = this.imageGrid;
 
         this.id = settings.id;
 
@@ -832,22 +870,36 @@ game.UI.WeaponIcons = me.Renderable.extend
 
         var color = context.getColor();
 
-        context.setColor(this.weaponFront.color);
-        context.drawImage(
-            me.loader.getImage(this.image), 
-            // this.image, 
-            this.weaponFront.iconIdx % this.imageGridCount * this.imageGrid, //sx
-            Math.floor(this.weaponFront.iconIdx / this.imageGridCount) * this.imageGrid, //sy
-            this.imageGrid, //sw
-            this.imageGrid, //sh
-            this.pos.x, this.pos.y, this.imageGrid, this.imageGrid // dx, dy, dw, dh
-        );
+        if(typeof this.weaponFront !== "undefined")
+        {
+            if(this.weaponFront.linkedItem.getData().tint === true)
+            {
+                context.setColor(this.weaponFront.color);
+            }
+
+            this.imageGridCount = game.data.imageSize[this.weaponFront.image].width / game.data.imageSize[this.weaponFront.image].framewidth;
+            this.imageGrid = game.data.imageSize[this.weaponFront.image].framewidth;
+
+            context.drawImage(
+                me.loader.getImage(this.weaponFront.image), 
+                // this.image, 
+                this.weaponFront.iconIdx % this.imageGridCount * this.imageGrid, //sx
+                Math.floor(this.weaponFront.iconIdx / this.imageGridCount) * this.imageGrid, //sy
+                this.imageGrid, //sw
+                this.imageGrid, //sh
+                this.pos.x, this.pos.y, this.imageGrid, this.imageGrid // dx, dy, dw, dh
+            );
+        }
 
         if(typeof this.weaponBack !== "undefined")
         {
-            context.setColor(this.weaponBack.color);
+            if(this.weaponBack.linkedItem.getData().tint === true)
+            {
+                context.setColor(this.weaponBack.color);
+            }
+
             context.drawImage(
-                me.loader.getImage(this.image), 
+                me.loader.getImage(this.weaponBack.image), 
                 // this.image, 
                 this.weaponBack.iconIdx % this.imageGridCount * this.imageGrid, //sx
                 Math.floor(this.weaponBack.iconIdx / this.imageGridCount) * this.imageGrid, //sy

@@ -8,7 +8,7 @@ game.dataBackend = me.Object.extend
         this.playerList = [];
 
         // Array saving Inventory(bag) data.
-        this.inventory = [];
+        this.inventory = new game.dataBackend.Inventory();
 
         // Used to generate ID for mobs.
         this.mobCount = -1;
@@ -58,6 +58,30 @@ game.dataBackend.Mob = me.Object.extend
         this.name = settings.name || "noname";
         // this.position = {x: this.body.left, y: this.body.top};
         this.image = settings.image || "magical_girl";
+
+        // Stats
+        this.race = settings.race || "unknown";
+        this.class = settings.class || "unknown";
+        this.level = settings.level || 1;
+
+        this.availableBP = settings.availableBP || 0;
+        this.availableSP = settings.availableSP || 0;
+
+        this.baseStats = {
+            vit: settings.vit || 1,
+            str: settings.str || 1,
+            dex: settings.dex || 1,
+            tec: settings.tec || 1,
+            int: settings.int || 1,
+            mag: settings.mag || 1,
+        };
+
+        // Used to store the player base stats before any modifiers (but after lvlup, talent selections etc.)
+        this.baseStatsFundemental = {};
+        for(let stat in this.baseStats)
+        {
+            this.baseStatsFundemental[stat] = this.baseStats[stat];
+        }
 
         // health related
         this.maxHealth = settings.health || 100;
@@ -132,24 +156,6 @@ game.dataBackend.Mob = me.Object.extend
 
         this.currentSpell = undefined;
         this.currentSpellTarget = undefined;
-
-        // Stats
-        this.level = settings.level || 1;
-        this.baseStats = {
-            vit: settings.vit || 1,
-            str: settings.str || 1,
-            dex: settings.dex || 1,
-            tec: settings.tec || 1,
-            int: settings.int || 1,
-            mag: settings.mag || 1,
-        };
-
-        // Used to store the player base stats before any modifiers (but after lvlup, talent selections etc.)
-        this.baseStatsFundemental = {};
-        for(let stat in this.baseStats)
-        {
-            this.baseStatsFundemental[stat] = this.baseStats[stat];
-        }
 
         // Stats (cannot increase directly)
         this.battleStats = {
@@ -268,7 +274,23 @@ game.dataBackend.Mob = me.Object.extend
 
     getAttackSpeed: function()
     {
-        return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed) * this.currentWeapon.baseAttackSpeed;
+        if(this.currentWeapon)
+        {
+            return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed) * this.currentWeapon.baseAttackSpeed;
+        }
+        else
+        {
+            return (1 / this.modifiers.speed) * (1 / this.modifiers.attackSpeed);
+        }
+    },
+
+    getEquipableTags: function(equipmentType)
+    {
+        if(this.parentMob)
+        {
+            return this.parentMob.getEquipableTags(equipmentType);
+        }
+        return ["equipment"];
     },
 
     updateMobBackend: function(mob, dt)
@@ -311,7 +333,7 @@ game.dataBackend.Mob = me.Object.extend
         }
 
         // Mana Regen
-        if(typeof this.currentWeapon !== undefined)
+        if(typeof this.currentWeapon !== "undefined")
         {
             this.currentMana += dt * this.currentWeapon.manaRegen * 0.001;
         }
@@ -476,6 +498,11 @@ game.dataBackend.Mob = me.Object.extend
 
     removeListener: function(listener)
     {
+        if(!listener)
+        {
+            return;
+        }
+
         // TODO: Who removed this listener ?
         listener.onRemoved(this.parentMob, null);
 
@@ -547,8 +574,8 @@ game.dataBackend.Mob = me.Object.extend
         this.battleStats = {
             resist: {
                 physical: 0,
-                elemental: 0,
-                pure: 0, // It should be 0
+                elemental: 10,
+                pure: 0, // It should always be 0
 
                 slash: 0,
                 knock: 0,
@@ -567,7 +594,7 @@ game.dataBackend.Mob = me.Object.extend
             attackPower: {
                 physical: 0,
                 elemental: 0,
-                pure: 0, // It should be 0
+                pure: 0, // It should always be 0
 
                 slash: 0,
                 knock: 0,
@@ -608,6 +635,7 @@ game.dataBackend.Mob = me.Object.extend
         this.modifiers.movingSpeed = 1.0;
         this.modifiers.attackSpeed = 1.0;
         this.modifiers.spellSpeed = 1.0;
+        this.modifiers.resourceCost = 1.0;
 
         // Calculate health from stats
         this.healthRatio = this.currentHealth / this.maxHealth;
@@ -926,7 +954,27 @@ game.dataBackend.Spell.base = me.Object.extend
     },
 });
 
-game.MobListener = me.Object.extend
+// TODO: Make this useful.
+game.ToolTipObject = me.Object.extend
+({
+    init: function(){},
+
+    getToolTip: function()
+    {
+        return {title: "NoName", text: "Nothing.", color: "#ffffff"};
+    },
+
+    showToolTip: function()
+    {
+        game.UIManager.showToolTip({
+            title: this.title,
+            bodyText: this.text,
+            titleColor: this.color,
+        });
+    },
+})
+
+game.MobListener = game.ToolTipObject.extend
 ({
     init: function(settings)
     {
@@ -1023,6 +1071,191 @@ game.MobListener = me.Object.extend
     onFocusDeath: function(damageInfo) { return false; },
 })
 
+// TODO:
+// Sort inventory & keep positionId
+// Don't show equipped items as an aviliable equipment (if not multi-equippable, such as flowers for florafairies)
+game.dataBackend.Inventory = me.Object.extend
+({
+    init: function()
+    {
+        this.data = [];
+    },
+
+    addItem: function(item)
+    {
+        if(game.data.itemList[item].stackable)
+        {
+            var idx = this.findItem(item);
+            if(idx >= 0)
+            {
+                this.data[idx].stacks += 1;
+            }
+            else
+            {
+                this.data.push(new game.Item({item: item, stacks: 1, positionId: this.findLowestId(game.data.itemList[item].tags[0])}));
+            }
+        }
+        else
+        {
+            this.data.push(new game.Item({item: item, stacks: 1, positionId: this.findLowestId(game.data.itemList[item].tags[0])}));
+        }
+    },
+
+    addItemSlot: function(itemSlot)
+    {
+        this.data.push(itemSlot);
+    },
+
+    removeItemSlot: function(itemSlot)
+    {
+        var idx = this.data.indexOf(itemSlot);
+        if(idx >= 0)
+        {
+            this.data.splice(idx, 1);
+            return true;
+        }
+
+        return false;
+    },
+
+    findItem: function(item)
+    {
+        for(var i = 0; i < this.data.length; i++)
+        {
+            if(this.checkItemEqual(item, this.data[i]))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    },
+
+    findLowestId: function(tag)
+    {
+        var prev = -1;
+
+        for(var i = 0; i < this.data.length; i++)
+        {
+            if(this.data[i].getData().tags.includes(tag))
+            {
+                if(this.data[i].positionId > (prev + 1))
+                {
+                    return prev + 1;
+                }
+
+                prev = this.data[i].positionId;
+            }
+        }
+
+        return prev + 1;
+    },
+
+    checkItemEqual: function(a, b)
+    {
+        return (a == b.item);
+    },
+
+    getData: function(filters, keepPosition = true)
+    {
+        if(!(typeof filters !== 'undefined' && filters.length > 0))
+        {
+            return this.data;
+        }
+
+        var result = []
+
+        // Position Zero! (?)
+        var idPrev = -1;
+
+        for(var i = 0; i < this.data.length; i++)
+        {
+            for(var filter of filters)
+            {
+                if(this.data[i].getData().tags.includes(filter))
+                {
+                    if(keepPosition === true)
+                    {
+                        for(var j = 0; j < this.data[i].positionId - idPrev - 1; j++)
+                        {
+                            result.push(undefined);
+                        }
+                    }
+                    result.push(this.data[i]);
+                    idPrev = result.length - 1;
+                }
+            }
+        }
+
+        return result;
+    },
+
+    sortData: function()
+    {
+        this.data.sort(function(a, b){return a.positionId - b.positionId});
+    },
+})
+
+game.Item = game.ToolTipObject.extend
+({
+    init: function(settings)
+    {
+        this.item = settings.item;
+
+        // No need for those rubbish !
+        // this.idName = settings.idName || this.item || "unknown";
+        // this.showName = settings.showName || game.data.itemList[this.item].showName || "Unknown Object";
+        // this.toolTipText = settings.toolTipText || game.data.itemList[this.item].toolTipText || "It means nothing but some error occured when you saw this.";
+        // this.color = settings.color || game.data.itemList[this.item].color || "#ffffff";
+        
+        // this.level = settings.level || game.data.itemList[this.item].level || 1;
+        // this.stackable = settings.stackable || game.data.itemList[this.item].stackable || true;
+        // this.linkedClass = settings.linkedClass || game.data.itemList[this.item].linkedClass || undefined;
+        // this.tags = settings.tags || game.data.itemList[this.item].tags || [];
+        
+        // this.image = settings.image || game.data.itemList[this.item].image || "";
+        // this.width = settings.framewidth || settings.width || game.data.itemList[this.item].framewidth || 32;
+        // this.height = settings.frameheight || settings.height || game.data.itemList[this.item].frameheight || 32;
+        // this.rowCount = settings.rowCount || Math.floor(game.data.itemList[this.item].width / this.width) || 8;
+        // this.iconIdx = settings.iconIdx || game.data.itemList[this.item].iconIdx;
+
+        this.stacks = settings.stacks || 1;
+        this.positionId = settings.positionId || 0;
+
+        this.linkedObject = undefined;
+        this.equipper = undefined;
+
+        // If this item has a linked class
+        if(game.data.itemList[this.item].linkedClass !== "")
+        {
+            this.linkedObject = new this.funcFromString(game.data.itemList[this.item].linkedClass)({linkedItem: this});
+        } 
+    },
+
+    funcFromString: function(str)
+    {
+        var arr = str.split(".");
+
+        var fn = (window || this);
+        for (var i = 0, len = arr.length; i < len; i++) 
+        {
+            fn = fn[arr[i]];
+        }
+
+        if (typeof fn !== "function") 
+        {
+            throw new Error("function not found");
+        }
+
+        return fn.bind(fn.prototype);
+    },
+
+    getData: function()
+    {
+        return game.data.itemList[this.item];
+    },
+});
+
 game.Equipable = game.MobListener.extend
 ({
     init: function(settings)
@@ -1030,6 +1263,19 @@ game.Equipable = game.MobListener.extend
         this._super(game.MobListener, 'init', [settings])
 
         this.name = "undefined weapon";
+        this.linkedItem = settings.linkedItem || new game.Item({item: "unknownEquipment"});
+
+        this.image = this.linkedItem.getData().image;
+        this.iconIdx = this.linkedItem.getData().iconIdx;
+        this.color = this.linkedItem.getData().color;
+        this.level = this.linkedItem.getData().level;
+
+        if(!this.linkedItem.linkedObject)
+        {
+            this.linkedItem.linkedObject = this;
+        }
+
+        this.slots = [undefined, undefined, undefined];
 
         this.baseAttackSpeed = settings.baseAttackSpeed || 1.0;
         this.statRequirements = {
@@ -1089,6 +1335,30 @@ game.Equipable = game.MobListener.extend
     onStatCalculation: function(mob)
     {
 
+    },
+
+    isEquipable: function(mob)
+    {
+        var flag = true;
+        for(var i = 0; i < 3; i++)
+        {
+            if(this.slots[i])
+            {
+                flag = flag | this.slots[i].isEquipable(mob);
+            }
+        }
+        flag = flag | this.checkSelfEquipable(mob);
+        return flag;
+    },
+
+    checkSelfEquipable: function(mob)
+    {
+        return true;
+    },
+
+    getSlotType: function(slotId)
+    {
+        return "equipment";
     },
 });
 

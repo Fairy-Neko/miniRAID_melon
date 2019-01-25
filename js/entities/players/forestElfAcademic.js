@@ -379,6 +379,7 @@ game.Buff.Elf.MagicFountain = game.Buff.base.extend
     {
         mob.data.modifiers.resourceCost *= 1.0 + (0.8 * this.stacks);
         mob.data.modifiers.spellSpeed /= 1.0 + (0.5 * this.stacks);
+        mob.data.modifiers.attackSpeed /= 1.0 + (0.5 * this.stacks);
     },
 
     onDealDamage(damageInfo)

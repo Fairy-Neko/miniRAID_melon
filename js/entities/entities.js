@@ -21,7 +21,12 @@ game.playerSpawnPoint = me.Entity.extend
         }
 
         // debug
-        // wakeupMenu();
+        // Display the menu
+        document.getElementById("pause_menu").style.display = "flex";
+
+        // Set a "higher priority" pause
+        game.menu.wakeupMenu();
+        me.state.pause(true);
     },
 
     update: function(dt)
@@ -131,4 +136,192 @@ game.testIcyZone = me.Entity.extend({
 
         return false;
     }
+});
+
+//
+// ─── SCENE OBJECTS ──────────────────────────────────────────────────────────────
+//
+
+game.sceneObject = game.sceneObject || {};
+
+// Spawn some collectable objects when clicked
+game.sceneObject.clickCollect = me.Entity.extend
+({
+    init: function(x, y, settings)
+    {
+        settings.image = "SO_shinePoint";
+        settings.framewidth = 32;
+        settings.frameheight = 32;
+
+        this._super(me.Entity, 'init', [x, y, settings]);
+
+        this.isLocked = settings.isLocked || false;
+        this.keyType = settings.keyType || "None";
+        this.maxAmount = settings.maxAmount || 1;
+        this.minAmount = settings.minAmount || 0;
+        this.typeCount = settings.typeCount || 0;
+
+        this.spawnRange = settings.spawnRange || 30;
+
+        this.types = [];
+        this.totalWeight = 0.0;
+
+        // no types in settings
+        if(this.typeCount == 0)
+        {
+            this.types.push({name: "unknown", weight: 1.0});
+            this.totalWeight = 1.0;
+        }
+        // else read from settings
+        else
+        {
+            for(var i = 0; i < this.typeCount; i++)
+            {
+                this.types.push({
+                    name: settings['type' + i] || "unknown",
+                    weight: settings['weight' + i] || 1.0
+                });
+
+                this.totalWeight += settings['weight' + i] || 1.0;
+            }
+        }
+
+        this.renderable.addAnimation("idle", game.helper.genAnimFrames(0, 60), 16);
+        this.renderable.setCurrentAnimation("idle");
+
+        me.input.registerPointerEvent('pointerdown', this, this.pointerDown.bind(this));
+    },
+
+    pointerDown: function(pointer)
+    {
+        console.log("You clicked the scene object!");
+
+        var totalNum = Math.floor(Math.random() * (this.maxAmount - this.minAmount + 1)) + this.minAmount;
+        var spawnAngle = 0.0;
+
+        for(var i = 0; i < totalNum; i++)
+        {
+            var randomSeed = Math.random();
+            var randomSum = 0.0;
+            for(var type of this.types)
+            {
+                if(randomSeed < randomSum + (type.weight / this.totalWeight))
+                {
+                    // WHY IT (loot objects) CANNOT SHOW (RENDER) PROPERLY AFTER UPDATING CHROME 70.0????????????????????????????????????????????????????????????????
+                    // If we change mobs.js:425 from:
+                    // this.HPBar = me.game.world.addChild(new game.Utils.TestHPBar(0, -10, this), 100);
+                    // to
+                    // this.HPBar = me.game.world.addChild(new game.Utils.TestHPBar(0, -10, this));
+                    // Then the loot object would not show properly.
+                    // WHY?????
+
+                    // This type!
+                    console.log(game.data.itemList[type.name]);
+                    var loot = me.pool.pull("loot", this.pos.x + Math.cos(spawnAngle) * this.spawnRange, this.pos.y + Math.sin(spawnAngle) * this.spawnRange, {item: type.name});
+                    me.game.world.addChild(loot, 100);
+                    break;
+                }
+                else
+                {
+                    // Not this type.
+                    randomSum += type.weight / this.totalWeight;
+                }
+            }
+
+            spawnAngle += 2 * Math.PI / totalNum;
+        }
+
+        if(me.game.world.hasChild(this))
+        {
+            me.game.world.removeChild(this);
+        }
+
+        return false;
+    },
+});
+
+game.sceneObject.lootRenderable = me.Renderable.extend
+({
+    init: function(x, y, settings)
+    {
+        this.image = game.data.itemList[settings.item].image;
+        this.imagewidth = game.data.itemList[settings.item].width;
+        this.imageheight = game.data.itemList[settings.item].height;
+        this.framewidth = game.data.itemList[settings.item].framewidth;
+        this.frameheight = game.data.itemList[settings.item].frameheight;
+        this.imageGridCount = Math.floor(this.imagewidth / this.framewidth);
+        this.item = settings.item;
+
+        this._super(me.Renderable, 'init', [x, y, this.framewidth, this.frameheight]);
+    },
+
+    draw: function(context)
+    {
+        var color = context.getColor();
+
+        if(game.data.itemList[this.item].tint === true)
+        {
+            context.setColor(game.data.itemList[this.item].color);
+        }
+        else
+        {
+            context.setColor("#ffffff");
+        }
+
+        context.drawImage(
+            me.loader.getImage(this.image), 
+            game.data.itemList[this.item].iconIdx % this.imageGridCount * this.framewidth, //sx
+            Math.floor(game.data.itemList[this.item].iconIdx / this.imageGridCount) * this.frameheight, //sy
+            this.framewidth, //sw
+            this.frameheight, //sh
+            this.pos.x, this.pos.y, this.framewidth, this.frameheight // dx, dy, dw, dh
+        );
+
+        context.setColor(color);
+    },
+})
+
+game.sceneObject.loot = me.Entity.extend
+({
+    init: function(x, y, settings)
+    {
+        this.image = game.data.itemList[settings.item].image;
+        this.imagewidth = game.data.itemList[settings.item].width;
+        this.imageheight = game.data.itemList[settings.item].height;
+        this.framewidth = game.data.itemList[settings.item].framewidth;
+        this.frameheight = game.data.itemList[settings.item].frameheight;
+        this.imageGridCount = Math.floor(this.imagewidth / this.framewidth);
+
+        settings.image = this.image;
+        settings.width = this.framewidth;
+        settings.height = this.frameheight;
+
+        this._super(me.Entity, 'init', [x, y, settings]);
+
+        this.item = settings.item;
+        this.renderable.item = this.item;
+
+        // this.renderable.addAnimation("idle", [game.data.itemList[this.item].iconIdx]);
+        // this.renderable.setCurrentAnimation("idle");
+
+        me.input.registerPointerEvent('pointerdown', this, this.pointerDown.bind(this));
+
+        //TODO: Hover to show toolTip.
+
+        this.renderable = new game.sceneObject.lootRenderable(0, 0, settings);
+    },
+
+    pointerDown: function(pointer)
+    {
+        console.log(game.data.itemList[this.item]);
+
+        game.data.backend.inventory.addItem(this.item);
+        
+        if(me.game.world.hasChild(this))
+        {
+            me.game.world.removeChild(this);
+        }
+
+        return false;
+    },
 });

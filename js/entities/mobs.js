@@ -422,7 +422,7 @@ game.Mobs.base = game.Moveable.extend(
         this.attackCounter = 0;
 
         // Add a test HP bar for it
-        this.HPBar = me.game.world.addChild(new game.Utils.TestHPBar(0, -10, this));
+        this.HPBar = me.game.world.addChild(new game.Utils.TestHPBar(0, -10, this), 100);
 
         // Mob itself is also a listener.
         this.data.addListener(this);
@@ -487,6 +487,11 @@ game.Mobs.base = game.Moveable.extend(
         }
 
         return false;
+    },
+
+    getEquipableTags: function(equipmentType)
+    {
+        return ["equipment"];
     },
     
     // Will be called when a buff is going to affect the mob.
