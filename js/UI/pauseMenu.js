@@ -251,6 +251,9 @@ game.menu.wakeupMenu = function()
 
 game.menu.refreshEveryInventoryList = function()
 {
+    // Sort the inventory first
+    game.data.backend.inventory.sortData();
+
     // Team tab, character equipments
     var i = 0;
     for(var player of game.data.backend.playerList)
@@ -391,39 +394,39 @@ game.menu.refreshEveryInventoryList = function()
 game.menu.onClickInventoryBlock = function(icon)
 {
     console.log(icon.idString);
-    if(game.menu.hasItemSelected === true)
+
+    // Check if it works
+    // var srcArray = game.menu.floatingBlock.idString.split('-');
+    var dstArray = icon.idString.split('-');
+
+    var srcItem = game.menu.floatingBlock.item;
+    var dstItem = icon.item;
+
+    if(((game.menu.hasItemSelected === false) || this.placeItemToBlock(dstArray, srcItem, true)) && 
+        ((typeof icon.item === "undefined") || this.removeItemFromBlock(dstArray, dstItem, true)))
     {
-        var srcArray = game.menu.floatingBlock.idString.split('-');
-        var dstArray = icon.idString.split('-');
+        var refresh = (game.menu.hasItemSelected === true) || (typeof icon.item !== "undefined");
 
-        var srcItem = game.menu.floatingBlock.item;
-        var dstItem = icon.item;
-
-        if(this.copyItemToTarget(dstArray, srcArray, srcItem, true) && this.copyItemToTarget(srcArray, dstArray, dstItem, true))
+        if(game.menu.hasItemSelected === true)
         {
-            this.copyItemToTarget(srcArray, dstArray, dstItem);
-            this.copyItemToTarget(dstArray, srcArray, srcItem);
+            this.placeItemToBlock(dstArray, srcItem);
+
+            game.menu.floatingBlock.style.display = "none";
+            game.menu.hasItemSelected = false;
+
+            game.UIManager.enableToolTip();
+            game.UIManager.enableCursor();
         }
-        else
-        {
-            return;
-        }
-
-        game.menu.refreshEveryInventoryList();
-        game.menu.setCurrentCharacter(game.menu.currentCharacterIdx);
-
-        game.menu.floatingBlock.style.display = "none";
-        game.menu.hasItemSelected = false;
-
-        game.UIManager.enableToolTip();
-        game.UIManager.enableCursor();
-    }
-    else
-    {
+        
+        // Drop & Pick a new item at current block
+        // Although the real icon may has been replaced, variable icon itself still saves it's original state.
         if(icon.item)
         {
+            // Set picked block properties
             game.menu.floatingBlock.idString = icon.idString;
             game.menu.floatingBlock.item = icon.item;
+
+            console.log(game.menu.floatingBlock.item);
 
             game.menu.floatingBlock.style.setProperty('--image-url', icon.style.getPropertyValue('--image-url'));
             game.menu.floatingBlock.style.setProperty('--image-offsetX', icon.style.getPropertyValue('--image-offsetX'));
@@ -436,11 +439,55 @@ game.menu.onClickInventoryBlock = function(icon)
 
             game.menu.floatingBlock.style.display = "list-item";
             game.menu.hasItemSelected = true;
+
+            // Equipments will not be unequipped if they are no longer belongs to player
+            this.removeItemFromBlock(icon.idString.split('-'), icon.item);
+        }
+
+        if(refresh === true)
+        {
+            game.menu.refreshEveryInventoryList();
+            game.menu.setCurrentCharacter(game.menu.currentCharacterIdx);
         }
     }
 }
 
-game.menu.copyItemToTarget = function(targetIdArray, srcIdArray, item, isCheck = false)
+game.menu.removeItemFromBlock = function(srcIdArray, item, isCheck = false)
+{
+    if(!item)
+    {
+        return true;
+    }
+
+    // You are going to unequip a player!
+    if(srcIdArray[0] == 'p')
+    {
+        if(!item.linkedObject)
+        {
+            // ??? (This should not happen since you selected a equipped block which SHOULD has a linkedObject.)
+            return true;
+        }
+
+        if(isCheck === false)
+        {
+            game.menu.unequipFromIdArray(srcIdArray, item.linkedObject);
+            item.equipper = undefined;
+        }
+    }
+    else
+    {
+        if(isCheck === false)
+        {
+            // Remove the item from current grid and inventory
+            game.data.backend.inventory.removeItemSlot(item);
+        }
+    }
+
+    // You can always remove an item from a block ?
+    return true;
+}
+
+game.menu.placeItemToBlock = function(targetIdArray, item, isCheck = false)
 {
     var typeDict = {wMain: "weapon", wSub: "weapon", armor: "armor", acc: "accessory"};
     var propDict = {wMain: "currentWeapon", wSub: "anotherWeapon", armor: "armor", acc: "accessory"};
@@ -508,9 +555,7 @@ game.menu.copyItemToTarget = function(targetIdArray, srcIdArray, item, isCheck =
             }
 
             // Or edit the contents carefully.
-            // First unequip it from the original player
-            game.menu.unequipFromIdArray(srcIdArray);
-            // Then equip to the target player
+            // Equip to the target player
             player[prop] = item.linkedObject;
             item.equipper = player;
 
@@ -521,15 +566,6 @@ game.menu.copyItemToTarget = function(targetIdArray, srcIdArray, item, isCheck =
     }
     else
     {
-        // You are going to unequip a player!
-        if(srcIdArray[0] == 'p')
-        {
-            if(isCheck === false)
-            {
-                game.menu.unequipFromIdArray(srcIdArray);
-            }
-        }
-
         // Check equipment or item
         if((!item) ||
            (targetIdArray[0] === 'eq' && item.getData().tags.includes("equipment")) || 
@@ -547,7 +583,17 @@ game.menu.copyItemToTarget = function(targetIdArray, srcIdArray, item, isCheck =
             // ( A flower cannot equipped to the armor-main slot so nothing happens. )
             if(item)
             {
-                item.positionId = targetIdArray[1];
+                if(targetIdArray[1] === "lowest")
+                {
+                    console.log(item);
+                    item.positionId = game.data.backend.inventory.findLowestId(item.getData().tags[0]);
+                }
+                else
+                {
+                    item.positionId = parseInt(targetIdArray[1]);
+                }
+
+                game.data.backend.inventory.addItemSlot(item);
             }
 
             return true;
@@ -558,7 +604,7 @@ game.menu.copyItemToTarget = function(targetIdArray, srcIdArray, item, isCheck =
 }
 
 // TODO: move (part of) this to databackend.js ?
-game.menu.unequipFromIdArray = function(idArray)
+game.menu.unequipFromIdArray = function(idArray, obj)
 {
     var typeDict = {wMain: "weapon", wSub: "weapon", armor: "armor", acc: "accessory"};
     var propDict = {wMain: "currentWeapon", wSub: "anotherWeapon", armor: "armor", acc: "accessory"};
@@ -569,13 +615,19 @@ game.menu.unequipFromIdArray = function(idArray)
         if(idArray[3] > 0)
         {
             // Unequip it
-            game.data.backend.playerList[idArray[1]][propDict[idArray[2]]].slots[idArray[3]] = undefined;
+            if(game.data.backend.playerList[idArray[1]][propDict[idArray[2]]].slots[idArray[3]] == obj)
+            {
+                game.data.backend.playerList[idArray[1]][propDict[idArray[2]]].slots[idArray[3]] = undefined;
+            }
         }
         // Equipment itself
         else
         {
             // Unequip it
-            game.data.backend.playerList[idArray[1]][propDict[idArray[2]]] = undefined;
+            if(game.data.backend.playerList[idArray[1]][propDict[idArray[2]]] == obj)
+            {
+                game.data.backend.playerList[idArray[1]][propDict[idArray[2]]] = undefined;
+            }
         }
     }
 }
@@ -595,7 +647,7 @@ game.menu.fillInventoryPanel = function(panel, filters, prefix = "", relative = 
         }
     }
 
-    var itemList = game.data.backend.inventory.getData(filters);
+    var itemList = game.data.backend.inventory.getData(filters, !relative);
     idx = 0;
 
     // TODO: FIXME: change .data to methods
@@ -631,6 +683,14 @@ game.menu.fillInventoryPanel = function(panel, filters, prefix = "", relative = 
             
             panel.appendChild(itemIcon);
         }
+    }
+    else
+    {
+        var itemIcon = document.createElement("li");
+        var idstr = prefix + "-lowest";
+        this.fillInventoryBlock(itemIcon, undefined, idstr);
+        
+        panel.appendChild(itemIcon);
     }
 }
 

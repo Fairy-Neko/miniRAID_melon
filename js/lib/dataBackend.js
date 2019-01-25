@@ -1073,7 +1073,7 @@ game.MobListener = game.ToolTipObject.extend
 
 // TODO:
 // Sort inventory & keep positionId
-// Don't show equipped items as an avilable equipment (if not multi-equippable, such as flowers for florafairies)
+// Don't show equipped items as an aviliable equipment (if not multi-equippable, such as flowers for florafairies)
 game.dataBackend.Inventory = me.Object.extend
 ({
     init: function()
@@ -1092,13 +1092,30 @@ game.dataBackend.Inventory = me.Object.extend
             }
             else
             {
-                this.data.push(new game.Item({item: item, stacks: 1}));
+                this.data.push(new game.Item({item: item, stacks: 1, positionId: this.findLowestId(game.data.itemList[item].tags[0])}));
             }
         }
         else
         {
-            this.data.push(new game.Item({item: item, stacks: 1}));
+            this.data.push(new game.Item({item: item, stacks: 1, positionId: this.findLowestId(game.data.itemList[item].tags[0])}));
         }
+    },
+
+    addItemSlot: function(itemSlot)
+    {
+        this.data.push(itemSlot);
+    },
+
+    removeItemSlot: function(itemSlot)
+    {
+        var idx = this.data.indexOf(itemSlot);
+        if(idx >= 0)
+        {
+            this.data.splice(idx, 1);
+            return true;
+        }
+
+        return false;
     },
 
     findItem: function(item)
@@ -1114,12 +1131,32 @@ game.dataBackend.Inventory = me.Object.extend
         return -1;
     },
 
+    findLowestId: function(tag)
+    {
+        var prev = -1;
+
+        for(var i = 0; i < this.data.length; i++)
+        {
+            if(this.data[i].getData().tags.includes(tag))
+            {
+                if(this.data[i].positionId > (prev + 1))
+                {
+                    return prev + 1;
+                }
+
+                prev = this.data[i].positionId;
+            }
+        }
+
+        return prev + 1;
+    },
+
     checkItemEqual: function(a, b)
     {
         return (a == b.item);
     },
 
-    getData: function(filters)
+    getData: function(filters, keepPosition = true)
     {
         if(!(typeof filters !== 'undefined' && filters.length > 0))
         {
@@ -1128,19 +1165,35 @@ game.dataBackend.Inventory = me.Object.extend
 
         var result = []
 
+        // Position Zero! (?)
+        var idPrev = -1;
+
         for(var i = 0; i < this.data.length; i++)
         {
             for(var filter of filters)
             {
                 if(this.data[i].getData().tags.includes(filter))
                 {
-                    result.push(this.data[i])
+                    if(keepPosition === true)
+                    {
+                        for(var j = 0; j < this.data[i].positionId - idPrev - 1; j++)
+                        {
+                            result.push(undefined);
+                        }
+                    }
+                    result.push(this.data[i]);
+                    idPrev = result.length - 1;
                 }
             }
         }
 
         return result;
-    }
+    },
+
+    sortData: function()
+    {
+        this.data.sort(function(a, b){return a.positionId - b.positionId});
+    },
 })
 
 game.Item = game.ToolTipObject.extend
@@ -1211,6 +1264,16 @@ game.Equipable = game.MobListener.extend
 
         this.name = "undefined weapon";
         this.linkedItem = settings.linkedItem || new game.Item({item: "unknownEquipment"});
+
+        this.image = this.linkedItem.getData().image;
+        this.iconIdx = this.linkedItem.getData().iconIdx;
+        this.color = this.linkedItem.getData().color;
+        this.level = this.linkedItem.getData().level;
+
+        if(!this.linkedItem.linkedObject)
+        {
+            this.linkedItem.linkedObject = this;
+        }
 
         this.slots = [undefined, undefined, undefined];
 

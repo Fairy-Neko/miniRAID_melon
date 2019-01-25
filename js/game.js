@@ -21,6 +21,9 @@ var game = {
         width : 1024,
         height : 576,
 
+        // TODO: Change to 768 x 432 (To fit a 200% scale on a common 1080P screen)
+        // Also need rewrite the HTML UI...... JEZZ > <
+
         playerSparse: 12,
         playerSparseInc: 2,
         playerMax: 8,
@@ -134,7 +137,7 @@ var game = {
             return;
         }
 
-        me.video.setMaxSize(1024, 768);
+        me.video.setMaxSize(1024, 576);
 
         // add "#debug" to the URL to enable the debug Panel
         if (me.game.HASH.debug === true) 
@@ -186,6 +189,8 @@ var game = {
         this.data.backend = new game.dataBackend();
         this.data.monitor = new game.dataBackend.BattleMonitor();
 
+        this.data.backend.inventory.addItem("testShield");
+
         // var playerType = [1, 1, 5];
         // var playerType = [2, 1, 4];
         var playerType = [2, 2, 4];
@@ -194,24 +199,13 @@ var game = {
         // Tank
         for(var i = 0; i < playerType[0]; i++)
         {
+            var shield = new game.Item({item: "testShield"});
+            var staff = new game.Item({item: "testFireStaff"});
+
             var tank = new game.dataBackend.Mob({name: "(T) girl " + i, 
-                weaponLeft: new game.Weapon.TestStaff
-                ({
-                    baseAttackSpeed: game.helper.getRandomFloat(0.2, 0.3),
-                    activeRange: game.helper.getRandomInt(40, 60),
-                    targetCount: 1,
-                    power: 2,
-                    manaCost: 1,
-                }), 
-                
-                weaponRight: new game.Weapon.TestShield
-                ({
-                    baseAttackSpeed: game.helper.getRandomFloat(0.2, 0.3),
-                    activeRange: game.helper.getRandomInt(40, 60),
-                    targetCount: 1,
-                    power: 2,
-                    manaCost: 1,
-                }), isPlayer: true, health: 120, str: 5, vit: 3, 
+                weaponLeft: staff.linkedObject, 
+                weaponRight: shield.linkedObject, 
+                isPlayer: true, health: 120, str: 5, vit: 3, 
                 race: "精灵 / 湖精灵", class: "枪术卫士", 
                 mobPrototype: game.PlayerMobs.ForestElfGuardian, image: "tank_girl2",});
 
@@ -233,18 +227,14 @@ var game = {
             //         manaCost: 15,
             //     }), isPlayer: true, health: 60, mobPrototype: game.PlayerMobs.test, image: "healer_girl2"}));
 
+            var lamp = new game.Item({item: "chibiFairyLamp"});
+            var staff = new game.Item({item: "testHealStaff"});
+
             this.data.backend.addPlayer(
                 new game.dataBackend.Mob({
                     name: "(H) fairy " + i, 
-                    weaponLeft: new game.Weapon.ChibiFairyLamp({}), 
-                    weaponRight: new game.Weapon.TestHealStaff(
-                        {
-                            baseAttackSpeed: game.helper.getRandomFloat(1.0, 1.3),
-                            activeRange: game.helper.getRandomInt(150, 175),
-                            targetCount: 1,
-                            power: 15,
-                            manaCost: 15,
-                        }),
+                    weaponLeft: lamp.linkedObject, 
+                    weaponRight: staff.linkedObject,
                     isPlayer: true, health: 60, vit: 3, mag: 5, int: 2, 
                     race: "精灵 / 妖精", class: "花香精灵", 
                     mobPrototype: game.PlayerMobs.FloraFairy}));
@@ -254,19 +244,16 @@ var game = {
         for(var i = 0; i < playerType[2]; i++)
         {
             var choice = Math.random();
+
+            var staff = new game.Item({item: "testIceStaff"});
+            var lamp = new game.Item({item: "chibiFairyLamp"});
+
             // choice = 0; // force spawn ranged DPS
             if(choice < 0.5)
             {
                 this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, 
-                    weaponLeft: new game.Weapon.DPSHomingStaff(
-                        {
-                            baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
-                            activeRange: game.helper.getRandomInt(200, 240),
-                            targetCount: 3,
-                            power: 7,
-                            manaCost: 2,
-                        }),
-                    weaponRight: new game.Weapon.ChibiFairyLamp({}),
+                    weaponLeft: staff.linkedObject,
+                    weaponRight: lamp.linkedObject,
                     isPlayer: true, health: 65, vit: 2, int: 5, 
                     race: "人类 / 魔法师", class: "霜火术士", 
                     mobPrototype: game.PlayerMobs.HumanMageIceFire, image: "magical_girl2"}));
@@ -274,15 +261,8 @@ var game = {
             else
             {
                 this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) elf girl (R) " + i, 
-                    weaponLeft: new game.Weapon.DPSHomingStaff(
-                        {
-                            baseAttackSpeed: game.helper.getRandomFloat(0.6, 1.2),
-                            activeRange: game.helper.getRandomInt(200, 240),
-                            targetCount: 3,
-                            power: 7,
-                            manaCost: 2,
-                        }),
-                    weaponRight: new game.Weapon.ChibiFairyLamp({}),
+                    weaponLeft: staff.linkedObject,
+                    weaponRight: lamp.linkedObject,
                     isPlayer: true, health: 65, vit: 2, int: 5, 
                     race: "精灵 / 星精灵", class: "学者", 
                     mobPrototype: game.PlayerMobs.ForestElfAcademic, image: "magical_girl2"}));
