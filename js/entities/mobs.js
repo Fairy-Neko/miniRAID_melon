@@ -389,6 +389,7 @@ game.Mobs.base = game.Moveable.extend(
 
         // Initialize the backend data.
         this.data = settings.backendData || new game.dataBackend.Mob(settings);
+        this.data.parentMob = this;
         
         // Check if this is a player and set proper body collision types.
         if(settings.isPlayer === true)
@@ -402,6 +403,7 @@ game.Mobs.base = game.Moveable.extend(
             game.units.addEnemy(this);
         }
 
+        this.isPlayer = settings.isPlayer;
         this.alwaysUpdate = true;
         this.body.gravity = 0;
 
@@ -426,6 +428,19 @@ game.Mobs.base = game.Moveable.extend(
 
         // Mob itself is also a listener.
         this.data.addListener(this);
+    },
+
+    onDeactivateEvent: function()
+    {
+        // Remove itself from unit list
+        if(this.isPlayer === true)
+        {
+            game.units.removePlayer(this);
+        }
+        else
+        {
+            game.units.removeEnemy(this);
+        }
     },
 
     updateMoveable: function(dt)
@@ -557,18 +572,24 @@ game.Mobs.base = game.Moveable.extend(
      * spell:           the spell used at this attack
      * popUp (true):    Should this damage popup a text ?
      */
-    receiveDamage: function(damageInfo)
+    receiveDamage: function(_damageInfo)
     {
         if(game.Mobs.checkAlive(this) == false)
         {
             return false;
         }
 
-        damageInfo.target = this;
-        damageInfo.damage = damageInfo.damage || {};
-        damageInfo.popUp = damageInfo.popUp || true;
-        damageInfo.isCrit = damageInfo.isCrit || false;
-        damageInfo.isAvoid = damageInfo.isAvoid || false;
+        damageInfo = {}
+        damageInfo.target = this.data;
+        if(_damageInfo.source)
+        {
+            damageInfo.source = _damageInfo.source.data;
+        }
+        damageInfo.spell = _damageInfo.spell;
+        damageInfo.damage = _damageInfo.damage || {};
+        damageInfo.popUp = _damageInfo.popUp || true;
+        damageInfo.isCrit = _damageInfo.isCrit || false;
+        damageInfo.isAvoid = _damageInfo.isAvoid || false;
 
         // The actual damage calculate and event trigger moved into backend
         // If mob dead finally, this.data.alive will become false
@@ -651,7 +672,7 @@ game.Mobs.base = game.Moveable.extend(
      * spell:           the spell used at this attack
      * popUp (true):    Should this heal popup a text ?
      */
-    receiveHeal: function(healInfo)
+    receiveHeal: function(_healInfo)
     {
         if(game.Mobs.checkAlive(this) == false)
         {
@@ -659,11 +680,17 @@ game.Mobs.base = game.Moveable.extend(
         }
 
         // Same as above
-        healInfo.heal = {total: healInfo.heal, real: healInfo.heal, over: 0};
-        healInfo.target = this;
-        healInfo.heal = healInfo.heal || 0;
-        healInfo.popUp = healInfo.popUp || true;
-        healInfo.isCrit = healInfo.isCrit || false;
+        healInfo = {}
+
+        healInfo.heal = {total: _healInfo.heal, real: _healInfo.heal, over: 0};
+        if(_healInfo.source)
+        {
+            healInfo.source = _healInfo.source.data;
+        }
+        healInfo.target = this.data;
+        healInfo.spell = _healInfo.spell;
+        healInfo.popUp = _healInfo.popUp || true;
+        healInfo.isCrit = _healInfo.isCrit || false;
 
         this.data.receiveHeal(healInfo);
 
@@ -991,23 +1018,23 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         // Use iteration instead of sort to save a O(logN) time.
         // Don't know if this will slower than obj -> array -> sort() cuz javascript vs native...
         // But we need update the list though
-        for(var tmpTargetMob of this.focusList)
+        for(var tmpTargetMobData of this.focusList)
         {
             // Taunt reduces over time
-            this.tauntList[tmpTargetMob.data.ID].taunt *= 0.99;
+            this.tauntList[tmpTargetMobData.ID].taunt *= 0.99;
 
             // Remove the mob if it is dead or it has no taunt
-            if(!game.Mobs.checkAlive(tmpTargetMob) || this.tauntList[tmpTargetMob.data.ID].taunt <= 1 /*a small enough value*/ )
+            if(!game.Mobs.checkAlive(tmpTargetMobData.parentMob) || this.tauntList[tmpTargetMobData.ID].taunt <= 1 /*a small enough value*/ )
             {
-                this.focusList.delete(tmpTargetMob);
-                delete this.tauntList[tmpTargetMob.data.ID];
+                this.focusList.delete(tmpTargetMobData);
+                delete this.tauntList[tmpTargetMobData.ID];
             }
             else
             {
-                if(this.tauntList[tmpTargetMob.data.ID].taunt > maxValue)
+                if(this.tauntList[tmpTargetMobData.ID].taunt > maxValue)
                 {
-                    maxValue = this.tauntList[tmpTargetMob.data.ID].taunt;
-                    nextTarget = tmpTargetMob;
+                    maxValue = this.tauntList[tmpTargetMobData.ID].taunt;
+                    nextTarget = tmpTargetMobData.parentMob;
                 }
             }
         }
@@ -1057,9 +1084,9 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         taunt,
     })
     {
-        if(!this.focusList.has(source))
+        if(!this.focusList.has(source.data))
         {
-            this.focusList.add(source);
+            this.focusList.add(source.data);
             this.tauntList[source.data.ID] = {taunt: 0};
         }
 
@@ -1082,8 +1109,13 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         // Add the damage source in to our focus list,
         if(!this.focusList.has(source))
         {
+            if(source.data)
+            {
+                console.log('!');
+            }
+
             this.focusList.add(source);
-            this.tauntList[source.data.ID] = {taunt: 0};
+            this.tauntList[source.ID] = {taunt: 0};
         }
 
         var damageTotal = 0;
@@ -1093,7 +1125,7 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         }
 
         // and create the taunt of that target based on damage
-        this.tauntList[source.data.ID].taunt += damageTotal * source.data.tauntMul;
+        this.tauntList[source.ID].taunt += damageTotal * source.tauntMul;
 
         // We do not change the values
         return false;
@@ -1104,12 +1136,17 @@ game.MobAgent.TauntBased = game.MobAgent.base.extend
         // Add the healing source in to our focus list,
         if(!this.focusList.has(source))
         {
+            if(source.data)
+            {
+                console.log('!');
+            }
+
             this.focusList.add(source);
-            this.tauntList[source.data.ID] = {taunt: 0};
+            this.tauntList[source.ID] = {taunt: 0};
         }
 
         // and create the taunt of that target based on healing
-        this.tauntList[source.data.ID].taunt += (heal.real + heal.over) * source.data.tauntMul * game.data.healTaunt;
+        this.tauntList[source.ID].taunt += (heal.real + heal.over) * source.tauntMul * game.data.healTaunt;
     },
 
     onDeath()

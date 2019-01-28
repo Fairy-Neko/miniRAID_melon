@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="32" tileheight="32" infinite="0" nextobjectid="53">
+ <tileset firstgid="1" name="ground_tiles" tilewidth="32" tileheight="32" tilecount="441" columns="21">
+  <image source="../img/ground_tiles.png" width="672" height="701"/>
+ </tileset>
+ <tileset firstgid="442" name="object-layer" tilewidth="32" tileheight="32" tilecount="84" columns="14">
+  <image source="../../../boilerplate/data/img/object- layer.png" width="477" height="219"/>
+ </tileset>
+ <layer name="ground" width="30" height="17">
+  <data encoding="csv">
+44,44,44,44,44,44,44,45,45,44,45,44,44,65,65,65,65,66,66,66,45,44,45,44,45,44,45,44,45,44,
+44,45,45,45,45,45,45,45,66,65,66,65,65,65,66,45,45,45,66,65,66,65,66,65,66,65,66,65,73,74,
+44,44,44,45,66,66,66,66,45,44,45,44,65,66,66,66,66,66,45,44,45,44,45,44,45,44,44,45,94,95,
+44,65,65,66,45,175,176,176,176,176,176,176,176,176,176,176,176,176,176,176,176,176,176,176,177,44,65,66,66,65,
+65,66,44,45,45,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,45,44,
+66,65,44,45,66,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,66,65,
+45,44,44,44,45,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,45,44,
+66,65,44,45,45,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,66,65,
+45,44,44,44,45,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,45,44,
+260,261,65,44,45,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,66,65,
+281,282,44,45,45,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,45,44,
+302,303,44,45,45,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,91,92,
+45,44,44,45,45,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,112,129,
+66,65,65,66,45,196,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,197,198,44,65,66,112,129,
+45,44,65,66,66,217,218,218,218,218,218,218,218,218,218,220,197,221,218,218,218,218,218,218,219,65,65,66,112,129,
+66,65,66,65,66,65,66,65,66,65,66,65,66,65,66,196,197,198,66,65,66,65,66,65,66,65,91,92,137,115,
+45,44,45,44,45,44,45,44,45,44,45,44,45,44,45,196,197,198,45,44,45,44,45,91,92,92,115,134,134,95
+</data>
+ </layer>
+ <layer name="objects" width="30" height="17">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,468,468,468,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup name="entities">
+  <object id="19" name="playerSpawnPoint" x="510.833" y="410.667" width="32" height="32">
+   <properties>
+    <property name="spawnCount" type="int" value="8"/>
+   </properties>
+  </object>
+  <object id="20" name="testMob" x="208.833" y="341" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="22" name="testMob" x="217.5" y="173" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="23" name="testMob" x="238.166" y="223.334" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="24" name="testMob" x="691.5" y="213.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="25" name="testMob" x="192.833" y="231" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="26" name="testMob" x="235.5" y="149" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="27" name="testMob" x="707.5" y="127" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="28" name="testMob" x="239.833" y="285.001" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="29" name="testMob" x="684.5" y="181.334" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="30" name="testMob" x="730.166" y="340.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="31" name="testMob" x="698.166" y="257.001" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="32" name="testMob" x="217.833" y="266.334" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="33" name="testMob" x="715.166" y="180" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="34" name="testMob" x="739.5" y="289.334" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="35" name="testMob" x="691.499" y="292.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="36" name="testMob" x="207.166" y="158" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="37" name="testMob" x="244.5" y="386.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="38" name="testMob" x="244.167" y="346" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="39" name="testMob" x="702.833" y="393.334" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="40" name="testMob" x="197.833" y="294.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="41" name="testMob" x="219.5" y="404" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="42" name="testMob" x="698.167" y="340.667" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="43" name="testMob" x="727.833" y="197.333" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="44" name="testMob" x="680.833" y="424" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="45" name="testMob" x="720.833" y="420" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="46" name="testMob" x="225.166" y="294.334" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="47" name="testMob" x="730.5" y="248.334" width="32" height="32">
+   <properties>
+    <property name="framewidth" type="int" value="32"/>
+    <property name="image" value="gripe_run_right"/>
+    <property name="vit" type="float" value="10"/>
+   </properties>
+  </object>
+  <object id="52" name="levelLoader" x="476.833" y="519.667" width="101" height="37">
+   <properties>
+    <property name="duration" type="float" value="500"/>
+    <property name="fade" type="color" value="#ff000000"/>
+    <property name="to" value="playground"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="collision">
+  <object id="1" x="-12.25" y="-14.75" width="1039.5" height="21"/>
+  <object id="2" x="-23.25" y="-46.25" width="28.5" height="611"/>
+  <object id="3" x="-85.25" y="540.25" width="1140" height="30"/>
+  <object id="4" x="957.25" y="-57.25" width="51" height="680.5"/>
+ </objectgroup>
+</map>

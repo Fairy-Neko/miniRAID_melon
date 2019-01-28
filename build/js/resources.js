@@ -1,5 +1,10 @@
 game.resources = [
     {
+        "name": "battleResource",
+        "type": "image",
+        "src": "data/img/battleResource.png"
+    },
+    {
         "name": "Cliff_tileset",
         "type": "image",
         "src": "data/img/Cliff_tileset.png"
@@ -218,6 +223,11 @@ game.resources = [
         "name": "playground",
         "type": "tmx",
         "src": "data/map/playground.tmx"
+    },
+    {
+        "name": "playground2",
+        "type": "tmx",
+        "src": "data/map/playground2.tmx"
     },
     {
         "name": "testmap",

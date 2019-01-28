@@ -80,13 +80,13 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
             sortMethod: game.Mobs.UnitManager.sortByHealthPercentage,
             availableTest: function(a)
             {
-                return (a.getRenderPos(0.5, 0.5).distance(damageInfo.target.getRenderPos(0.5, 0.5)) < 128);
+                return (a.getRenderPos(0.5, 0.5).distance(damageInfo.target.parentMob.getRenderPos(0.5, 0.5)) < 128);
             },
-            isPlayer: !damageInfo.target.data.isPlayer,
+            isPlayer: !damageInfo.target.isPlayer,
         });
 
         var spellDummy = new game.Spell.dummy({
-            source: damageInfo.source, 
+            source: damageInfo.source.parentMob, 
             name: "Flora fairy: energy pass",
             flags: {
                 isHeal: true,
@@ -105,7 +105,7 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
             healAmount -= targetHealAmount;
 
             healList[i].receiveHeal({
-                source: damageInfo.source,
+                source: damageInfo.source.parentMob,
                 heal: targetHealAmount,
                 spell: spellDummy,
             });
@@ -126,7 +126,7 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
             var healAmount = Math.ceil(healInfo.heal.total * 0.3);
 
             // TODO: add a HOT effect to target
-            healInfo.target.receiveBuff({
+            healInfo.target.parentMob.receiveBuff({
                 source: this,
                 buff: new game.Buff.LifeRegen({
                     time: 16.0,

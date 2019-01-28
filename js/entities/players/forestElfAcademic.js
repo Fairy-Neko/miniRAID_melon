@@ -1,3 +1,5 @@
+// Abandoned
+
 game.PlayerMobs.ForestElfAcademic = game.PlayerMobs.base.extend
 ({
     init: function(x, y, settings)
@@ -285,7 +287,7 @@ game.Buff.Elf.MagicRing.FireFireFire = game.Buff.base.extend
             this.magicTypes.push(this.currentType);
 
             // Add Magic Fountain to mob
-            mob.receiveBuff({
+            mob.parentMob.receiveBuff({
                 source: mob,
                 buff: new game.Buff.Elf.MagicFountain({}),
                 popUp: true,

@@ -666,18 +666,18 @@ game.dataBackend.Mob = me.Object.extend
         if(!damageInfo.isCrit)
         {
             damageInfo.isCrit = (100 * Math.random()) < (
-                damageInfo.source.data.getPercentage(damageInfo.source.data.battleStats.crit) - 
-                damageInfo.target.data.getPercentage(damageInfo.target.data.battleStats.antiCrit));
+                damageInfo.source.getPercentage(damageInfo.source.battleStats.crit) - 
+                damageInfo.target.getPercentage(damageInfo.target.battleStats.antiCrit));
 
             damageInfo.isAvoid = (100 * Math.random()) > (
-                damageInfo.source.data.getPercentage(damageInfo.source.data.battleStats.hitAcc) - 
-                damageInfo.target.data.getPercentage(damageInfo.target.data.battleStats.avoid));
+                damageInfo.source.getPercentage(damageInfo.source.battleStats.hitAcc) - 
+                damageInfo.target.getPercentage(damageInfo.target.battleStats.avoid));
         }
 
         this.updateListeners(damageInfo.target, 'onReceiveDamage', damageInfo);
         if (damageInfo.source)
         {
-            damageInfo.source.data.updateListeners(damageInfo.source, 'onDealDamage', damageInfo);
+            damageInfo.source.updateListeners(damageInfo.source, 'onDealDamage', damageInfo);
         }
         game.units.boardcast('onFocusReceiveDamage', damageInfo.target, damageInfo);
         game.units.boardcast('onFocusDealDamage', damageInfo.source, damageInfo);
@@ -703,8 +703,8 @@ game.dataBackend.Mob = me.Object.extend
                     damageInfo.damage[dmgType] * 
                     (Math.pow(
                         1.0353,
-                        damageInfo.source.data.battleStats.attackPower[game.data.damageType[dmgType]] +
-                        damageInfo.source.data.battleStats.attackPower[dmgType])));
+                        damageInfo.source.battleStats.attackPower[game.data.damageType[dmgType]] +
+                        damageInfo.source.battleStats.attackPower[dmgType])));
             }
 
             // damage% = 0.9659 ^ resist
@@ -730,7 +730,7 @@ game.dataBackend.Mob = me.Object.extend
         this.updateListeners(damageInfo.target, 'onReceiveDamageFinal', damageInfo);
         if(damageInfo.source)
         {
-            damageInfo.source.data.updateListeners(damageInfo.source, 'onDealDamageFinal', damageInfo);
+            damageInfo.source.updateListeners(damageInfo.source, 'onDealDamageFinal', damageInfo);
         }
         game.units.boardcast('onFocusReceiveDamageFinal', damageInfo.target, damageInfo);
         game.units.boardcast('onFocusDealDamageFinal', damageInfo.source, damageInfo);
@@ -748,7 +748,7 @@ game.dataBackend.Mob = me.Object.extend
                 this.updateListeners(damageInfo.target, 'onDeath', damageInfo);
                 if(damageInfo.source)
                 {
-                    damageInfo.source.data.updateListeners(damageInfo.source, 'onKill', damageInfo);
+                    damageInfo.source.updateListeners(damageInfo.source, 'onKill', damageInfo);
                 }
                 game.units.boardcast('onFocusDeath', damageInfo.target, damageInfo);
                 game.units.boardcast('onFocusKill', damageInfo.source, damageInfo);
@@ -772,15 +772,15 @@ game.dataBackend.Mob = me.Object.extend
         if(!healInfo.isCrit)
         {
             healInfo.isCrit = (100 * Math.random()) < (
-                healInfo.source.data.getPercentage(healInfo.source.data.battleStats.crit) - 
-                healInfo.target.data.getPercentage(healInfo.target.data.battleStats.antiCrit));
+                healInfo.source.getPercentage(healInfo.source.battleStats.crit) - 
+                healInfo.target.getPercentage(healInfo.target.battleStats.antiCrit));
         }
 
         // Let everyone know what is happening
         this.updateListeners(healInfo.target, 'onReceiveHeal', healInfo);
         if(healInfo.source)
         {
-            healInfo.source.data.updateListeners(healInfo.source, 'onDealHeal', healInfo);
+            healInfo.source.updateListeners(healInfo.source, 'onDealHeal', healInfo);
         }
         game.units.boardcast('onFocusReceiveHeal', healInfo.target, healInfo);
         game.units.boardcast('onFocusDealHeal', healInfo.source, healInfo);
@@ -795,7 +795,7 @@ game.dataBackend.Mob = me.Object.extend
                 healInfo.heal.total * 
                 (Math.pow(
                     1.0353,
-                    healInfo.source.data.battleStats.attackPower.heal)));
+                    healInfo.source.battleStats.attackPower.heal)));
         }
 
         // damage% = 0.9659 ^ resist
@@ -813,14 +813,14 @@ game.dataBackend.Mob = me.Object.extend
         );
 
         // calculate overHealing using current HP and max HP.
-        healInfo.heal.real = Math.min(healInfo.target.data.maxHealth - healInfo.target.data.currentHealth, healInfo.heal.total);
+        healInfo.heal.real = Math.min(healInfo.target.maxHealth - healInfo.target.currentHealth, healInfo.heal.total);
         healInfo.heal.over = healInfo.heal.total - healInfo.heal.real;
 
         // Let buffs and agents know what is happening
         this.updateListeners(healInfo.target, 'onReceiveHealFinal', healInfo);
         if(healInfo.source)
         {
-            healInfo.source.data.updateListeners(healInfo.source, 'onDealHealFinal', healInfo);
+            healInfo.source.updateListeners(healInfo.source, 'onDealHealFinal', healInfo);
         }
         game.units.boardcast('onFocusReceiveHealFinal', healInfo.target, healInfo);
         game.units.boardcast('onFocusDealHealFinal', healInfo.source, healInfo);
@@ -1416,10 +1416,10 @@ game.dataBackend.BattleMonitor = me.Object.extend
     addDamage: function(damage, dmgType, source, target, isCrit, spell)
     {
         if(source){
-            if(source.data.isPlayer === true)
+            if(source.isPlayer === true)
             {
                 // Create a dict if it does not exist
-                this.damageDict[source.data.name] = this.damageDict[source.data.name] || 
+                this.damageDict[source.name] = this.damageDict[source.name] || 
                 {
                     totalDamage: 0,
                     normalDamage: 0,
@@ -1430,22 +1430,22 @@ game.dataBackend.BattleMonitor = me.Object.extend
                     player: source,
                 };
 
-                this.damageDict[source.data.name].totalDamage += damage;
+                this.damageDict[source.name].totalDamage += damage;
 
                 if(isCrit === true)
                 {
-                    this.damageDict[source.data.name].critDamage += damage;
+                    this.damageDict[source.name].critDamage += damage;
                 }
                 else
                 {
-                    this.damageDict[source.data.name].normalDamage += damage;
+                    this.damageDict[source.name].normalDamage += damage;
                 }
 
                 //Category: spell
                 if(typeof spell !== "undefined")
                 {
-                    this.damageDict[source.data.name].spellDict[spell.name] = this.damageDict[source.data.name].spellDict[spell.name] || 0;
-                    this.damageDict[source.data.name].spellDict[spell.name] += damage;
+                    this.damageDict[source.name].spellDict[spell.name] = this.damageDict[source.name].spellDict[spell.name] || 0;
+                    this.damageDict[source.name].spellDict[spell.name] += damage;
                 }
             }
         }
@@ -1453,10 +1453,10 @@ game.dataBackend.BattleMonitor = me.Object.extend
 
     addHeal: function(realHeal, overHeal, source, taret, isCrit, spell)
     {
-        if(source.data.isPlayer === true)
+        if(source.isPlayer === true)
         {
             // Create a dict if it does not exist
-            this.healDict[source.data.name] = this.healDict[source.data.name] || 
+            this.healDict[source.name] = this.healDict[source.name] || 
             {
                 totalHeal: 0,
                 realHeal: 0,
@@ -1467,17 +1467,17 @@ game.dataBackend.BattleMonitor = me.Object.extend
                 player: source,
             };
 
-            this.healDict[source.data.name].totalHeal += realHeal + overHeal;
-            this.healDict[source.data.name].realHeal += realHeal;
-            this.healDict[source.data.name].overHeal += overHeal;
+            this.healDict[source.name].totalHeal += realHeal + overHeal;
+            this.healDict[source.name].realHeal += realHeal;
+            this.healDict[source.name].overHeal += overHeal;
 
             //Category: spell
             if(typeof spell !== "undefined")
             {
-                this.healDict[source.data.name].spellDict[spell.name] = this.healDict[source.data.name].spellDict[spell.name] || { totalHeal: 0, realHeal: 0, overHeal: 0 };
-                this.healDict[source.data.name].spellDict[spell.name].totalHeal += realHeal + overHeal;
-                this.healDict[source.data.name].spellDict[spell.name].realHeal += realHeal;
-                this.healDict[source.data.name].spellDict[spell.name].overHeal += overHeal;
+                this.healDict[source.name].spellDict[spell.name] = this.healDict[source.name].spellDict[spell.name] || { totalHeal: 0, realHeal: 0, overHeal: 0 };
+                this.healDict[source.name].spellDict[spell.name].totalHeal += realHeal + overHeal;
+                this.healDict[source.name].spellDict[spell.name].realHeal += realHeal;
+                this.healDict[source.name].spellDict[spell.name].overHeal += overHeal;
             }
         }
     },

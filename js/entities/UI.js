@@ -350,7 +350,7 @@ game.UI.BattleMonitor = me.Renderable.extend
         for(var i = 0; i < dataList.length; i++)
         {
             context.setColor('#ffffff');
-            this.font.draw(context, dataList[i].player.data.name + ": " + dataList[i].number.toLocaleString(), this.pos.x + 2, this.pos.y + 12 * i + 14);
+            this.font.draw(context, dataList[i].player.name + ": " + dataList[i].number.toLocaleString(), this.pos.x + 2, this.pos.y + 12 * i + 14);
 
             var pxOffset = 0, sliceLength = 0;
             for(var j = 0; j < dataList[i].slices.length; j++)
@@ -383,10 +383,10 @@ game.UI.raidFrame = me.Renderable.extend
         this.title = settings.title || "raid";
 
         // size of each grid (inner size, without outline)
-        this.gridWidth = settings.gridWidth || 127;
-        this.gridHeight = settings.gridHeight || 43;
+        this.gridWidth = settings.gridWidth || 100;
+        this.gridHeight = settings.gridHeight || 32;
 
-        this.gapHeight = settings.gapHeight || 25;
+        this.gapHeight = settings.gapHeight || 18;
         // calculated outlined size (single-sided outline)
         this.outlinedGridWidth = this.gridWidth + 1;
         this.outlinedGridHeight = this.gridHeight + this.gapHeight + 2;
@@ -396,10 +396,10 @@ game.UI.raidFrame = me.Renderable.extend
 
         // buffs pivot position
         this.buffsPivotX = settings.buffsPivotX || -1;
-        this.buffsPivotY = settings.buffsPivotY || 45;
+        this.buffsPivotY = settings.buffsPivotY || 34;
 
         // size of the buff (without outline)
-        this.buffIconSize = settings.buffIconSize || 16;
+        this.buffIconSize = settings.buffIconSize || 12;
         this.outlinedIconSize = this.buffIconSize + 2;
 
         this.font = {};
@@ -498,15 +498,15 @@ game.UI.raidFrame = me.Renderable.extend
                 {
                     // TODO: Custom spell cast bar color
                     context.setColor('#6d6d6d');
-                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth, 3)
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 10, this.gridWidth, 1)
 
                     context.setColor('#ff91d8');
-                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, 
-                        (1 - this.dataList[i].castRemain / this.dataList[i].castTime) * (this.gridWidth), 3);
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 10, 
+                        (1 - this.dataList[i].castRemain / this.dataList[i].castTime) * (this.gridWidth), 1);
                     
                     context.setColor('#ffffff');
                     this.font.set("right");
-                    this.font.draw(context, this.dataList[i].currentSpell.name, this.pos.x + this.gridWidth, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 20);
+                    this.font.draw(context, this.dataList[i].currentSpell.name, this.pos.x + this.gridWidth, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 18);
                     this.font.set("left");
                 }
 
@@ -514,15 +514,15 @@ game.UI.raidFrame = me.Renderable.extend
                 {
                     // TODO: Custom spell cast bar color
                     context.setColor('#6d6d6d');
-                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, this.gridWidth, 3)
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 10, this.gridWidth, 1)
 
                     context.setColor('#dcff96');
-                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 12, 
-                        (this.dataList[i].channelRemain / this.dataList[i].channelTime) * (this.gridWidth), 3);
+                    context.fillRect(this.pos.x + 1, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 10, 
+                        (this.dataList[i].channelRemain / this.dataList[i].channelTime) * (this.gridWidth), 1);
                     
                     context.setColor('#ffffff');
                     this.font.set("right");
-                    this.font.draw(context, this.dataList[i].currentSpell.name, this.pos.x + this.gridWidth, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 20);
+                    this.font.draw(context, this.dataList[i].currentSpell.name, this.pos.x + this.gridWidth, this.pos.y + this.outlinedGridHeight * i + this.gridHeight - 18);
                     this.font.set("left");
                 }
 
@@ -604,8 +604,8 @@ game.UI.raidFrame = me.Renderable.extend
                     this.font.draw(
                         context,
                         buff.stacks,
-                        tmpBuffPivotX + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 2, 
-                        tmpBuffPivotY + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 10);
+                        tmpBuffPivotX + this.outlinedIconSize * (buffNum % this.buffsPerRow) + 3, 
+                        tmpBuffPivotY + this.outlinedIconSize * Math.floor(buffNum / this.buffsPerRow) + 6);
 
                     buffNum++;
                 }
@@ -623,13 +623,13 @@ game.UI.raidFrame = me.Renderable.extend
             context.setColor('#ffffff');
             
             // Show a part of player name (should be full name after testing)
-            this.font.draw(context, this.dataList[i].name, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 16);
+            this.font.draw(context, this.dataList[i].name, this.pos.x + 3, this.pos.y + this.outlinedGridHeight * i + 2);
 
             // Player HP
-            this.font.draw(context, this.dataList[i].currentHealth + "/" + this.dataList[i].maxHealth, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 23);
+            this.font.draw(context, this.dataList[i].currentHealth + "/" + this.dataList[i].maxHealth, this.pos.x + 3, this.pos.y + this.outlinedGridHeight * i + 14);
 
             // Player Mana
-            this.font.draw(context, Math.round(this.dataList[i].currentMana) + "/" + this.dataList[i].maxMana, this.pos.x + 2, this.pos.y + this.outlinedGridHeight * i + 35);
+            this.font.draw(context, Math.round(this.dataList[i].currentMana) + "/" + this.dataList[i].maxMana, this.pos.x + 3, this.pos.y + this.outlinedGridHeight * i + 25);
             
         }
 
@@ -770,11 +770,11 @@ game.UI.unitFrameSlots = me.Container.extend
         {
             var settings = {};
             settings.id = i;
-            this.slots[settings.id] = new game.UI.slot(12, 70 * i + 29, settings);
+            this.slots[settings.id] = new game.UI.slot(12, 52 * i + 28, settings);
             this.addChild(this.slots[settings.id]);
 
             this.addChild(new game.UI.WeaponIcons({id: i}));
-            this.addChild(new game.UI.WeaponSwitchButton(193, 70 * i + 29 + 14, {id: i}));
+            this.addChild(new game.UI.WeaponSwitchButton(168, 52 * i + 20 + 14, {id: i}));
         }
     }
 });
@@ -840,9 +840,9 @@ game.UI.WeaponIcons = me.Renderable.extend
         this.weaponIconSize = settings.iconSize || 32;
         this.weaponIconGap = settings.iconGap || 20;
 
-        this.pivotX = settings.pivotX || 150;
-        this.pivotY = settings.pivotY || 26;
-        this.multiplierY = settings.multiplierY || 70;
+        this.pivotX = settings.pivotX || 125;
+        this.pivotY = settings.pivotY || 20;
+        this.multiplierY = settings.multiplierY || 52;
 
         this.imageSize = settings.imageSize || 512;
         this.imageGrid = settings.imageGrid || 32;

@@ -20,13 +20,15 @@ game.playerSpawnPoint = me.Entity.extend
             game.data.backend.getPlayerList()[i].parentMob = me.game.world.addChild(new settings.backendData.mobPrototype(spawnPos.x, spawnPos.y, settings), settings.z);
         }
 
+        me.game.world.addChild(new game.Utils.logicalEntity({}));
+
         // debug
         // Display the menu
-        document.getElementById("pause_menu").style.display = "flex";
+        // document.getElementById("pause_menu").style.display = "flex";
 
         // Set a "higher priority" pause
-        game.menu.wakeupMenu();
-        me.state.pause(true);
+        // game.menu.wakeupMenu();
+        // me.state.pause(true);
     },
 
     update: function(dt)
@@ -34,6 +36,87 @@ game.playerSpawnPoint = me.Entity.extend
         me.game.world.removeChild(this);
         return true;
     },
+});
+
+game.levelLoader = me.Entity.extend(
+/** @scope me.LevelEntity.prototype */
+{
+    /** @ignore */
+    init : function (x, y, settings) {
+        this._super(me.Entity, "init", [x, y, settings]);
+
+        this.nextlevel = settings.to;
+
+        this.fade = settings.fade;
+        this.duration = settings.duration;
+        this.fading = false;
+
+        this.name = "levelEntity";
+
+        // a temp variable
+        this.gotolevel = settings.to;
+
+        // Collect the defined level settings
+        this.loadLevelSettings = {};
+        [ "container", "onLoaded", "flatten", "setViewportBounds" ].forEach(function (v) {
+            if (typeof(settings[v]) !== "undefined") {
+                this.loadLevelSettings[v] = settings[v];
+            }
+        }.bind(this));
+
+        this.body.collisionType = me.collision.types.ACTION_OBJECT;
+    },
+
+    /**
+     * @ignore
+     */
+        getlevelSettings : function () {
+            // Lookup for the container instance
+            if (typeof(this.loadLevelSettings.container) === "string") {
+                this.loadLevelSettings.container = me.game.world.getChildByName(this.loadLevelSettings.container)[0];
+            }
+            return this.loadLevelSettings;
+        },
+
+    /**
+     * @ignore
+     */
+    onFadeComplete : function () {
+
+        me.levelDirector.loadLevel(this.gotolevel, this.getlevelSettings());
+        me.game.viewport.fadeOut(this.fade, this.duration);
+    },
+
+    /**
+     * go to the specified level
+     * @name goTo
+     * @memberOf me.LevelEntity
+     * @function
+     * @param {String} [level=this.nextlevel] name of the level to load
+     * @protected
+     */
+    goTo : function (level) {
+        this.gotolevel = level || this.nextlevel;
+        // load a level
+        //console.log("going to : ", to);
+        if (this.fade && this.duration) {
+            if (!this.fading) {
+                this.fading = true;
+                me.game.viewport.fadeIn(this.fade, this.duration,
+                        this.onFadeComplete.bind(this));
+            }
+        } else {
+            me.levelDirector.loadLevel(this.gotolevel, this.getlevelSettings());
+        }
+    },
+
+    /** @ignore */
+    onCollision : function () {
+        if (this.name === "levelEntity") {
+            this.goTo.apply(this);
+        }
+        return false;
+    }
 });
 
 game.Utils = game.Utils || {};
@@ -89,6 +172,10 @@ game.Utils.TestHPBar = me.Entity.extend
     update: function(dt)
     {
         this.percentage = this.mob.data.currentHealth / this.mob.data.maxHealth;
+        if(isNaN(this.percentage))
+        {
+            console.log("!")
+        }
 
         this.pos = this.mob.getRenderPos(0.5, 0.0).clone().add(this.relativePos);
 

@@ -1,0 +1,11 @@
+Refactoring code to fit the changes:
+
+Before - damageInfo & healInfo contains data.parentMob as target / source
+After - damageInfo & healInfo contains data (dataBackend) itself as target / source
+
+dataBackend: any background data
+** Stop casting and clear any casting action when entering new scene
+
+? Delete ghost backend data & keep focus list clean for mobs ?
+
+player.targetTriangle: "the child is not mine" when removing from me.game.world

@@ -34,6 +34,9 @@ game.PlayerMobs.base = game.Mobs.base.extend
     {
         this.data.inControl = false;
 
+        // TODO: this could cause a bug. Why ?
+        // Although its ok to delete it, but it seems related to an important hidden issue.
+        // The player entity is not the player on the screen when throwing an error. Why?
         me.game.world.removeChild(this.targetTriangle);
         return true;
     },

@@ -18,11 +18,13 @@ var game = {
 
         // pixel per unit and screen size
         ppu : 1,
-        width : 1024,
-        height : 576,
+        width : 960,
+        height : 540,
 
         // TODO: Change to 768 x 432 (To fit a 200% scale on a common 1080P screen)
-        // Also need rewrite the HTML UI...... JEZZ > <
+        // 960 x 540 -> 32 x 32 grids -> 30 x 16.875 grids
+        // Also need rewrite the HTML UI & UI frame...... JEZZ > <
+        // TODO: auto-fitting to nearest pixel perfect resolution when enabling full-screen
 
         playerSparse: 12,
         playerSparseInc: 2,
@@ -137,7 +139,7 @@ var game = {
             return;
         }
 
-        me.video.setMaxSize(1024, 576);
+        me.video.setMaxSize(game.data.width, game.data.height);
 
         // add "#debug" to the URL to enable the debug Panel
         if (me.game.HASH.debug === true) 
@@ -158,6 +160,8 @@ var game = {
 
     // Run on game resources loaded.
     "loaded" : function () {
+        console.log("Loaded func()")
+
         me.state.set(me.state.MENU, new game.TitleScreen());
         me.state.set(me.state.PLAY, new game.PlayScreen());
 
@@ -166,6 +170,7 @@ var game = {
         me.pool.register("testBoss", game.Mobs.TestBoss);
         me.pool.register("testIcyZone", game.testIcyZone);
         me.pool.register("playerSpawnPoint", game.playerSpawnPoint);
+        me.pool.register("levelLoader", game.levelLoader);
         me.pool.register("clickCollect", game.sceneObject.clickCollect);
         // me.pool.register("loot", game.sceneObject.clickCollect);
         me.pool.register("loot", game.sceneObject.loot);
@@ -248,25 +253,12 @@ var game = {
             var staff = new game.Item({item: "testIceStaff"});
             var lamp = new game.Item({item: "chibiFairyLamp"});
 
-            // choice = 0; // force spawn ranged DPS
-            if(choice < 0.5)
-            {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, 
-                    weaponLeft: staff.linkedObject,
-                    weaponRight: lamp.linkedObject,
-                    isPlayer: true, health: 65, vit: 2, int: 5, 
-                    race: "人类 / 魔法师", class: "霜火术士", 
-                    mobPrototype: game.PlayerMobs.HumanMageIceFire, image: "magical_girl2"}));
-            }
-            else
-            {
-                this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) elf girl (R) " + i, 
-                    weaponLeft: staff.linkedObject,
-                    weaponRight: lamp.linkedObject,
-                    isPlayer: true, health: 65, vit: 2, int: 5, 
-                    race: "精灵 / 星精灵", class: "学者", 
-                    mobPrototype: game.PlayerMobs.ForestElfAcademic, image: "magical_girl2"}));
-            }
+            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, 
+                weaponLeft: staff.linkedObject,
+                weaponRight: lamp.linkedObject,
+                isPlayer: true, health: 65, vit: 2, int: 5, 
+                race: "人类 / 魔法师", class: "霜火术士", 
+                mobPrototype: game.PlayerMobs.HumanMageIceFire, image: "magical_girl2"}));
         }
 
         // Init the menu

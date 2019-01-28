@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>melonJS Boilerplate</title>
+    <title>miniRAID</title>
     <link rel="stylesheet" type="text/css" media="screen" href="index.css">
     <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -57,6 +57,28 @@
 
 <body oncontextmenu="return false;">
     <script async></script>
+    <div id="toggleFullScreen">
+        <script>
+            function canvasFullScreen()
+            {
+                if(typeof me == "undefined")
+                {
+                    return;
+                }
+
+                var tmp_canvas = me.video.renderer.getCanvas()
+                if(tmp_canvas.webkitRequestFullScreen)
+                {
+                    tmp_canvas.webkitRequestFullScreen();
+                }
+                else
+                {
+                    tmp_canvas.mozRequestFullScreen();
+                }
+            }
+        </script>
+        <button onclick="canvasFullScreen()">Switch to full screen</button>
+    </div>
     <!-- Canvas placeholder -->
     <div id="screen">
         <!-- canvas will be here -->

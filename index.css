@@ -81,13 +81,13 @@ body
     right: 0; */
 
     /* disable scaling interpolation */
-    image-rendering: optimizeSpeed;
+    /* image-rendering: optimizeSpeed;
     image-rendering: -moz-crisp-edges;
     image-rendering: -o-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: optimize-contrast;
     image-rendering: pixelated;
-    -ms-image-interpolate: nearest-neighbor;
+    -ms-image-interpolate: nearest-neighbor; */
 }
 
 #screen #UI
