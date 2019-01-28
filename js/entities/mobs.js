@@ -441,6 +441,8 @@ game.Mobs.base = game.Moveable.extend(
         {
             game.units.removeEnemy(this);
         }
+
+        this.data.removeListener(this);        
     },
 
     updateMoveable: function(dt)

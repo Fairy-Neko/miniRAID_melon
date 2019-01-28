@@ -245,8 +245,8 @@
   </object>
   <object id="52" name="levelLoader" x="476.833" y="519.667" width="101" height="37">
    <properties>
-    <property name="duration" type="float" value="500"/>
-    <property name="fade" type="color" value="#ff000000"/>
+    <property name="duration" type="float" value="200"/>
+    <property name="fade" value="#000000"/>
     <property name="to" value="playground"/>
    </properties>
   </object>

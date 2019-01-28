@@ -7,5 +7,9 @@ dataBackend: any background data
 ** Stop casting and clear any casting action when entering new scene
 
 ? Delete ghost backend data & keep focus list clean for mobs ?
+- 2 type of ghosts:
+- Mob itself as a ghost mobListener - solved by remove from listener list in mob dtor.
+- Other mobs as a ghost mob in the focus list - solved by clear ghosts in focus list every update.
+- Any other ghosts?
 
 player.targetTriangle: "the child is not mine" when removing from me.game.world

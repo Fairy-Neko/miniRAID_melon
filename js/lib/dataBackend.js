@@ -983,6 +983,17 @@ game.MobListener = game.ToolTipObject.extend
         this.enabled = true;
     },
 
+    update: function(dt)
+    {
+        for(let mob in this.focusList)
+        {
+            if(!game.Mobs.checkExist(mob))
+            {
+                this.focusList.delete(mob);
+            }
+        }
+    },
+
     // N.B.
     // In javascript, parameters were passed via "call-by-sharing".
     // In this case, if you change the parameter itself in a function, it will not make sense;

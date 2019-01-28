@@ -4,6 +4,7 @@ game.PlayScreen = me.ScreenObject.extend({
      */
     onResetEvent: function() 
     {
+        me.game.viewport.fadeIn("#000", 1);
         // me.game.world.autoDepth = false;
         // me.game.world.autoSort = false;
 
@@ -13,10 +14,28 @@ game.PlayScreen = me.ScreenObject.extend({
         // Add our HUD to the game world, add it last so that this is on top of the rest.
         // Can also be forced by specifying a "Infinity" z value to the addChild function.
         this.UI = new game.UI.Container();
-        me.game.world.addChild(this.UI, 10000);
+        me.game.world.addChild(this.UI, 1000);
 
         // load a level
-        me.levelDirector.loadLevel("playground");
+        // a small trick to load the level again after finish loading
+        // directly load the level will cause some z-order related issues (many things disappeared)
+        // really annoying. Fortunately, re-load it after a small delay solves it.
+        // served with a fade-out fx to prevent artifacts 
+        opt = {};
+        opt.onLoaded = function(){
+            console.log("loaded");
+            
+            optopt = {}
+            optopt.onLoaded = function()
+            {
+                me.game.viewport.fadeOut("#000", 500);
+            }
+
+            me.timer.setTimeout(function(){
+                me.levelDirector.loadLevel("playground", optopt);
+            }, 1, false);
+        };
+        me.levelDirector.loadLevel("playground", opt);
     },
 
     /**
