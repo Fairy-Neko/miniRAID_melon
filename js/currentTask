@@ -13,3 +13,5 @@ dataBackend: any background data
 - Any other ghosts?
 
 player.targetTriangle: "the child is not mine" when removing from me.game.world
+
+TODO: Localization (Chinese, English)

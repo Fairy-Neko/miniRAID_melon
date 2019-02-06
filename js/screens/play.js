@@ -33,7 +33,7 @@ game.PlayScreen = me.ScreenObject.extend({
 
             me.timer.setTimeout(function(){
                 me.levelDirector.loadLevel("playground", optopt);
-            }, 1, false);
+            }, 300, false);
         };
         me.levelDirector.loadLevel("playground", opt);
     },

@@ -221,6 +221,11 @@ game.dataBackend.Mob = me.Object.extend
         this.armor = settings.armor;// || new game.Armor(settings);
         this.accessory = settings.accessory;// || new game.Accessory(settings);
 
+        if (this.weaponLeft) { this.weaponLeft.equipper = this; }
+        if (this.weaponRight) { this.weaponRight.equipper = this; }
+        if (this.armor) { this.armor.equipper = this; }
+        if (this.accessory) { this.accessory.equipper = this; }
+
         this.currentWeapon = this.weaponLeft;
         this.anotherWeapon = this.weaponRight;
 
@@ -1239,8 +1244,9 @@ game.Item = game.ToolTipObject.extend
         // If this item has a linked class
         if(game.data.itemList[this.item].linkedClass !== "")
         {
-            this.linkedObject = new this.funcFromString(game.data.itemList[this.item].linkedClass)({linkedItem: this});
-        } 
+            foo = this.funcFromString(game.data.itemList[this.item].linkedClass);
+            this.linkedObject = new foo({linkedItem: this});
+        }
     },
 
     funcFromString: function(str)
@@ -1258,12 +1264,29 @@ game.Item = game.ToolTipObject.extend
             throw new Error("function not found");
         }
 
-        return fn.bind(fn.prototype);
+        // return fn.bind(fn.prototype); // <- WTF this will not create a new object but modify the prototype
+        return fn;
     },
 
     getData: function()
     {
         return game.data.itemList[this.item];
+    },
+
+    showToolTip: function()
+    {
+        if(this.linkedObject && this.linkedObject.showToolTip)
+        {
+            this.linkedObject.showToolTip()
+        }
+        else
+        {
+            game.UIManager.showToolTip({
+                title: this.getData().showName,
+                bodyText: this.getData().toolTipText,
+                titleColor: this.getData().color,
+            });
+        }
     },
 });
 
@@ -1281,6 +1304,8 @@ game.Equipable = game.MobListener.extend
         this.color = this.linkedItem.getData().color;
         this.level = this.linkedItem.getData().level;
 
+        this.equipper = undefined;
+
         if(!this.linkedItem.linkedObject)
         {
             this.linkedItem.linkedObject = this;
@@ -1288,7 +1313,7 @@ game.Equipable = game.MobListener.extend
 
         this.slots = [undefined, undefined, undefined];
 
-        this.baseAttackSpeed = settings.baseAttackSpeed || 1.0;
+        this.baseAttackSpeed = settings.baseAttackSpeed || 0.2;
         this.statRequirements = {
             vit: 0,
             str: 0,

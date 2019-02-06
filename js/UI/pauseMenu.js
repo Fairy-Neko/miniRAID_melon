@@ -558,6 +558,7 @@ game.menu.placeItemToBlock = function(targetIdArray, item, isCheck = false)
             // Equip to the target player
             player[prop] = item.linkedObject;
             item.equipper = player;
+            item.linkedObject.equipper = player;
 
             return true;
         }
@@ -741,11 +742,12 @@ game.menu.fillInventoryBlock = function(itemIcon, item, id)
         // Show tool tip when hover
         itemIcon.onmouseover = function() 
         {
-            game.UIManager.showToolTip({
-                title: this.item.getData().showName,
-                bodyText: this.item.getData().toolTipText,
-                titleColor: this.item.getData().color,
-            });
+            this.item.showToolTip();
+            // game.UIManager.showToolTip({
+            //     title: this.item.getData().showName,
+            //     bodyText: this.item.getData().toolTipText,
+            //     titleColor: this.item.getData().color,
+            // });
         };
 
         itemIcon.onmouseout = function()

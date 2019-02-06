@@ -79,6 +79,18 @@
         </script>
         <button onclick="canvasFullScreen()">Switch to full screen</button>
     </div>
+
+    <!-- draggable items -->
+    <div id="draggableItem" class="followmouse">
+        <li class="show_image inventory_block"></li>
+    </div>
+
+    <!-- Tool tip -->
+    <div id="tooltip" class="followmouse">
+        <h1 id="title">测试</h1>
+        <p id="body">测试</p>
+    </div>
+
     <!-- Canvas placeholder -->
     <div id="screen">
         <!-- canvas will be here -->
@@ -701,27 +713,16 @@
                 </div>
             </div>
 
-            <!-- draggable items -->
-            <div id="draggableItem" class="followmouse">
-                <li class="show_image inventory_block"></li>
-            </div>
-
-            <!-- Tool tip -->
-            <div id="tooltip" class="followmouse">
-                <h1 id="title">测试</h1>
-                <p id="body">测试</p>
-            </div>
-
             <!-- pointermove events -->
             <script>
                 var _ui_tt = document.getElementById("tooltip");
                 var _ui_di = document.getElementById("draggableItem");
                 var _ui_parent = document.getElementById("UI");
-                document.getElementById("screen").addEventListener("pointermove", function (e) {
-                    _ui_tt.style.left = e.clientX - _ui_parent.getBoundingClientRect().x + 'px';
-                    _ui_tt.style.top = e.clientY - _ui_parent.getBoundingClientRect().y + 'px';
-                    _ui_di.style.left = e.clientX - _ui_parent.getBoundingClientRect().x + 'px';
-                    _ui_di.style.top = e.clientY - _ui_parent.getBoundingClientRect().y + 'px';
+                document.addEventListener("pointermove", function (e) {
+                    _ui_tt.style.left = e.pageX + 'px';
+                    _ui_tt.style.top = e.pageY + 'px';
+                    _ui_di.style.left = e.pageX + 'px';
+                    _ui_di.style.top = e.pageY + 'px';
                 }, true);
             </script>
         </div>

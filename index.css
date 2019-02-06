@@ -712,6 +712,9 @@ tr.space
 {
     position: absolute;
     pointer-events: none;
+    max-width: 256px;
+
+    z-index: 10000;
 }
 
 #tooltip
@@ -739,4 +742,45 @@ tr.space
     font-size: 12px;
     margin-bottom: 15px;
     font-weight: normal;
+}
+
+#tooltip div
+{
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+#tooltip div:last-child
+{
+    margin: 0;
+}
+
+#tooltip p span
+{
+    /* white-space: nowrap; */
+}
+
+#tooltip p span:first-child
+{
+    margin-right: 3em;
+}
+
+#tooltip strong
+{
+    font-weight: normal;
+}
+
+#tooltip div p
+{
+    margin-top: 3px;
+    margin-bottom: 3px;
+    line-height: 120%;
+    display: flex;
+    justify-content: space-between;
+}
+
+#tooltip div p.rightAligned
+{
+    width: 100%;
+    text-align: right;
 }

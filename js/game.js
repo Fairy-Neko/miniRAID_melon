@@ -74,13 +74,23 @@ var game = {
             slash: "斩击",  
             knock: "打击",  
             pierce: "突刺",  
-            fire: "火",
-            ice: "冰",
+            fire: "火焰",
+            ice: "冰霜",
             water: "水",
             nature: "自然",
             wind: "风",
             thunder: "雷",
             light: "光",
+            heal: "治疗",
+        },
+
+        statChs: {
+            vit: "体格",
+            mag: "魔力",
+            str: "力量",
+            int: "智力",
+            dex: "敏捷",
+            tec: "技巧",
         },
 
         critMultiplier: {
@@ -111,6 +121,40 @@ var game = {
             staff: "staff",
             instrument: "instrument",
         },
+
+        ItemPClassChs: {
+            item: "道具",
+            plant: "植物",
+            dailyObj: "生活用品",
+
+            sword: "剑",
+            lance: "枪",
+            shield: "盾",
+            heavy: "重武器",
+            bow: "弓",
+            conceal: "暗器",
+
+            book: "魔导书",
+            magicItem: "魔法道具",
+            mystery: "神秘道具",
+            staff: "法杖",
+            instrument: "乐器",
+        },
+
+        ItemSClassChs: {
+            // plant
+            flowerGrass: "草花",
+            
+            // dailyObj
+            toys: "玩具",
+
+            //instrument
+            flute: "笛",
+            harp: "竖琴",
+        },
+
+        rarityChs: ["垃圾", "普通", "优秀", "精良", "我编不出来了", "之后再补吧"],
+        rarityColor: ["#888", "#fff", "#3f3", "#33f", "#fb3", "#faa"],
 
         weaponSubType: {
             common: "common",

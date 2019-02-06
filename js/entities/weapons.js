@@ -9,7 +9,7 @@ game.Weapon.base = game.Equipable.extend
         // Weapon gauge full = special attack !
         this.weaponGauge = 0;
         this.weaponGaugeMax = 100;
-        this.weaponGaugeIncreasement = function(mob, target){ return 1; };
+        this.weaponGaugeIncreasement = function(mob){ return 1; };
 
         this.activeRange = settings.activeRange || 200;
         this.targetCount = settings.targetCount || 1;
@@ -19,6 +19,12 @@ game.Weapon.base = game.Equipable.extend
 
         this.weaponType = game.data.weaponType.staff;
         this.weaponSubType = game.data.weaponType.common;
+
+        // stats
+        this.baseAttackMin = 4;
+        this.baseAttackMax = 6;
+        this.energyType = "1x 魔力";
+        this.damageType = 'nature';
     },
 
     attack: function(mob, target) 
@@ -74,6 +80,248 @@ game.Weapon.base = game.Equipable.extend
     {
 
     },
+
+    getDamageRange: function(mobData)
+    {
+        if(!mobData)
+        {
+            return {modified: false, value: [this.baseAttackMin, this.baseAttackMax]};
+        }
+
+        modified = false;
+        pwrCorrect = 1.0;
+        pwrCorrect *= Math.pow(
+            1.0353, 
+            mobData.battleStats.attackPower[game.data.damageType[this.damageType]] + mobData.battleStats.attackPower[this.damageType]);
+        
+        if(pwrCorrect > 1.01 || pwrCorrect < 0.99)
+        {
+            modified = true;
+        }
+
+        return {modified: modified, value: [this.baseAttackMin * pwrCorrect, this.baseAttackMax * pwrCorrect]};
+    },
+
+    getAttackTime: function(mobData)
+    {
+        if(!mobData)
+        {
+            return {modified: false, value: this.baseAttackSpeed};
+        }
+
+        modified = false;
+        mobSpd = (1 / mobData.modifiers.speed) * (1 / mobData.modifiers.attackSpeed);
+        if(mobSpd < 0.99 || mobSpd > 1.01)
+        {
+            modified = true;
+        }
+        
+        return {modified: modified, value: mobSpd * this.baseAttackSpeed};
+    },
+
+    getAttackRange: function(mobData)
+    {
+        if(!mobData)
+        {
+            return {modified: false, value: this.activeRange};
+        }
+
+        modified = false;
+        if(mobData.battleStats.attackRange > 0)
+        {
+            modified = true;
+        }
+        
+        return {modified: modified, value: mobData.battleStats.attackRange + this.activeRange};
+    },
+
+    getResourceCost: function(mobData)
+    {
+        if(!mobData)
+        {
+            return {modified: false, value: this.manaCost};
+        }
+
+        modified = false;
+        if(mobData.modifiers.resourceCost < 0.99 || mobData.modifiers.resourceCost > 1.01)
+        {
+            modified = true;
+        }
+        
+        return {modified: modified, value: mobData.modifiers.resourceCost * this.manaCost};
+    },
+
+    getBaseAttackDesc: function(mobData)
+    {
+
+    },
+
+    getSpecialAttackDesc: function(mobData)
+    {
+
+    },
+
+    showToolTip: function()
+    {
+        // Weapon properties:
+        // Item Level - Rarity / Primary class - Sub class
+        // Attack power (type) / Attack time (DPS)
+        // Attack range
+        // Energy statement 0 / Max value (Energy type)
+
+        // Equip requirement
+
+        // Weapon special properties (if any)
+
+        // Base attack      cost / (Cost per sec)
+        // base attack description
+
+        // Special attack   energy cost
+        // Special attack description
+
+        // Weapon description (italic)
+
+        ttBody = "";
+        
+        //
+        // ─── BASIC PROPERTIES ────────────────────────────────────────────
+        //
+          
+        ttBody += "<div>"
+
+            // Item Level - Rarity
+            ttBody += "<p><span style='display:flex'>" + 
+                "<strong style=\"width:4.5em; color:" + game.data.rarityColor[this.linkedItem.getData().rarity] +
+                "\">" + game.data.rarityChs[this.linkedItem.getData().rarity] + "</strong>" +
+                "阶级" + this.linkedItem.getData().level + " </span>";
+
+            // Primary class - Sub class
+            ttBody += "<span>" + game.data.ItemPClassChs[this.linkedItem.getData().pClass];
+            if(this.linkedItem.getData().sClass !== "")
+            {
+                ttBody += " - " + game.data.ItemSClassChs[this.linkedItem.getData().sClass];
+            }
+            ttBody += "</span></p>"
+            
+            // Attack power (type)
+            attackType = this.damageType;
+
+            ttBody += "<p><span>";
+            
+            dmgR = this.getDamageRange(this.equipper);
+            console.log(dmgR);
+            if(dmgR.modified)
+            {
+                ttBody += 
+                    "攻击伤害<strong style = \"color: aqua\"> " + 
+                    dmgR.value[0].toFixed(1) + " - " + dmgR.value[1].toFixed(1) + " </strong><strong style=\"color:" + game.data.damageColor[attackType] + "\"> " + 
+                    game.data.damageTypeString[attackType] + " </strong></span>";
+            }
+            else
+            {
+                ttBody += 
+                    "攻击伤害<strong style = \"color: " + game.data.damageColor[attackType] + "\"> " + 
+                    dmgR.value[0].toFixed(1) + " - " + dmgR.value[1].toFixed(1) + " " + 
+                    game.data.damageTypeString[attackType] + " </strong></span>";
+            }
+            
+            // Attack time
+            atkTime = this.getAttackTime(this.equipper);
+            if(atkTime.modified){ ttBody += "<span><strong style='color:aqua'>" + atkTime.value.toFixed(1) + "</strong> 秒</span></p>"; }
+            else                { ttBody += "<span>" + atkTime.value.toFixed(1) + " 秒</span></p>"; }
+            
+            dpsR = [dmgR.value[0] / atkTime.value, dmgR.value[1] / atkTime.value];
+            ttBody += "<p>每秒伤害 " + dpsR[0].toFixed(1) + " - " + dpsR[1].toFixed(1) + "</p>";
+
+            // Attack range
+            actRange = this.getAttackRange(this.equipper);
+            if (actRange.modified)  { ttBody += "<p>攻击距离 <strong style='color:aqua'>" + actRange.value.toFixed(0) + "</strong> px</p>"; }
+            else                    { ttBody += "<p>攻击距离 " + actRange.value.toFixed(0) + " px</p>"; }
+
+            // Energy statement
+            if(this.equipper)
+            {
+                ttBody += "<p><span>武器能量 " + this.weaponGauge + " / " + this.weaponGaugeMax + "</span><span><strong style='color:aqua'>+ " + this.weaponGaugeIncreasement(this.equipper.parentMob) + " </strong>(" + this.energyType + ")</span></p>";
+            }
+            else
+            {
+                ttBody += "<p><span>武器能量 " + this.weaponGauge + " / " + this.weaponGaugeMax + "</span><span>"+ this.energyType + "</span></p>";
+            }
+
+        ttBody += "</div><div>"
+
+            // Equip requirement
+            isFirst = true;
+
+            for(stat in this.statRequirements)
+            {
+                if(this.statRequirements[stat] <= 0){continue;}
+                if(isFirst)
+                {
+                    isFirst = false;
+                    ttBody += "<p> 装备需求 " + this.statRequirements[stat] + " " + game.data.statChs[stat] + "</p>"
+                }
+                else
+                {
+                    ttBody += "<p><span style='padding-left:4.5em'>" + this.statRequirements[stat] + " " + game.data.statChs[stat] + "</span></p>"
+                }
+            }
+
+            if(isFirst)
+            {
+                ttBody += "<p>无需求</p>";
+
+            }
+            
+        // Weapon special properties (if any)
+        if(false)
+        {
+            ttBody += "</div><div>"        
+        }
+
+        ttBody += "</div><div>"
+
+            // Base attack
+            ttBody += "<p><span>普通攻击 <strong style=\"color:" + this.linkedItem.getData().color + "\">" + 
+                "小飞弹" + "</strong>" + "</span>"
+            
+            // Cost / Cost per sec
+            rCost = this.getResourceCost(this.equipper);
+            if (rCost.modified) { ttBody += "<span> <strong style='color:aqua'>" + rCost.value.toFixed(0) + "</strong> 法力 (" + (rCost.value / atkTime.value).toFixed(1) + " 每秒)</span></p>"; }
+            else                { ttBody += "<span> " + rCost.value.toFixed(0) + " 法力 (" + (rCost.value / atkTime.value).toFixed(1) + " 每秒)</span></p>"; }
+            
+
+            // description - todo: generate description by weapon (varing numbers)
+            ttBody += "<p><strong style='color:darkturquoise'>" + "释放3颗飞弹飞向周围的敌人，具有追踪效果。每颗造成 3-5 点自然伤害。" +
+                "</strong></p>";
+
+        ttBody += "</div><div>"
+
+            // Special attack
+            ttBody += "<p><span>特殊攻击 <strong style=\"color:" + this.linkedItem.getData().color + "\">" + 
+                "广域治疗" + "</strong>" + "</span>"
+            
+            // Energy cost
+            ttBody += "<span> " + this.weaponGaugeMax + " 能量</span></p>";
+
+            // description - todo: generate description by weapon (varing numbers)
+            ttBody += "<p><strong style='color:darkturquoise'>" + 
+                "在自身周围产生一片花田，每 1.2 秒治愈周围 64px 范围内最多三名生命值最低的队友 6 点HP，持续 2.4 秒（3跳）。" +
+                "</strong></p>";
+
+        ttBody += "</div><div>"
+
+            ttBody += "<p style='color: gold;'>" + 
+                this.linkedItem.getData().toolTipText + "</p>"
+        
+        ttBody += "</div>"
+
+        game.UIManager.showToolTip({
+            title: this.linkedItem.getData().showName,
+            bodyText: ttBody,
+            titleColor: this.linkedItem.getData().color,
+        });
+    },
 });
 
 // TODO: refactory the weapons code, make the base class more useful.
@@ -85,6 +333,12 @@ game.Weapon.TestStaff = game.Weapon.base.extend
         this.name = "test staff";
 
         this.power = settings.power || 5;
+
+        // stats
+        this.baseAttackMin = this.power;
+        this.baseAttackMax = this.power;
+        this.energyType = "1x 魔力";
+        this.damageType = 'fire';
 
         if(me.pool.exists("testFireball") === false)
         {
@@ -123,6 +377,12 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
         this.name = "test boss staff";
 
         this.power = settings.power || 5;
+
+        // stats
+        this.baseAttackMin = this.power;
+        this.baseAttackMax = this.power;
+        this.energyType = "1x 魔力";
+        this.damageType = 'fire';
 
         if(me.pool.exists("testFireball") === false)
         {
@@ -236,6 +496,12 @@ game.Weapon.TestHomingStaff = game.Weapon.base.extend
 
         this.power = settings.power || 3;
 
+        // stats
+        this.baseAttackMin = this.power;
+        this.baseAttackMax = this.power;
+        this.energyType = "1x 魔力";
+        this.damageType = 'ice';
+
         if(me.pool.exists("testHomingIceball") === false)
         {
             me.pool.register("testHomingIceball", game.Spell.TestHomingIceball, true);
@@ -276,6 +542,13 @@ game.Weapon.TestHealStaff = game.Weapon.base.extend
         this.name = "test staff";
 
         this.power = settings.power || 15;
+        this.manaCost = 10;
+
+        // stats
+        this.baseAttackMin = this.power;
+        this.baseAttackMax = this.power;
+        this.energyType = "1x 魔力";
+        this.damageType = 'heal';
 
         if(me.pool.exists("testHealBeam") === false)
         {
@@ -367,6 +640,13 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
         this.minPower = settings.minPower || 3;
         this.maxPower = settings.maxPower || 5;
         this.targetCount = settings.targetCount || 3;
+        this.manaCost = 6;
+
+        // stats
+        this.baseAttackMin = this.minPower * this.targetCount;
+        this.baseAttackMax = this.maxPower * this.targetCount;
+        this.energyType = "1x 魔力";
+        this.damageType = 'nature';
 
         // Stat requirements
         this.statRequirements = { mag: 5 };
@@ -428,6 +708,12 @@ game.Weapon.DPSHomingStaff = game.Weapon.base.extend
         this.name = "dps test staff";
 
         this.power = settings.power || 3;
+
+        // stats
+        this.baseAttackMin = this.power;
+        this.baseAttackMax = this.power;
+        this.energyType = "1x 魔力";
+        this.damageType = 'ice';
 
         if(me.pool.exists("testHomingIceball") === false)
         {
@@ -497,6 +783,12 @@ game.Weapon.TestShield = game.Weapon.base.extend
         this.stats.vit = 3;
 
         this.power = settings.power || 5;
+
+        // stats
+        this.baseAttackMin = this.power;
+        this.baseAttackMax = this.power;
+        this.energyType = "1x 魔力";
+        this.damageType = 'knock';
 
         if(me.pool.exists("testFireball") === false)
         {
