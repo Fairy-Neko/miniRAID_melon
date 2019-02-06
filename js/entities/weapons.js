@@ -231,7 +231,7 @@ game.Weapon.base = game.Equipable.extend
             else                { ttBody += "<span>" + atkTime.value.toFixed(1) + " 秒</span></p>"; }
             
             dpsR = [dmgR.value[0] / atkTime.value, dmgR.value[1] / atkTime.value];
-            ttBody += "<p>每秒伤害 " + dpsR[0].toFixed(1) + " - " + dpsR[1].toFixed(1) + "</p>";
+            ttBody += "<p>每秒伤害 " + ((dpsR[0] + dpsR[1]) / 2.0).toFixed(1) + "</p>";
 
             // Attack range
             actRange = this.getAttackRange(this.equipper);
@@ -290,7 +290,6 @@ game.Weapon.base = game.Equipable.extend
             if (rCost.modified) { ttBody += "<span> <strong style='color:aqua'>" + rCost.value.toFixed(0) + "</strong> 法力 (" + (rCost.value / atkTime.value).toFixed(1) + " 每秒)</span></p>"; }
             else                { ttBody += "<span> " + rCost.value.toFixed(0) + " 法力 (" + (rCost.value / atkTime.value).toFixed(1) + " 每秒)</span></p>"; }
             
-
             // description - todo: generate description by weapon (varing numbers)
             ttBody += "<p><strong style='color:darkturquoise'>" + "释放3颗飞弹飞向周围的敌人，具有追踪效果。每颗造成 3-5 点自然伤害。" +
                 "</strong></p>";

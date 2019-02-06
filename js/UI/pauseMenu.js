@@ -618,6 +618,8 @@ game.menu.unequipFromIdArray = function(idArray, obj)
             // Unequip it
             if(game.data.backend.playerList[idArray[1]][propDict[idArray[2]]].slots[idArray[3]] == obj)
             {
+                obj.equipper = undefined;
+                obj.linkedItem.equipper = undefined;
                 game.data.backend.playerList[idArray[1]][propDict[idArray[2]]].slots[idArray[3]] = undefined;
             }
         }
@@ -627,6 +629,8 @@ game.menu.unequipFromIdArray = function(idArray, obj)
             // Unequip it
             if(game.data.backend.playerList[idArray[1]][propDict[idArray[2]]] == obj)
             {
+                obj.equipper = undefined;
+                obj.linkedItem.equipper = undefined;
                 game.data.backend.playerList[idArray[1]][propDict[idArray[2]]] = undefined;
             }
         }
