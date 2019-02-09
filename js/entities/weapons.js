@@ -81,32 +81,32 @@ game.Weapon.base = game.Equipable.extend
 
     },
 
-    getDamageRange: function(mobData)
+    getDamage: function(mobData, dmg, dmgType)
     {
         if(!mobData)
         {
-            return {modified: false, value: [this.baseAttackMin, this.baseAttackMax]};
+            return {modified: false, value: dmg};
         }
 
         modified = false;
         pwrCorrect = 1.0;
         pwrCorrect *= Math.pow(
             1.0353, 
-            mobData.battleStats.attackPower[game.data.damageType[this.damageType]] + mobData.battleStats.attackPower[this.damageType]);
+            mobData.battleStats.attackPower[game.data.damageType[dmgType]] + mobData.battleStats.attackPower[dmgType]);
         
         if(pwrCorrect > 1.01 || pwrCorrect < 0.99)
         {
             modified = true;
         }
 
-        return {modified: modified, value: [this.baseAttackMin * pwrCorrect, this.baseAttackMax * pwrCorrect]};
+        return {modified: modified, value: dmg * pwrCorrect};
     },
 
-    getAttackTime: function(mobData)
+    getAttackTime: function(mobData, time)
     {
         if(!mobData)
         {
-            return {modified: false, value: this.baseAttackSpeed};
+            return {modified: false, value: time};
         }
 
         modified = false;
@@ -116,14 +116,14 @@ game.Weapon.base = game.Equipable.extend
             modified = true;
         }
         
-        return {modified: modified, value: mobSpd * this.baseAttackSpeed};
+        return {modified: modified, value: mobSpd * time};
     },
 
-    getAttackRange: function(mobData)
+    getAttackRange: function(mobData, range)
     {
         if(!mobData)
         {
-            return {modified: false, value: this.activeRange};
+            return {modified: false, value: range};
         }
 
         modified = false;
@@ -132,14 +132,14 @@ game.Weapon.base = game.Equipable.extend
             modified = true;
         }
         
-        return {modified: modified, value: mobData.battleStats.attackRange + this.activeRange};
+        return {modified: modified, value: mobData.battleStats.attackRange + range};
     },
 
-    getResourceCost: function(mobData)
+    getResourceCost: function(mobData, cost)
     {
         if(!mobData)
         {
-            return {modified: false, value: this.manaCost};
+            return {modified: false, value: cost};
         }
 
         modified = false;
@@ -148,17 +148,46 @@ game.Weapon.base = game.Equipable.extend
             modified = true;
         }
         
-        return {modified: modified, value: mobData.modifiers.resourceCost * this.manaCost};
+        return {modified: modified, value: mobData.modifiers.resourceCost * cost};
     },
 
-    getBaseAttackDesc: function(mobData)
+    getMobDataSafe(mobData, entry, defaultValue)
     {
-
+        if(mobData)
+        {
+            len = entry.length;
+            currentObj = mobData;
+            for(var i = 0; i < len; i++)
+            {
+                currentObj = currentObj[entry[i]];
+                if(!currentObj)
+                {
+                    return defaultValue;
+                }
+            }
+            return currentObj;
+        }
+        return defaultValue;
     },
 
-    getSpecialAttackDesc: function(mobData)
+    _getBaseAttackDesc: function(mobData)
     {
+        if(this.getBaseAttackDesc)
+        {
+            return this.getBaseAttackDesc(mobData);
+        }
 
+        return {title: "攻击", body: "无描述。"}
+    },
+
+    _getSpecialAttackDesc: function(mobData)
+    {
+        if(this.getSpecialAttackDesc)
+        {
+            return this.getSpecialAttackDesc(mobData);
+        }
+
+        return {title: "无", body: "这个武器没有特殊攻击。"}
     },
 
     showToolTip: function()
@@ -186,69 +215,89 @@ game.Weapon.base = game.Equipable.extend
         //
         // ─── BASIC PROPERTIES ────────────────────────────────────────────
         //
-          
-        ttBody += "<div>"
+        
+        th = game.helper.toolTip;
 
-            // Item Level - Rarity
-            ttBody += "<p><span style='display:flex'>" + 
-                "<strong style=\"width:4.5em; color:" + game.data.rarityColor[this.linkedItem.getData().rarity] +
-                "\">" + game.data.rarityChs[this.linkedItem.getData().rarity] + "</strong>" +
-                "阶级" + this.linkedItem.getData().level + " </span>";
+        ttBody += th.beginSection();
 
-            // Primary class - Sub class
-            ttBody += "<span>" + game.data.ItemPClassChs[this.linkedItem.getData().pClass];
-            if(this.linkedItem.getData().sClass !== "")
-            {
-                ttBody += " - " + game.data.ItemSClassChs[this.linkedItem.getData().sClass];
-            }
-            ttBody += "</span></p>"
-            
-            // Attack power (type)
+            // Item Level - Rarity / Primary class - Sub class
+            ttBody += th.row(
+                th.column(
+                    th.colored(
+                        game.data.rarityChs[this.linkedItem.getData().rarity],
+                        game.data.rarityColor[this.linkedItem.getData().rarity],
+                        'width: 4.5em;'
+                    ) + 
+                    "阶级 " + this.linkedItem.getData().level
+                    , 'display:flex;') +
+                th.column(
+                    game.data.ItemPClassChs[this.linkedItem.getData().pClass] + 
+                    (
+                        this.linkedItem.getData().sClass !== "" ? 
+                        (" - " + game.data.ItemSClassChs[this.linkedItem.getData().sClass]) : 
+                        ("")
+                    )
+                )
+            );
+
+            // Attack power (type) & Attack time
             attackType = this.damageType;
+            dmgMin = this.getDamage(this.equipper, this.baseAttackMin, attackType);
+            dmgMax = this.getDamage(this.equipper, this.baseAttackMax, attackType);
+            atkTime = this.getAttackTime(this.equipper, this.baseAttackSpeed);
 
-            ttBody += "<p><span>";
+            ttBody += th.row(
+                th.column(
+                    "攻击伤害 " +
+                    th.colored(
+                        sprintf("%.1f - %.1f ", dmgMin.value, dmgMax.value),
+                        dmgMin.modified ? 'aqua' : game.data.damageColor[attackType]
+                    ) + 
+                    th.colored(
+                        game.data.damageTypeString[attackType],
+                        game.data.damageColor[attackType]
+                    )
+                ) + 
+                th.column(
+                    th.colored(
+                        atkTime.value.toFixed(1),
+                        atkTime.modified ? 'aqua' : 'white'
+                    ) + " 秒"
+                )
+            );
             
-            dmgR = this.getDamageRange(this.equipper);
-            console.log(dmgR);
-            if(dmgR.modified)
-            {
-                ttBody += 
-                    "攻击伤害<strong style = \"color: aqua\"> " + 
-                    dmgR.value[0].toFixed(1) + " - " + dmgR.value[1].toFixed(1) + " </strong><strong style=\"color:" + game.data.damageColor[attackType] + "\"> " + 
-                    game.data.damageTypeString[attackType] + " </strong></span>";
-            }
-            else
-            {
-                ttBody += 
-                    "攻击伤害<strong style = \"color: " + game.data.damageColor[attackType] + "\"> " + 
-                    dmgR.value[0].toFixed(1) + " - " + dmgR.value[1].toFixed(1) + " " + 
-                    game.data.damageTypeString[attackType] + " </strong></span>";
-            }
-            
-            // Attack time
-            atkTime = this.getAttackTime(this.equipper);
-            if(atkTime.modified){ ttBody += "<span><strong style='color:aqua'>" + atkTime.value.toFixed(1) + "</strong> 秒</span></p>"; }
-            else                { ttBody += "<span>" + atkTime.value.toFixed(1) + " 秒</span></p>"; }
-            
-            dpsR = [dmgR.value[0] / atkTime.value, dmgR.value[1] / atkTime.value];
-            ttBody += "<p>每秒伤害 " + ((dpsR[0] + dpsR[1]) / 2.0).toFixed(1) + "</p>";
+            // DPS
+            dpsR = [dmgMin.value / atkTime.value, dmgMax.value / atkTime.value];
+            ttBody += th.row(sprintf("每秒伤害 %.1f", (dpsR[0] + dpsR[1]) / 2.0))
 
             // Attack range
-            actRange = this.getAttackRange(this.equipper);
-            if (actRange.modified)  { ttBody += "<p>攻击距离 <strong style='color:aqua'>" + actRange.value.toFixed(0) + "</strong> px</p>"; }
-            else                    { ttBody += "<p>攻击距离 " + actRange.value.toFixed(0) + " px</p>"; }
+            actRange = this.getAttackRange(this.equipper, this.activeRange);
+            ttBody += th.row(th.column(
+                "攻击距离 " + 
+                th.colored(
+                    actRange.value.toFixed(0),
+                    actRange.modified ? 'aqua' : 'white'
+                ) + " px"
+            ));
 
             // Energy statement
-            if(this.equipper)
-            {
-                ttBody += "<p><span>武器能量 " + this.weaponGauge + " / " + this.weaponGaugeMax + "</span><span><strong style='color:aqua'>+ " + this.weaponGaugeIncreasement(this.equipper.parentMob) + " </strong>(" + this.energyType + ")</span></p>";
-            }
-            else
-            {
-                ttBody += "<p><span>武器能量 " + this.weaponGauge + " / " + this.weaponGaugeMax + "</span><span>"+ this.energyType + "</span></p>";
-            }
+            ttBody += th.row(
+                th.column(
+                    sprintf("武器能量 %d / %d", this.weaponGauge, this.weaponGaugeMax)
+                ) + 
+                th.column(
+                    this.equipper ? 
+                    (
+                        th.colored("+ " + this.weaponGaugeIncreasement(this.equipper.parentMob), 'aqua') +
+                        sprintf(" (%s)", this.energyType)
+                    ) : 
+                    (
+                        this.energyType
+                    )
+                )
+            );
 
-        ttBody += "</div><div>"
+        ttBody += th.switchSection();
 
             // Equip requirement
             isFirst = true;
@@ -259,61 +308,81 @@ game.Weapon.base = game.Equipable.extend
                 if(isFirst)
                 {
                     isFirst = false;
-                    ttBody += "<p> 装备需求 " + this.statRequirements[stat] + " " + game.data.statChs[stat] + "</p>"
+                    ttBody += th.row(sprintf("装备需求 %d %s", this.statRequirements[stat], game.data.statChs[stat]))
                 }
                 else
                 {
-                    ttBody += "<p><span style='padding-left:4.5em'>" + this.statRequirements[stat] + " " + game.data.statChs[stat] + "</span></p>"
+                    ttBody += th.row(th.column(sprintf("%d %s", this.statRequirements[stat], game.data.statChs[stat]), 'padding-left:4.5em'));
                 }
             }
 
             if(isFirst)
             {
-                ttBody += "<p>无需求</p>";
+                ttBody += th.row("无需求");
 
             }
             
         // Weapon special properties (if any)
         if(false)
         {
-            ttBody += "</div><div>"        
+            ttBody += th.switchSection();        
         }
 
-        ttBody += "</div><div>"
+        ttBody += th.switchSection();
 
             // Base attack
-            ttBody += "<p><span>普通攻击 <strong style=\"color:" + this.linkedItem.getData().color + "\">" + 
-                "小飞弹" + "</strong>" + "</span>"
-            
-            // Cost / Cost per sec
-            rCost = this.getResourceCost(this.equipper);
-            if (rCost.modified) { ttBody += "<span> <strong style='color:aqua'>" + rCost.value.toFixed(0) + "</strong> 法力 (" + (rCost.value / atkTime.value).toFixed(1) + " 每秒)</span></p>"; }
-            else                { ttBody += "<span> " + rCost.value.toFixed(0) + " 法力 (" + (rCost.value / atkTime.value).toFixed(1) + " 每秒)</span></p>"; }
-            
-            // description - todo: generate description by weapon (varing numbers)
-            ttBody += "<p><strong style='color:darkturquoise'>" + "释放3颗飞弹飞向周围的敌人，具有追踪效果。每颗造成 3-5 点自然伤害。" +
-                "</strong></p>";
+            baseDesc = this._getBaseAttackDesc(this.equipper);
+            rCost = this.getResourceCost(this.equipper, this.manaCost);
 
-        ttBody += "</div><div>"
+            ttBody += th.row(
+                th.column(
+                    "普通攻击 " + 
+                    th.colored(
+                        baseDesc.title,
+                        this.linkedItem.getData().color
+                    )
+                ) + 
+                th.column(
+                    th.colored(
+                        rCost.value.toFixed(0), 
+                        (rCost.modified) ? 'aqua' : 'white'
+                    ) + 
+                    " 法力 (" +
+                    (rCost.value / atkTime.value).toFixed(1) + " 每秒)"
+                )
+            )
+            ttBody += th.row(
+                baseDesc.body,
+                'color:darkturquoise; display:block;'
+            );
 
-            // Special attack
-            ttBody += "<p><span>特殊攻击 <strong style=\"color:" + this.linkedItem.getData().color + "\">" + 
-                "广域治疗" + "</strong>" + "</span>"
-            
-            // Energy cost
-            ttBody += "<span> " + this.weaponGaugeMax + " 能量</span></p>";
+        ttBody += th.switchSection();
 
-            // description - todo: generate description by weapon (varing numbers)
-            ttBody += "<p><strong style='color:darkturquoise'>" + 
-                "在自身周围产生一片花田，每 1.2 秒治愈周围 64px 范围内最多三名生命值最低的队友 6 点HP，持续 2.4 秒（3跳）。" +
-                "</strong></p>";
+            spDesc = this._getSpecialAttackDesc(this.equipper);
 
-        ttBody += "</div><div>"
+            ttBody += th.row(
+                th.column(
+                    "特殊攻击 " + 
+                    th.colored(
+                        spDesc.title,
+                        this.linkedItem.getData().color
+                    )
+                ) + 
+                th.column(
+                    sprintf("%d 能量", this.weaponGaugeMax)
+                )
+            )
+            ttBody += th.row(
+                spDesc.body,
+                'color:darkturquoise; display:block;'
+            );
+
+        ttBody += th.switchSection();
 
             ttBody += "<p style='color: gold;'>" + 
                 this.linkedItem.getData().toolTipText + "</p>"
         
-        ttBody += "</div>"
+        ttBody += th.endSection();
 
         game.UIManager.showToolTip({
             title: this.linkedItem.getData().showName,
@@ -549,6 +618,19 @@ game.Weapon.TestHealStaff = game.Weapon.base.extend
         this.energyType = "1x 魔力";
         this.damageType = 'heal';
 
+        this.getBaseAttackDesc = function(mobData)
+        {
+            // TODO: implement those in mob data
+            body = sprintf(
+                "恢复目标 %d 点HP，并跳转至当前 %dpx 内生命值最低的另一名队伍成员。<br/>每次跳转都会使治疗量减少当前的40%%。<br/>最多跳转 %d 次 （ %d 个目标 ）。",
+                this.getDamage(mobData, this.power, 'heal').value,
+                this.getAttackRange(mobData, this.activeRange).value,
+                2 + this.getMobDataSafe(mobData, ['bullets'], 0),
+                3 + this.getMobDataSafe(mobData, ['bullets'], 0)
+            );
+            return {title: "联结治疗", body: body};
+        }
+
         if(me.pool.exists("testHealBeam") === false)
         {
             me.pool.register("testHealBeam", game.Spell.TestHealBeam, true);
@@ -654,6 +736,32 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
         this.weaponGaugeMax = 15;
         this.weaponGaugeIncreasement = function(mob) { return mob.data.baseStats.mag; }
 
+        // Description
+        this.getBaseAttackDesc = function(mobData)
+        {
+            // TODO: implement those in mob data
+            body = sprintf(
+                "释放 %d 颗飞弹飞向周围的敌人，具有追踪效果。每颗将造成 %d-%d 点自然伤害。",
+                3 + this.getMobDataSafe(mobData, ['bullets'], 0),
+                this.getDamage(mobData, 3, 'nature').value,
+                this.getDamage(mobData, 5, 'nature').value
+            );
+            return {title: "小飞弹", body: body};
+        }
+
+        this.getSpecialAttackDesc = function(mobData)
+        {
+            body = sprintf(
+                "在自身周围产生一片花田，每 %.1f 秒治愈周围 %dpx 范围内最多三名生命值最低的队友 %d 点HP，持续 %.1f 秒（3跳）。",
+                this.getAttackTime(mobData, 1.2).value,
+                64, // TODO: extraRange
+                this.getDamage(mobData, 6, 'heal').value,
+                this.getAttackTime(mobData, 2.4).value
+            );
+
+            return {title: "广域治疗", body: body};
+        }
+
         if(me.pool.exists("chibiFairyLampBullet") === false)
         {
             me.pool.register("chibiFairyLampBullet", game.Spell.ChibiFairyLamp, true);
@@ -690,7 +798,7 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
         settings.power = game.helper.getRandomInt(this.minPower, this.maxPower + 1);
         // healing
         me.game.world.addChild(me.pool.pull("chibiFairyLampSpecial", mob.renderAnchorPos.x, mob.renderAnchorPos.y, mob, settings));
-      },
+    },
 
     grabTargets: function(mob)
     {
@@ -713,6 +821,18 @@ game.Weapon.DPSHomingStaff = game.Weapon.base.extend
         this.baseAttackMax = this.power;
         this.energyType = "1x 魔力";
         this.damageType = 'ice';
+
+        // Description
+        this.getBaseAttackDesc = function(mobData)
+        {
+            // TODO: implement those in mob data
+            body = sprintf(
+                "发射冰刺造成 %d 点冰霜伤害，并使目标减速80%%，持续1秒。<br/><br/>攻击有 20%% 几率使你获得<strong style='color:lightsalmon'>冰川尖刺</strong>增益，使你的下一次冰刺造成<strong style='color:lightsalmon'> %d </strong>点冰霜伤害，并使目标减速99%%，持续1.5秒。<br/>每5次攻击必定会触发冰川尖刺。<br/>被冰川尖刺影响的普通攻击不会触发冰川尖刺。",
+                this.getDamage(mobData, this.power, 'ice').value,
+                this.getDamage(mobData, this.power, 'ice').value * 10
+            );
+            return {title: "冰刺", body: body};
+        }
 
         if(me.pool.exists("testHomingIceball") === false)
         {

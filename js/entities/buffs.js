@@ -261,8 +261,8 @@ game.Buff.IceSpikeTriggered = game.Buff.base.extend
 
         this.toolTip = 
         {
-            title: "冰刺", 
-            text: "你的下一次冰属性攻击造成1000%的伤害，并拥有额外的减速效果。"
+            title: "冰川尖刺", 
+            text: "你的下一次冰刺造成1000%的伤害，并拥有额外的减速效果。"
         };
     },
 

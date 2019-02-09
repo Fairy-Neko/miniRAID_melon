@@ -1313,7 +1313,7 @@ game.Equipable = game.MobListener.extend
 
         this.slots = [undefined, undefined, undefined];
 
-        this.baseAttackSpeed = settings.baseAttackSpeed || 0.2;
+        this.baseAttackSpeed = settings.baseAttackSpeed || 1.3;
         this.statRequirements = {
             vit: 0,
             str: 0,

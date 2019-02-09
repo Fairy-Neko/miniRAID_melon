@@ -154,7 +154,7 @@ var game = {
         },
 
         rarityChs: ["垃圾", "普通", "优秀", "精良", "我编不出来了", "之后再补吧"],
-        rarityColor: ["#888", "#fff", "#3f3", "#33f", "#fb3", "#faa"],
+        rarityColor: ["#888", "#fff", "#3f3", "#3af", "#fb3", "#faa"],
 
         weaponSubType: {
             common: "common",
@@ -403,5 +403,46 @@ var game = {
                 return [a[0] * Math.cos(rad) - a[1] * Math.sin(rad), a[1] * Math.cos(rad) + a[0] * Math.sin(rad)];
             },
         },
+
+        toolTip:
+        {
+            beginSection: function()
+            {
+                return "<div>";
+            },
+
+            switchSection: function()
+            {
+                return "</div><div>";
+            },
+
+            endSection: function()
+            {
+                return "</div>";
+            },
+
+            row: function(text, style)
+            {
+                if(style)
+                {
+                    return "<p style = '" + style + "'>" + text + "</p>";
+                }
+                return "<p>" + text + "</p>";
+            },
+
+            column: function(text, style)
+            {
+                if(style)
+                {
+                    return "<span style = '" + style + "'>" + text + "</span>";
+                }
+                return "<span>" + text + "</span>";
+            },
+
+            colored: function(text, color, style)
+            {
+                return "<strong style='color:" + color + ";" + style + "'>" + text + "</strong>"
+            },
+        }
     },
 };

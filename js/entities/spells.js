@@ -402,14 +402,14 @@ game.Spell.TestHomingIceball = game.Spell.Projectile.extend
             if(this.power > 30){
                 other.receiveBuff({
                     source: this.source,
-                    buff: new game.Buff.IceSpikeDebuff({time: 0.75}),
+                    buff: new game.Buff.IceSpikeDebuff({time: 1.5}),
                     popUp: true,
                 })
             }
             else{
                 other.receiveBuff({
                     source: this.source,
-                    buff: new game.Buff.IceSlowed({time: 0.15}),
+                    buff: new game.Buff.IceSlowed({time: 1.0}),
                     popUp: false, //Annoying!! (x
                 })
             }
