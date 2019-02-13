@@ -624,6 +624,23 @@ game.Spell.TestStarBomb = game.Spell.base.extend
                     });
                 }
             }
+
+            // Spread a disease
+            if(game.Mobs.checkAlive(this.target))
+            {
+                this.target.receiveBuff({
+                    source: this.source,
+                    buff: new game.Buff.LifeDecay({
+                        time: 6,
+                        damageTotal: this.power / 4,
+                        gap: 2.0,
+    
+                        name: "摇摆疫病",
+                    }),
+                    popUp: true,
+                });
+            }
+            
             this.destroy();
             return;
         }

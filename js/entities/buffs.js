@@ -208,7 +208,8 @@ game.Buff.Bloodlust = game.Buff.base.extend
         this.toolTip = 
         {
             title: "嗜血术", 
-            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%" + "<br/>生命值上限提高" + Math.ceil((Math.pow(1.1, this.stacks) - 1.0) * 100) + "%",
+            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) 
+                + "%" + "<br/>生命值上限提高" + Math.ceil((Math.pow(1.1, this.stacks) - 1.0) * 100) + "%",
         };
     },
 
@@ -219,7 +220,8 @@ game.Buff.Bloodlust = game.Buff.base.extend
         this.toolTip = 
         {
             title: "嗜血术", 
-            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + "%" + "<br/>生命值上限提高" + Math.ceil((Math.pow(1.5, this.stacks) - 1.0) * 100) + "%",
+            text: "攻击速度提升" + Math.ceil((Math.pow(1.4, this.stacks) - 1.0) * 100) + 
+                "%" + "<br/>生命值上限提高" + Math.ceil((Math.pow(1.5, this.stacks) - 1.0) * 100) + "%",
         };
     },
 
@@ -361,7 +363,9 @@ game.Buff.LifeRegen = game.Buff.base.extend
             this.toolTip = 
             {
                 title: this.name || "生命之种", 
-                text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值，" + "<br/>并提高" + this.vitIncrease + "点体格。",
+                text: "在" + settings.time + "秒内回复共计" + 
+                    this.healPower * this.healCountTotal + 
+                    "点生命值，" + "<br/>并提高" + this.vitIncrease + "点体格。",
             };
         }
         else
@@ -369,7 +373,8 @@ game.Buff.LifeRegen = game.Buff.base.extend
             this.toolTip = 
             {
                 title: this.name || "生命之种", 
-                text: "在" + settings.time + "秒内回复共计" + this.healPower * this.healCountTotal + "点生命值。",
+                text: "在" + settings.time + "秒内回复共计" + 
+                this.healPower * this.healCountTotal + "点生命值。",
             };
         }
     },
@@ -392,6 +397,97 @@ game.Buff.LifeRegen = game.Buff.base.extend
                 heal: this.healPower,
                 spell: this.spellDummy,
             });
+        }
+    },
+});
+
+game.Buff.LifeDecay = game.Buff.base.extend
+({
+    init: function(settings)
+    {
+        settings.name = settings.name || "moemoekyu"; // for fun
+        settings.time = settings.time || 6.0;
+        settings.stacks = settings.stacks || 1;
+        settings.color = settings.color || "#D0104C";
+        settings.popUp = settings.popUp || false;
+        settings.popupName = settings.popUpName || "moe";
+
+        this._super(game.Buff.base, 'init', [settings]);
+
+        this.damageTotal = settings.damageTotal;
+        this.power = Math.ceil(settings.damageTotal / (settings.time / settings.gap)) || 3;
+        this.gap = settings.gap || 2;
+        this.countTotal = Math.floor(settings.time / settings.gap);
+        
+        this.timer = 0.0;
+        this.count = 0;
+
+        this.spellDummy = new game.Spell.dummy({
+            source: this.source,
+            name: this.name || "Seed of moe",
+            flags: {
+                isDamage: true,
+                hasTarget: true,
+                overTime: true,
+            }
+        });
+
+        this.toolTip = 
+        {
+            title: this.name || "摇摆疫病", 
+            text: "在" + settings.time + "秒内受到共计" + this.power * this.countTotal + 
+                "点伤害，" + "<br/>并在结束之后传染至 100px 内两个随机的友方单位。",
+        };
+    },
+
+    onUpdate: function(mob, deltaTime)
+    {
+        this._super(game.Buff.base, 'onUpdate', [mob, deltaTime]);
+
+        this.timer += deltaTime * 0.001;
+
+        for(;this.count < Math.floor(this.timer / this.gap); this.count++)
+        {
+            mob.receiveDamage({
+                source: this.source,
+                damage: {
+                    wind: this.power,
+                }
+            });
+        }
+
+        // Spread the disease
+        if(this.timeRemain < 0)
+        {
+            var gPos = mob.getRenderPos(0.5, 0.5);
+            var targetList = game.units.getUnitList({
+                availableTest: function(a)
+                {
+                    return (a.getRenderPos(0.5, 0.5).distance(gPos) < 100) &&
+                        (a.data.findBuff(this.name) === undefined);
+                },
+                isPlayer: mob.data.isPlayer,
+            });
+
+            for(let i = 0; i < 2; i++)
+            {
+                var targetIndex = game.helper.getRandomInt(0, targetList.length);
+
+                if(game.Mobs.checkAlive(targetList[targetIndex]))
+                {
+                    targetList[targetIndex].receiveBuff({
+                        source: this.source,
+                        buff: new game.Buff.LifeDecay({
+                            time: 6,
+                            damageTotal: this.damageTotal * 2,
+                            gap: 2.0,
+        
+                            name: "摇摆疫病",
+                        }),
+                        popUp: true,
+                    });
+                }
+            }
         }
     },
 });

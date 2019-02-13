@@ -498,7 +498,8 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
                         color: "#FF85C2",
                         toolTip: {
                             title: "流星-分担！",
-                            text: "在3秒后由范围内所有单位分担200点伤害.",
+                            text: "在3秒后由范围内所有单位分担200点伤害." + 
+                                "<br>并在结束后获得摇摆疫病",
                         },
                     }),
                     popUp: true,
@@ -520,7 +521,8 @@ game.Weapon.TestBossStaff = game.Weapon.base.extend
                         color: "#FF85C2",
                         toolTip: {
                             title: "流星-分散！",
-                            text: "在3秒后范围内所有单位受到40点伤害.",
+                            text: "在3秒后范围内所有单位受到40点伤害." + 
+                                "<br>并在结束后获得摇摆疫病",
                         },
                     }),
                     popUp: true,
@@ -622,7 +624,10 @@ game.Weapon.TestHealStaff = game.Weapon.base.extend
         {
             // TODO: implement those in mob data
             body = sprintf(
-                "恢复目标 %d 点HP，并跳转至当前 %dpx 内生命值最低的另一名队伍成员。<br/>每次跳转都会使治疗量减少当前的40%%。<br/>最多跳转 %d 次 （ %d 个目标 ）。",
+                "恢复目标 <strong style='color:lightsalmon'>%d</strong>" + 
+                " 点HP，并跳转至当前 %dpx 内生命值最低的另一名队伍成员。" + 
+                "<br/>每次跳转都会使治疗量减少当前的40%%。<br/>" + 
+                "最多跳转 <strong style='color:lightsalmon'>%d</strong> 次 （ %d 个目标 ）。",
                 this.getDamage(mobData, this.power, 'heal').value,
                 this.getAttackRange(mobData, this.activeRange).value,
                 2 + this.getMobDataSafe(mobData, ['bullets'], 0),
@@ -741,7 +746,8 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
         {
             // TODO: implement those in mob data
             body = sprintf(
-                "释放 %d 颗飞弹飞向周围的敌人，具有追踪效果。每颗将造成 %d-%d 点自然伤害。",
+                "释放 %d 颗飞弹飞向周围的敌人，具有追踪效果。每颗将造成 " + 
+                "<strong style='color:lightsalmon'>%d-%d</strong> 点自然伤害。",
                 3 + this.getMobDataSafe(mobData, ['bullets'], 0),
                 this.getDamage(mobData, 3, 'nature').value,
                 this.getDamage(mobData, 5, 'nature').value
@@ -752,7 +758,9 @@ game.Weapon.ChibiFairyLamp = game.Weapon.base.extend
         this.getSpecialAttackDesc = function(mobData)
         {
             body = sprintf(
-                "在自身周围产生一片花田，每 %.1f 秒治愈周围 %dpx 范围内最多三名生命值最低的队友 %d 点HP，持续 %.1f 秒（3跳）。",
+                "在自身周围产生一片花田，每 %.1f 秒治愈周围 %dpx " + 
+                "范围内最多三名生命值最低的队友 <strong style='color:lightsalmon'>" + 
+                "%d</strong> 点HP，持续 %.1f 秒（3跳）。",
                 this.getAttackTime(mobData, 1.2).value,
                 64, // TODO: extraRange
                 this.getDamage(mobData, 6, 'heal').value,
@@ -827,7 +835,13 @@ game.Weapon.DPSHomingStaff = game.Weapon.base.extend
         {
             // TODO: implement those in mob data
             body = sprintf(
-                "发射冰刺造成 %d 点冰霜伤害，并使目标减速80%%，持续1秒。<br/><br/>攻击有 20%% 几率使你获得<strong style='color:lightsalmon'>冰川尖刺</strong>增益，使你的下一次冰刺造成<strong style='color:lightsalmon'> %d </strong>点冰霜伤害，并使目标减速99%%，持续1.5秒。<br/>每5次攻击必定会触发冰川尖刺。<br/>被冰川尖刺影响的普通攻击不会触发冰川尖刺。",
+                "发射冰刺造成 <strong style='color:lightsalmon'>%d</strong>" + 
+                " 点冰霜伤害，并使目标减速80%%，持续1秒。<br/><br/>" + 
+                "攻击有 20%% 几率使你获得<strong style='color:lightsalmon'>冰川尖刺" + 
+                "</strong>增益，使你的下一次冰刺造成<strong style='color:lightsalmon'>" + 
+                " %d </strong>点冰霜伤害，并使目标减速99%%，持续1.5秒。<br/>每" + 
+                "<strong style='color:lightsalmon'>5</strong>次攻击必定会触发冰川尖刺。" + 
+                "<br/>被冰川尖刺影响的普通攻击不会触发冰川尖刺。",
                 this.getDamage(mobData, this.power, 'ice').value,
                 this.getDamage(mobData, this.power, 'ice').value * 10
             );
