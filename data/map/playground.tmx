@@ -295,8 +295,8 @@
     <property name="minAmount" type="int" value="6"/>
     <property name="type0" value="flowerDice"/>
     <property name="type1" value="dewHerb"/>
-    <property name="type2" value="testIceStaff"/>
-    <property name="type3" value="testShield"/>
+    <property name="type2" value="simpleGrassFlute"/>
+    <property name="type3" value="goldenWoodHarp"/>
     <property name="typeCount" type="int" value="4"/>
     <property name="weight0" type="float" value="1"/>
     <property name="weight1" type="float" value="1"/>

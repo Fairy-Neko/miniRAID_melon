@@ -60,8 +60,14 @@ game.dataBackend.Mob = me.Object.extend
         this.image = settings.image || "magical_girl";
 
         // Stats
-        this.race = settings.race || "unknown";
-        this.class = settings.class || "unknown";
+        if(settings.class)
+        {
+            this.classUID = settings.class;
+            this.race = game.data.classes[this.classUID].race + " / " + game.data.classes[this.classUID].subRace || "unknown";
+            this.class = game.data.classes[this.classUID].className || "unknown";
+            this.mobPrototype = game.helper.funcFromString(game.data.classes[this.classUID].linkedClass);
+        }
+
         this.level = settings.level || 1;
 
         this.availableBP = settings.availableBP || 0;
@@ -255,7 +261,7 @@ game.dataBackend.Mob = me.Object.extend
         this.spells = {};
 
         // Which class should be used when realize this mob ?
-        this.mobPrototype = settings.mobPrototype || game.Mobs.TestMob;
+        this.mobPrototype = this.mobPrototype || settings.mobPrototype || game.Mobs.TestMob;
 
         // I finally added this ... (x)
         this.parentMob = undefined;
@@ -291,11 +297,11 @@ game.dataBackend.Mob = me.Object.extend
 
     getEquipableTags: function(equipmentType)
     {
-        if(this.parentMob)
-        {
-            return this.parentMob.getEquipableTags(equipmentType);
-        }
-        return ["equipment"];
+        // if(this.parentMob)
+        // {
+        //     return this.parentMob.getEquipableTags(equipmentType);
+        // }
+        return game.data.classes[this.classUID]["equippable_"+equipmentType] || ["equipment"];
     },
 
     updateMobBackend: function(mob, dt)
@@ -1244,28 +1250,9 @@ game.Item = game.ToolTipObject.extend
         // If this item has a linked class
         if(game.data.itemList[this.item].linkedClass !== "")
         {
-            foo = this.funcFromString(game.data.itemList[this.item].linkedClass);
+            foo = game.helper.funcFromString(game.data.itemList[this.item].linkedClass);
             this.linkedObject = new foo({linkedItem: this});
         }
-    },
-
-    funcFromString: function(str)
-    {
-        var arr = str.split(".");
-
-        var fn = (window || this);
-        for (var i = 0, len = arr.length; i < len; i++) 
-        {
-            fn = fn[arr[i]];
-        }
-
-        if (typeof fn !== "function") 
-        {
-            throw new Error("function not found");
-        }
-
-        // return fn.bind(fn.prototype); // <- WTF this will not create a new object but modify the prototype
-        return fn;
     },
 
     getData: function()

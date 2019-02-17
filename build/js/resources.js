@@ -50,6 +50,11 @@ game.resources = [
         "src": "data/img/FloraFairy.png"
     },
     {
+        "name": "forestSinger",
+        "type": "image",
+        "src": "data/img/forestSinger.png"
+    },
+    {
         "name": "goldcoin",
         "type": "image",
         "src": "data/img/goldcoin.png"
@@ -140,6 +145,11 @@ game.resources = [
         "src": "data/img/object- layer.png"
     },
     {
+        "name": "projectiles",
+        "type": "image",
+        "src": "data/img/projectiles.png"
+    },
+    {
         "name": "SO_shinePoint",
         "type": "image",
         "src": "data/img/SO_shinePoint.png"
@@ -208,6 +218,11 @@ game.resources = [
         "name": "SmallFont",
         "type": "image",
         "src": "data/fnt/SmallFont.png"
+    },
+    {
+        "name": "classes",
+        "type": "json",
+        "src": "data/json/classes.json"
     },
     {
         "name": "imageSize",

@@ -210,21 +210,21 @@ var game = {
         me.state.set(me.state.PLAY, new game.PlayScreen());
 
         // add our player entity in the entity pool
-        me.pool.register("testMob", game.Mobs.TestMob);
-        me.pool.register("testBoss", game.Mobs.TestBoss);
+        me.pool.register("testMob", game.Mobs.TestMob, true);
+        me.pool.register("testBoss", game.Mobs.TestBoss, true);
         me.pool.register("testIcyZone", game.testIcyZone);
-        me.pool.register("playerSpawnPoint", game.playerSpawnPoint);
+        me.pool.register("playerSpawnPoint", game.playerSpawnPoint, true);
         me.pool.register("levelLoader", game.levelLoader);
-        me.pool.register("clickCollect", game.sceneObject.clickCollect);
+        me.pool.register("clickCollect", game.sceneObject.clickCollect, true);
         // me.pool.register("loot", game.sceneObject.clickCollect);
         me.pool.register("loot", game.sceneObject.loot);
+        me.pool.register("projectile", game.Spell.Projectile, true);
         // me.pool.register("playerSpawnPoint", game.PlayerMobs.test);
 
-        // Load image sizes
+        // Load data tables
         game.data.imageSize = me.loader.getJSON("imageSize");
-
-        // Load item list
         game.data.itemList = me.loader.getJSON("Items");
+        game.data.classes = me.loader.getJSON("classes");
 
         // Init item list with image sizes
         for(var item in game.data.itemList)
@@ -242,7 +242,7 @@ var game = {
 
         // var playerType = [1, 1, 5];
         // var playerType = [2, 1, 4];
-        var playerType = [2, 2, 4];
+        var playerType = [2, 2, 3, 1];
         // var playerType = [0, 0, 1];
 
         // Tank
@@ -255,8 +255,7 @@ var game = {
                 weaponLeft: staff.linkedObject, 
                 weaponRight: shield.linkedObject, 
                 isPlayer: true, health: 120, str: 5, vit: 3, 
-                race: "精灵 / 湖精灵", class: "枪术卫士", 
-                mobPrototype: game.PlayerMobs.ForestElfGuardian, image: "tank_girl2",});
+                class: "forestGuardian", image: "tank_girl2",});
 
             // give them a taunt skill
             tank.spells.taunt = new game.dataBackend.Spell.Taunt({});
@@ -285,8 +284,7 @@ var game = {
                     weaponLeft: lamp.linkedObject, 
                     weaponRight: staff.linkedObject,
                     isPlayer: true, health: 60, vit: 3, mag: 5, int: 2, 
-                    race: "精灵 / 妖精", class: "花香精灵", 
-                    mobPrototype: game.PlayerMobs.FloraFairy}));
+                    class: "floraFairy"}));
         }
 
         // DPS
@@ -294,15 +292,27 @@ var game = {
         {
             var choice = Math.random();
 
-            var staff = new game.Item({item: "testIceStaff"});
+            var staff = new game.Item({item: "cometWand"});
             var lamp = new game.Item({item: "chibiFairyLamp"});
 
             this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(D) girl (R) " + i, 
                 weaponLeft: staff.linkedObject,
                 weaponRight: lamp.linkedObject,
                 isPlayer: true, health: 65, vit: 2, int: 5, 
-                race: "人类 / 魔法师", class: "霜火术士", 
-                mobPrototype: game.PlayerMobs.HumanMageIceFire, image: "magical_girl2"}));
+                class: "humanIFMagican", image: "magical_girl2"}));
+        }
+
+        // Assist
+        for(var i = 0; i < playerType[3]; i++)
+        {
+            var staff = new game.Item({item: "simpleGrassFlute"});
+            var lamp = new game.Item({item: "chibiFairyLamp"});
+
+            this.data.backend.addPlayer(new game.dataBackend.Mob({name: "(A) Singer " + i, 
+                weaponLeft: staff.linkedObject,
+                weaponRight: lamp.linkedObject,
+                isPlayer: true, health: 65, vit: 2, int: 5, 
+                class: "forestSinger"}));
         }
 
         // Init the menu
@@ -404,6 +414,25 @@ var game = {
             },
         },
 
+        funcFromString: function(str)
+        {
+            var arr = str.split(".");
+
+            var fn = (window || this);
+            for (var i = 0, len = arr.length; i < len; i++) 
+            {
+                fn = fn[arr[i]];
+            }
+
+            if (typeof fn !== "function") 
+            {
+                throw new Error("function not found");
+            }
+
+            // return fn.bind(fn.prototype); // <- WTF this will not create a new object but modify the prototype
+            return fn;
+        },
+
         toolTip:
         {
             beginSection: function()
@@ -441,7 +470,11 @@ var game = {
 
             colored: function(text, color, style)
             {
-                return "<strong style='color:" + color + ";" + style + "'>" + text + "</strong>"
+                if(style)
+                {
+                    return "<strong style='color:" + color + ";" + style + "'>" + text + "</strong>"
+                }
+                return "<strong style='color:" + color + ";'>" + text + "</strong>"
             },
         }
     },

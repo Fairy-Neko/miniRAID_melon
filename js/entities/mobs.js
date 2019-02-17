@@ -697,29 +697,37 @@ game.Mobs.base = game.Moveable.extend(
         this.data.receiveHeal(healInfo);
 
         // Show popUp text with overhealing hint
-        if(healInfo.popUp == true && healInfo.heal.total > 0)
+        // if(healInfo.popUp == true && healInfo.heal.total > 0)
+        if(healInfo.popUp == true && healInfo.heal.real > 0)
         {
             var popUpPos = this.getRenderPos(0.5, 0.0);
-            if(healInfo.heal.over > 0)
-            {
-                game.UI.popupMgr.addText({
-                    text: healInfo.heal.real.toString() + (healInfo.isCrit ? " !" : "") + " <" + healInfo.heal.over.toString() + ">",
-                    color: game.data.damageColor.heal,
-                    velX: 64,
-                    posX: popUpPos.x,
-                    posY: popUpPos.y,
-                });
-            }
-            else
-            {
-                game.UI.popupMgr.addText({
-                    text: healInfo.heal.real.toString() + (healInfo.isCrit ? " !" : ""),
-                    color: game.data.damageColor.heal,
-                    velX: 64,
-                    posX: popUpPos.x,
-                    posY: popUpPos.y,
-                });
-            }
+            // if(healInfo.heal.over > 0)
+            // {
+            //     game.UI.popupMgr.addText({
+            //         text: healInfo.heal.real.toString() + (healInfo.isCrit ? " !" : "") + " <" + healInfo.heal.over.toString() + ">",
+            //         color: game.data.damageColor.heal,
+            //         velX: 64,
+            //         posX: popUpPos.x,
+            //         posY: popUpPos.y,
+            //     });
+            // }
+            // else
+            // {
+            //     game.UI.popupMgr.addText({
+            //         text: healInfo.heal.real.toString() + (healInfo.isCrit ? " !" : ""),
+            //         color: game.data.damageColor.heal,
+            //         velX: 64,
+            //         posX: popUpPos.x,
+            //         posY: popUpPos.y,
+            //     });
+            // }
+            game.UI.popupMgr.addText({
+                text: healInfo.heal.real.toString() + (healInfo.isCrit ? " !" : ""),
+                color: game.data.damageColor.heal,
+                velX: 64,
+                posX: popUpPos.x,
+                posY: popUpPos.y,
+            });
             // popUp texts on unit frames
             // fade from left to the the edge of currentHealth
             if(this.data.isPlayer && healInfo.heal.real > 0){

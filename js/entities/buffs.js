@@ -175,7 +175,7 @@ game.Buff.Fired = game.Buff.base.extend
     {
         this._super(game.Buff.base, 'onUpdate', [mob, deltaTime]);
 
-        this.timer += deltaTime;
+        this.timer += deltaTime * 0.001;
 
         for(;this.fireCount < Math.floor(this.timer / this.damageGap); this.fireCount++)
         {

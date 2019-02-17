@@ -5,8 +5,8 @@ game.PlayScreen = me.ScreenObject.extend({
     onResetEvent: function() 
     {
         me.game.viewport.fadeIn("#000", 1);
-        // me.game.world.autoDepth = false;
-        // me.game.world.autoSort = false;
+        me.game.world.autoDepth = false;
+        me.game.world.autoSort = false;
 
         game.units = new game.Mobs.UnitManager();
         // me.game.world.addChild(game.units, 0);

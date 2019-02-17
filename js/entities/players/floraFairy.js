@@ -9,6 +9,7 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
         settings.frameheight = 32;
 
         settings.name = "Flora_Fairy";
+        settings.classUID = 'floraFairy';
 
         settings.shapes = [new me.Rect(0, 0, 20, 20)];
 
@@ -31,7 +32,7 @@ game.PlayerMobs.FloraFairy = game.PlayerMobs.base.extend
         this.isMoving = false;
 
         // Add a spell
-        this.data.spells.floraHeal = new game.dataBackend.Spell.FloraHeal({});
+        // this.data.spells.floraHeal = new game.dataBackend.Spell.FloraHeal({});
 
         this.data.currentFlower = new game.dataBackend.Spell.NekoClawGrass({});
     },

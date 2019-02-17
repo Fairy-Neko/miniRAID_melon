@@ -220,6 +220,8 @@ game.Spell.base = game.Moveable.extend
             // me.collision.check(this);
         }
         this.updateSpell(dt);
+
+        // this.z = 10000;
     },
 
     updateSpell: function(dt) {},
@@ -239,7 +241,7 @@ game.Spell.base = game.Moveable.extend
 
     onDestroy: function(other)
     {
-
+        if(this._o_onDestroy) {return this._o_onDestroy(other);}
     },
 
     onCollision: function(response, other)
@@ -249,50 +251,121 @@ game.Spell.base = game.Moveable.extend
     },
 });
 
+// General properties for projectiles:
+// Source, Target(optional), chasingRange(-1 = inf, 0 = no chase), chasingPower(0 = no chase, 1 = full chase)
+// source listener - onProjectileMobCollision / onProjectileWorldCollision
+// convinent helpers - aoeDamage, aoeBuff
+// methods(all optional) - onCollision, onMobCollision, onWorldCollision, onDead, updateMove
 game.Spell.Projectile = game.Spell.base.extend
 ({
-    init:function (x, y, source, target, settings) 
+    init:function (x, y, source, target, settings)
     {
         settings.name = settings.name || 'Projectile';
 
         this._super(game.Spell.base, 'init', [x, y, source, target, settings]);
 
+        this.chasingRange = settings.chasingRange || 0;
+        this.chasingPower = settings.chasingPower || 0;
+        
+        if(settings.onCollision) { this._o_onCollision = settings.onCollision; }
+        if(settings.onMobCollision) { this._o_onMobCollision = settings.onMobCollision; }
+        if(settings.onWorldCollision) { this._o_onWorldCollision = settings.onWorldCollision; }
+        if(settings.onDestroy) { this._o_onDestroy = settings.onDestroy; }
+        if(settings.onIdle) { this._o_onIdle = settings.onIdle; }
+        if(settings.updateProjectile) { this._o_updateProjectile = settings.updateProjectile; }
+
         this.isTargetPlayer = settings.isTargetPlayer || false;
         this.isTargetEnemy = settings.isTargetEnemy || false;
 
+        if(settings.frames) 
+        {
+            frames = settings.frames;
+            this.renderable.addAnimation("play", frames, settings.frameInterval || 32);
+            this.renderable.setCurrentAnimation("play");
+        }
+
         this.body.collisionType = me.collision.types.PROJECTILE_OBJECT;
 
-        if(this.isTargetPlayer && (!this.isTargetEnemy))
+        if(this.isTargetPlayer || (target.data.isPlayer == true))
         {
             this.body.setCollisionMask(me.collision.types.PLAYER_OBJECT | me.collision.types.WORLD_SHAPE);
         }
-        else if((!this.isTargetPlayer) && this.isTargetEnemy)
+        
+        if(this.isTargetEnemy || (target.data.isPlayer == false))
         {
             this.body.setCollisionMask(me.collision.types.ENEMY_OBJECT | me.collision.types.WORLD_SHAPE);
         }
-        else
+        
+        if(this.isTargetPlayer && this.isTargetEnemy)
         {
             this.body.setCollisionMask(me.collision.types.PLAYER_OBJECT | me.collision.types.ENEMY_OBJECT | me.collision.types.WORLD_SHAPE);
+        }
+
+        // Movement
+        this.speed = settings.projectileSpeed || settings.speed || 200;
+        if(game.Mobs.checkExist(this.target))
+        {
+            this.speedVec = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
+        }
+        else if(this.target instanceof me.Vector2d)
+        {
+            this.speedVec = this.target.clone().sub(this.bodyAnchorPos).normalize();
+            this.target = undefined;
+        }
+        else
+        {
+            this.speedVec = (new me.Vector2d(0, 0)).clone().sub(this.bodyAnchorPos).normalize();
         }
     },
 
     updateSpell: function (dt) 
     {
         this.updateProjectile(dt);
+        this.onIdle(dt);
         me.collision.check(this);
         this.body.update(dt);
     },
 
-    updateProjectile: function(dt) {},
+    onIdle: function(dt) { if(this._o_onIdle) {return this._o_onIdle(dt);} },
 
-    onMobCollision: function(other) {},
+    updateProjectile: function(dt) 
+    {
+        if(this._o_updateProjectile)
+        {
+            return this._o_updateProjectile(dt);
+        }
+        // Homing
+        if(  this.target && 
+            (this.chasingRange < 0 || this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).length() < this.chasingRange ))
+        {
+            newVec = this.target.getRenderPos(0.5, 0.5).clone().sub(this.bodyAnchorPos).normalize();
+            this.speedVec = this.speedVec.clone().scale(1 - this.chasingPower).add(newVec.clone().scale(this.chasingPower));
+        }
+
+        this.body.vel.copy(this.speedVec.clone().scale(this.speed * dt * 0.001));
+    },
+
+    dieAfter: function(func, arg, other)
+    {
+        func.apply(this, arg);
+        this.destroy(other);
+    },
+
+    safeDmg: function(target, dmg)
+    {
+        helper.safeDmg(this.source, target, this, dmg);
+    },
+
+    onMobCollision: function(other) { if(this._o_onMobCollision) {return this._o_onMobCollision(other);} },
     onWorldCollision: function(other) 
     {
+        if(this._o_onWorldCollision) {return this._o_onWorldCollision(other);}
         this.destroy(other);
     },
 
     onCollision: function(response, other)
     {
+        if(this._o_onCollision) {return this._o_onCollision(response, other);}
         if(other.body.collisionType === me.collision.types.WORLD_SHAPE)
         {
             this.onWorldCollision(other);
