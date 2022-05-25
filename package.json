@@ -4,7 +4,7 @@
   "main": "main.js",
   "devDependencies": {
     "browser-sync": "^2.24.6",
-    "grunt": "^1.0.1",
+    "grunt": "^1.5.3",
     "grunt-asar": "github:bwin/grunt-asar#update-asar",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-concat": "^1.0.1",
